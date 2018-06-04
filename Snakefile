@@ -3,8 +3,8 @@
 configfile: "config.yaml"
 
 rule all:
-     input:  expand("results/{accession}.bam", accession=config['all_runs']), 
-             "data/GRCh38","results/multiqc_report.html", expand("results/{accession}_fastqc.html", accession=config['all_runs'])
+     input: "results/Homo_sapiens.GRCh38.92.bed", "results/Homo_sapiens.GRCh38.92.genePred", "data/Homo_sapiens.GRCh38.92.gtf", "results/hg38.chrom.sizes", "exe/gtfToGenePred", "exe/genePredToBed" #expand("results/{accession}.bam", accession=config['all_runs']), 
+            # "data/GRCh38","results/multiqc_report.html", expand("results/{accession}_fastqc.html", accession=config['all_runs'])
 
 rule download_sequences:
        input:
@@ -61,9 +61,69 @@ rule samtools_sort:
     input:
         "results/{accession}.bam"
     output:
-        "results/{sample}.sorted.bam"
+        "results/{accession}.sorted.bam"
     params:
         "-m 4G"
     threads: 8
     wrapper:
         "0.23.1/bio/samtools/sort"
+
+rule download_fetchChromSizes:
+     output: "exe/fetchChromSizes"
+     shell: "wget --directory-prefix=exe/ http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/fetchChromSizes"
+
+rule download_gtfToGenePred:
+     output: "exe/gtfToGenePred"
+     shell: "wget --directory-prefix=exe/ http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/gtfToGenePred"
+
+rule download_genePredToBed:
+     output: "exe/genePredToBed"
+     shell: "wget --directory-prefix=exe/ http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/genePredToBed"
+
+rule get_gtf_file:
+     output: "data/Homo_sapiens.GRCh38.92.gtf"
+     shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/gtf/homo_sapiens/Homo_sapiens.GRCh38.92.gtf.gz && gunzip data/Homo_sapiens.GRCh38.92.gtf.gz"
+
+# derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
+
+rule convert_gtf_to_genepred:
+     input:
+         script="exe/gtfToGenePred",
+         gtf="data/Homo_sapiens.GRCh38.92.gtf"
+     output:
+         "results/Homo_sapiens.GRCh38.92.genePred"
+     shell:
+         "{input.script} {input.gtf} {output}"
+
+rule convert_genepred_to_bed12:
+     input:
+         script="exe/genePredToBed",
+         genepred="results/Homo_sapiens.GRCh38.92.genePred"
+     output:
+         "results/Homo_sapiens.GRCh38.92.bed"
+     shell:
+         "{input.script} {input.genepred} {output}"
+
+rule get_chrom_sizes:
+     input:
+         "exe/fetchChromSizes"
+     output:
+         "results/hg38.chrom.sizes"
+     shell:
+         "{input} hg38 > results/hg38.chrom.sizes"
+
+rule get_bedgraph:
+    input:
+        sorted_bam="results/{accession}.sorted.bam",
+        genome_sizes="results/hg28.chrom.sizes"
+    output:
+        "results/{accession}.bedgraph"
+    conda:
+        "envs/bedtools.yaml"
+    benchmark:
+        "benchmarks/genomeCoverageBed_{accession}.txt"
+    shell:
+        "genomeCoverageBed -bg -ibam {input.sorted_bam} -g {input.genome_sizes} -split > {output}"
+
+
+
