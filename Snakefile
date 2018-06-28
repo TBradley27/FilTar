@@ -3,8 +3,7 @@
 configfile: "config.yaml"
 
 rule all:
-     input: "results/Homo_sapiens.GRCh38.92.bed", "results/Homo_sapiens.GRCh38.92.genePred", "data/Homo_sapiens.GRCh38.92.gtf", "results/hg38.chrom.sizes", "exe/gtfToGenePred", "exe/genePredToBed" #expand("results/{accession}.bam", accession=config['all_runs']), 
-            # "data/GRCh38","results/multiqc_report.html", expand("results/{accession}_fastqc.html", accession=config['all_runs'])
+     input: "results/HeLa.utr.full.bed","results/Huh7.utr.full.bed","results/HEK293.utr.full.bed","results/IMR90.utr.full.bed"
 
 rule download_sequences:
        input:
@@ -61,10 +60,12 @@ rule samtools_sort:
     input:
         "results/{accession}.bam"
     output:
-        "results/{accession}.sorted.bam"
+        "results/{accession}.bam.sorted"
     params:
         "-m 4G"
     threads: 8
+    benchmark:
+        "benchmarks/samtools_sort_{accession}.log"
     wrapper:
         "0.23.1/bio/samtools/sort"
 
@@ -82,7 +83,7 @@ rule download_genePredToBed:
 
 rule get_gtf_file:
      output: "data/Homo_sapiens.GRCh38.92.gtf"
-     shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/gtf/homo_sapiens/Homo_sapiens.GRCh38.92.gtf.gz && gunzip data/Homo_sapiens.GRCh38.92.gtf.gz"
+     shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/gtf/homo_sapiens/Homo_sapiens.GRCh38.92.gtf.gz && gunzip data/Homo_sapiens.GRCh38.92.gtf.gz && sed -i 's/^/chr/g' data/Homo_sapiens.GRCh38.92.gtf"
 
 # derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
 
@@ -114,8 +115,8 @@ rule get_chrom_sizes:
 
 rule get_bedgraph:
     input:
-        sorted_bam="results/{accession}.sorted.bam",
-        genome_sizes="results/hg28.chrom.sizes"
+        sorted_bam="results/{accession}.bam.sorted",
+        genome_sizes="results/hg38.chrom.sizes"
     output:
         "results/{accession}.bedgraph"
     conda:
@@ -124,6 +125,107 @@ rule get_bedgraph:
         "benchmarks/genomeCoverageBed_{accession}.txt"
     shell:
         "genomeCoverageBed -bg -ibam {input.sorted_bam} -g {input.genome_sizes} -split > {output}"
+
+rule extend_3utr_HeLa:
+    input:
+       script="exe/identifyDistal3UTR.pl",
+       bed="results/Homo_sapiens.GRCh38.92.bed",
+       bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['HeLa']['mock'])
+    output:
+       "results/HeLa.utr.bed"
+    shell: 
+       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+
+rule extend_3utrs_HEK293:
+    input:
+       script="exe/identifyDistal3UTR.pl",
+       bed="results/Homo_sapiens.GRCh38.92.bed",
+       bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['HEK293']['mock'])
+    output:
+       "results/HEK293.utr.bed"
+    shell:
+       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+
+rule extend_3utrs_Huh7:
+    input:
+       script="exe/identifyDistal3UTR.pl",
+       bed="results/Homo_sapiens.GRCh38.92.bed",
+       bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['Huh7']['mock'])
+    output:
+       "results/Huh7.utr.bed"
+    shell:
+       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+
+rule extend_3utrs_IMR90:
+    input:
+       script="exe/identifyDistal3UTR.pl",
+       bed="results/Homo_sapiens.GRCh38.92.bed",
+       bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['IMR90']['mock'])
+    output:
+       "results/IMR90.utr.bed"
+    shell:
+       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+
+rule identify_APA_sites_HeLa:
+     input:
+        script="exe/predictAPA.pl",
+        bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['HeLa']['mock']),
+        bed="results/HeLa.utr.bed"
+     output:
+        "HeLa.APA.txt"
+     shell:
+        "{input.script} -i {input.bedgraphs} -g 1 -n 2 -u {input.bed}  -o {output}"
+
+
+rule identify_APA_sites_HEK293:
+     input:
+        script="exe/predictAPA.pl",
+        bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['HEK293']['mock']),
+        bed="results/HEK293.utr.bed"
+     output:
+        "HEK293.APA.txt"
+     shell:
+        "{input.script} -i {input.bedgraphs} -g 1 -n 2 -u {input.bed}  -o {output}"
+
+rule identify_APA_sites_Huh7:
+     input:
+        script="exe/predictAPA.pl",
+        bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['Huh7']['mock']),
+        bed="results/Huh7.utr.bed"
+     output:
+        "Huh7.APA.txt"
+     shell:
+        "{input.script} -i {input.bedgraphs} -g 1 -n 4 -u {input.bed}  -o {output}"
+
+rule identify_APA_sites_IMR90:
+     input:
+        script="exe/predictAPA.pl",
+        bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['IMR90']['mock']),
+        bed="results/IMR90.utr.bed"
+     output:
+        "IMR90.APA.txt"
+     shell:
+        "{input.script} -i {input.bedgraphs} -g 1 -n 2 -u {input.bed}  -o {output}"
+
+rule get_bed6_file:
+        input:
+            script="exe/gtf_to_bed.sh",
+            gtf="data/Homo_sapiens.GRCh38.92.gtf"
+        output:
+            "results/Homo_sapiens.GRCh38.92.bed6"
+        shell:
+            "{input.script} {input.gtf} {output}"
+
+rule get_extended_bed_file:
+         input:
+            script="exe/extend_bed.R",
+            normal_bed="results/Homo_sapiens.GRCh38.92.bed6",
+            extended_bed="results/{cell_line}.utr.bed"
+         output:
+            "results/{cell_line}.utr.full.bed"
+         shell:
+             "Rscript {input.script} {input.normal_bed} {input.extended_bed} {output}"
+
 
 
 
