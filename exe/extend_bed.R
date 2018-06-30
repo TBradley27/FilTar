@@ -75,4 +75,49 @@ nonterminal_exons = dplyr::anti_join(normal_bed, terminal_exons)
 
 reannotated_utrs = rbind(nonterminal_exons, term_exons_reannotated)
 
-write.table(reannotated_utrs, file=args[3], quote=FALSE, row.names=FALSE, col.names=FALSE, sep="\t")
+reannotated_utrs = reannotated_utrs[order(reannotated_utrs$id, decreasing=FALSE),]
+
+reannotated_utrs = reannotated_utrs[order(reannotated_utrs$start, decreasing=FALSE),]
+
+desired_order = c('1','2','3','4','5','6','7','X','8','9','11','10','12','13','14','15','16','17','18','20','19','Y','22','21','KI270728.1',
+'KI270727.1',
+'GL000009.2',
+'GL000194.1',
+'GL000205.2',
+'GL000195.1',
+'KI270734.1',
+'GL000213.1',
+'GL000218.1',
+'KI270731.1',
+'KI270721.1',
+'KI270711.1',
+'KI270713.1')
+
+reannotated_utrs$chromosome <- factor( as.character(reannotated_utrs$chromosome), levels=desired_order )
+
+reannotated_utrs = reannotated_utrs[order(reannotated_utrs$chromosome, decreasing=FALSE),]
+
+reannotated_utrs$chromosome = as.character(reannotated_utrs$chromosome)
+
+tx_IDs = reannotated_utrs$id %>% unique()
+
+reorder_bed_files = function (tx_ID) {
+	transcript_specific_bed_records = subset(reannotated_utrs, reannotated_utrs$id == tx_ID)
+        #print(transcript_specific_bed_records)
+        if (transcript_specific_bed_records$strand[1] == '1') {
+           transcript_specific_bed_records = transcript_specific_bed_records[order(transcript_specific_bed_records$start, decreasing=FALSE),]
+	} 
+        else if (transcript_specific_bed_records$strand[1] == '-1' ) {
+           transcript_specific_bed_records = transcript_specific_bed_records[order(transcript_specific_bed_records$start, decreasing=TRUE),]
+	}
+        #print(transcript_specific_bed_records)
+	return (transcript_specific_bed_records)
+	
+}
+
+reannotated_utrs_sorted = map(tx_IDs, reorder_bed_files)
+reannotated_utrs_sorted = ldply(reannotated_utrs_sorted, data.frame) %>% as.tibble()
+
+#print(reannotated_utrs_sorted)
+
+write.table(reannotated_utrs_sorted, file=args[3], quote=FALSE, row.names=FALSE, col.names=FALSE, sep="\t")

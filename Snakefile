@@ -3,7 +3,7 @@
 configfile: "config.yaml"
 
 rule all:
-     input: "results/HeLa.utr.full.bed","results/Huh7.utr.full.bed","results/HEK293.utr.full.bed","results/IMR90.utr.full.bed"
+     input: "results/Homo_sapiens.GRCh38.92.reformatted.bed6","results/HeLa.utr.full.bed","results/Huh7.utr.full.bed","results/HEK293.utr.full.bed","results/IMR90.utr.full.bed"
 
 rule download_sequences:
        input:
@@ -225,6 +225,21 @@ rule get_extended_bed_file:
             "results/{cell_line}.utr.full.bed"
          shell:
              "Rscript {input.script} {input.normal_bed} {input.extended_bed} {output}"
+
+rule reformat_normal_bed_file:
+         input:
+           script="exe/reformat_normal_bed.R",
+           normal_bed="results/Homo_sapiens.GRCh38.92.bed6"
+         output: "results/Homo_sapiens.GRCh38.92.reformatted.bed6"
+         shell:
+             "Rscript {input.script} {input.normal_bed} {output}"
+
+rule find_bed_differences:
+	input: 
+           normal_bed="results/Homo_sapiens.GRCh38.92.reformatted.bed6"
+           extended_bed="results/{cell_line}.utr.full.bed"
+        output: "{cell_line}_bed_file_differences.txt"
+        shell: "diff -y --suppress-common-lines {normal_bed} {extended_bed} > {output}"
 
 
 
