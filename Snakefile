@@ -3,14 +3,28 @@
 configfile: "config.yaml"
 
 rule all:
-     input: "results/Homo_sapiens.GRCh38.92.reformatted.bed6","results/HeLa.utr.full.bed","results/Huh7.utr.full.bed","results/HEK293.utr.full.bed","results/IMR90.utr.full.bed"
+     input: expand("results/{accession}_trimmed.fq.gz", accession=config['all_brain_runs'])
 
 rule download_sequences:
        input:
        output: 
-            "data/{accession}.fastq.gz"
+            "data/{accession, [^_]}.fastq.gz"
        shell: 
-            "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR103/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}.fastq.gz"
+            "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}.fastq.gz"
+
+rule download_first_paired_end_file:
+       input:
+       output:
+           "data/{accession}_1.fastq.gz", 
+       shell:
+          "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_1.fastq.gz"
+
+rule download_second_paired_end_file:
+       input:
+       output:
+           "data/{accession}_2.fastq.gz",
+       shell:
+          "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_2.fastq.gz"
 
 rule fastqc:
        input: "data/{accession}.fastq.gz"
@@ -33,6 +47,21 @@ rule trim_reads:
        shell:
           "trim_galore --output_dir results/  --length 35 --stringency 4 {input}"
 
+rule trim_paired_end_reads:
+       input:
+          file1="data/{accession}_1.fastq.gz",
+          file2="data/{accession}_2.fastq.gz"
+       output:
+           "results/{accession}_trimmed.fq.gz",
+           "results/{accession}.fastq.gz_trimming_report.txt"
+       conda:
+          "envs/trim-galore.yaml"
+       benchmark:
+          "benchmarks/trim-galore_{accession}.log"
+       shell:
+          "trim_galore --output_dir results/ --length 35 --stringency 4 --paired {input.file1} {input.file2}"
+
+
 rule multiqc:
        input:
            expand("results/{accession}_trimmed.fq.gz", accession=config['all_runs'])
@@ -49,7 +78,7 @@ rule map_reads:
            sample=["results/{accession}_trimmed.fq.gz"]
         output:
            "results/{accession}.bam"
-        threads: 12
+        threads: 1
         params: 
             index="data/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index",
             extra=""
@@ -166,6 +195,16 @@ rule extend_3utrs_IMR90:
     shell:
        "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
 
+rule extend_3utrs_brain:
+    input:
+       script="exe/identifyDistal3UTR.pl",
+       bed="results/Homo_sapiens.GRCh38.92.bed",
+       bedgraphs= lambda wildcards: 'results/' + str(config['brain'][wildcards.brain_region]) + '.bedgraph'
+    output:
+       "results/{brain_region}.utr.bed"
+    shell:
+       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+
 rule identify_APA_sites_HeLa:
      input:
         script="exe/predictAPA.pl",
@@ -207,7 +246,18 @@ rule identify_APA_sites_IMR90:
      shell:
         "{input.script} -i {input.bedgraphs} -g 1 -n 2 -u {input.bed}  -o {output}"
 
-rule get_bed6_file:
+rule identify_APA_sites_brain:
+     input:
+        script="exe/predictAPA.pl",
+        bedgraphs= lambda wildcards: 'results/' + str(config['brain'][wildcards.brain_region]),
+        bed="results/{brain_region}.utr.bed"
+     output:
+        "{brain_region}.APA.txt"
+     shell:
+        "{input.script} -i {input.bedgraphs} -g 1 -n 1 -u {input.bed}  -o {output}"
+
+
+rule get_bed6_file: #three_prime_utrs only
         input:
             script="exe/gtf_to_bed.sh",
             gtf="data/Homo_sapiens.GRCh38.92.gtf"
@@ -216,6 +266,16 @@ rule get_bed6_file:
         shell:
             "{input.script} {input.gtf} {output}"
 
+#rule split_bed_files:
+#       input: "results/Homo_sapiens.GRCh38.92.bed6"
+#       output: "results/Homo_sapiens.GRCh38.92.chr{chrom}.bed6"
+#       shell: "awk '$1 == {wildcards.chrom}' {input} {output}"
+
+#rule split_bed_files:
+#       input: "results/{cell_line}.utr.bed"
+#       output: "results/{cell_line}.utr.chr{chrom}.bed"
+#       shell: "awk '$1 == {wildcards.chrom}' {input} {output}"
+
 rule get_extended_bed_file:
          input:
             script="exe/extend_bed.R",
@@ -223,8 +283,10 @@ rule get_extended_bed_file:
             extended_bed="results/{cell_line}.utr.bed"
          output:
             "results/{cell_line}.utr.full.bed"
+         log:
+            "{cell_line}.log"
          shell:
-             "Rscript {input.script} {input.normal_bed} {input.extended_bed} {output}"
+             "Rscript {input.script} {input.normal_bed} {input.extended_bed} {output} 2> {log}"
 
 rule reformat_normal_bed_file:
          input:
@@ -234,12 +296,14 @@ rule reformat_normal_bed_file:
          shell:
              "Rscript {input.script} {input.normal_bed} {output}"
 
-rule find_bed_differences:
-	input: 
-           normal_bed="results/Homo_sapiens.GRCh38.92.reformatted.bed6"
-           extended_bed="results/{cell_line}.utr.full.bed"
-        output: "{cell_line}_bed_file_differences.txt"
-        shell: "diff -y --suppress-common-lines {normal_bed} {extended_bed} > {output}"
+#WARNING: diff has non-standard exit statuses. A non-zero exit status does not mean programme failure
+
+#rule find_bed_differences:
+#	input: 
+#           normal_bed="results/Homo_sapiens.GRCh38.92.reformatted.bed6",
+#           extended_bed="results/{cell_line}.utr.full.bed"
+#	output: "{cell_line}_bed_file_differences.txt"
+#	shell: "diff -y --suppress-common-lines {input.normal_bed} {input.extended_bed} > {output}"
 
 
 
