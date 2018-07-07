@@ -3,30 +3,42 @@
 configfile: "config.yaml"
 
 rule all:
-     input: expand("results/{accession}_trimmed.fq.gz", accession=config['all_brain_runs'])
+     input: expand("results/{accession}.bam", accession=config['all_brain_runs'])
 
-rule download_sequences:
+# insert rule for fasterq-dump and pigz/gzip
+
+rule dowload_fastq_using_SRAtoolkit:
+       input:
+       output: "{accession}.fastq"
+       shell: "fasterq-dump --threads 9 {wildcards.accession}"
+        
+rule compress_fastq_files:
+       input: "{accession}.fastq"
+       output: "{accession}.fastq.gz"
+       shell: "parallel -j 2 pigz ::: {wildcards.accession}*"
+
+rule download_single_end_fastq_file:
        input:
        output: 
             "data/{accession, [^_]}.fastq.gz"
        shell: 
             "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}.fastq.gz"
 
-rule download_first_paired_end_file:
+rule download_first_paired_end_fastq_file:
        input:
        output:
            "data/{accession}_1.fastq.gz", 
        shell:
           "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_1.fastq.gz"
 
-rule download_second_paired_end_file:
+rule download_second_paired_end_fastq_file:
        input:
        output:
            "data/{accession}_2.fastq.gz",
        shell:
           "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_2.fastq.gz"
 
-rule fastqc:
+rule run_fastqc:
        input: "data/{accession}.fastq.gz"
        output: 
             "results/{accession}_fastqc.html",
@@ -34,35 +46,50 @@ rule fastqc:
        conda: "envs/fastqc.yaml"
        shell: "fastqc -o results {input}"
 
-rule trim_reads:
-       input: 
-           "data/{accession}.fastq.gz"
-       output: 
-           "results/{accession}_trimmed.fq.gz",
-           "results/{accession}.fastq.gz_trimming_report.txt"
-       conda: 
-          "envs/trim-galore.yaml"
-       benchmark:
-          "benchmarks/trim-galore_{accession}.log"
-       shell:
-          "trim_galore --output_dir results/  --length 35 --stringency 4 {input}"
+#rule trim_single_end_reads:
+#       input: 
+#           "data/{accession, [^_]}.fastq.gz"
+#       output: 
+#           "results/{accession, [^_]}_trimmed.fq.gz",
+#           "results/{accession, [^_]}.fastq.gz_trimming_report.txt"
+#       conda: 
+#          "envs/trim-galore.yaml"
+#       benchmark:
+#          "benchmarks/trim-galore_{accession, [^_]}.log"
+#       shell:
+#          "trim_galore --output_dir results/  --length 35 --stringency 4 {input}"
 
-rule trim_paired_end_reads:
-       input:
-          file1="data/{accession}_1.fastq.gz",
-          file2="data/{accession}_2.fastq.gz"
-       output:
-           "results/{accession}_trimmed.fq.gz",
-           "results/{accession}.fastq.gz_trimming_report.txt"
-       conda:
-          "envs/trim-galore.yaml"
-       benchmark:
-          "benchmarks/trim-galore_{accession}.log"
-       shell:
-          "trim_galore --output_dir results/ --length 35 --stringency 4 --paired {input.file1} {input.file2}"
+rule run_cutadapt:
+    input:
+        ["data/{sample}_1.fastq.gz", "data/{sample}_2.fastq.gz"]
+    output:
+        fastq1="results/{sample}_trimmed.1.fastq.gz",
+        fastq2="results/{sample}_trimmed.2.fastq.gz",
+        qc="logs/{sample}.qc.txt"
+    params:
+        "-a AGATCGGAAGAGC -q 20 --cores=16" # illumina adapter
+    log:
+        "logs/cutadapt/{sample}.log"
+    shell:
+        "cutadapt {params} -o {output.fastq1} -p {output.fastq2} {input} > {output.qc}"
 
+#rule trim_paired_end_reads:
+#       input:
+#          file1="data/{accession}_1.fastq.gz",
+#          file2="data/{accession}_2.fastq.gz"
+#       output:
+#           "results/{accession}_1_val_1.fq.gz",
+#           "results/{accession}_2_val_2.fq.gz,"
+#           "results/{accession}_1.fastq.gz_trimming_report.txt",
+#           "results/{accession}_2.fastq.gz_trimming_report.txt"
+#       conda:
+#          "envs/trim-galore.yaml"
+#       benchmark:
+#          "benchmarks/trim-galore_{accession}.log"
+#       shell:
+#          "trim_galore --output_dir results/ --length 35 --stringency 4 --paired {input.file1} {input.file2}"
 
-rule multiqc:
+rule run_multiqc:
        input:
            expand("results/{accession}_trimmed.fq.gz", accession=config['all_runs'])
        output: "results/multiqc_report.html"
@@ -73,17 +100,32 @@ rule get_bowtie_index:
         shell:
            "wget --directory-prefix=data/ ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh38/seqs_for_alignment_pipelines/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index.tar.gz"
 
-rule map_reads:
+#rule map_reads:
+#        input:
+#           sample=["results/{accession}_trimmed.fq.gz"]
+#        output:
+#           "results/{accession}.bam"
+#        threads: 1
+#        params: 
+#            index="data/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index",
+#            extra=""
+#        wrapper:
+#            "0.23.1/bio/bowtie2/align"
+
+rule map_paired_end_reads:
         input:
-           sample=["results/{accession}_trimmed.fq.gz"]
+           sample=["results/{accession}_trimmed.1.fastq.gz", "results/{accession}_trimmed.2.fastq.gz"]
         output:
            "results/{accession}.bam"
-        threads: 1
-        params: 
+        log:
+            "logs/bowtie2/{accession}.log"
+        threads: 8
+        params:
             index="data/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index",
             extra=""
         wrapper:
             "0.23.1/bio/bowtie2/align"
+
 
 rule samtools_sort:
     input:
@@ -115,6 +157,7 @@ rule get_gtf_file:
      shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/gtf/homo_sapiens/Homo_sapiens.GRCh38.92.gtf.gz && gunzip data/Homo_sapiens.GRCh38.92.gtf.gz && sed -i 's/^/chr/g' data/Homo_sapiens.GRCh38.92.gtf"
 
 # derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
+
 
 rule convert_gtf_to_genepred:
      input:
@@ -155,45 +198,16 @@ rule get_bedgraph:
     shell:
         "genomeCoverageBed -bg -ibam {input.sorted_bam} -g {input.genome_sizes} -split > {output}"
 
-rule extend_3utr_HeLa:
-    input:
-       script="exe/identifyDistal3UTR.pl",
-       bed="results/Homo_sapiens.GRCh38.92.bed",
-       bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['HeLa']['mock'])
-    output:
-       "results/HeLa.utr.bed"
-    shell: 
-       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
-
-rule extend_3utrs_HEK293:
-    input:
-       script="exe/identifyDistal3UTR.pl",
-       bed="results/Homo_sapiens.GRCh38.92.bed",
-       bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['HEK293']['mock'])
-    output:
-       "results/HEK293.utr.bed"
-    shell:
-       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
-
-rule extend_3utrs_Huh7:
-    input:
-       script="exe/identifyDistal3UTR.pl",
-       bed="results/Homo_sapiens.GRCh38.92.bed",
-       bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['Huh7']['mock'])
-    output:
-       "results/Huh7.utr.bed"
-    shell:
-       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
-
-rule extend_3utrs_IMR90:
-    input:
-       script="exe/identifyDistal3UTR.pl",
-       bed="results/Homo_sapiens.GRCh38.92.bed",
-       bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['IMR90']['mock'])
-    output:
-       "results/IMR90.utr.bed"
-    shell:
-       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+rule reannotatate_3utrs_in_cell_lines:
+     input:
+        script="exe/identifyDistal3UTR.pl",
+        bedgraph1= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][0]) + '.bedgraph',
+        bedgraph2= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][1]) + '.bedgraph',
+        bed="results/Homo_sapiens.GRCh38.92.bed"
+     output:
+        "results/{cell_line}.utr.bed"
+     shell:
+        "{input.script} -i {input.bedgraph1} {input.bedgraph2} -m {input.bed}  -o {output}"
 
 rule extend_3utrs_brain:
     input:
@@ -205,48 +219,18 @@ rule extend_3utrs_brain:
     shell:
        "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
 
-rule identify_APA_sites_HeLa:
+rule identify_APA_sites_in_cell_lines:
      input:
         script="exe/predictAPA.pl",
-        bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['HeLa']['mock']),
-        bed="results/HeLa.utr.bed"
+        bedgraph1= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][0]) + '.bedgraph',
+        bedgraph2= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][1]) + '.bedgraph',
+        bed="results/{cell_line}.utr.bed"
      output:
-        "HeLa.APA.txt"
+        "{cell_line}.APA.txt"
      shell:
-        "{input.script} -i {input.bedgraphs} -g 1 -n 2 -u {input.bed}  -o {output}"
+        "{input.script} -i {input.bedgraph1} {input.bedgraph2} -g 1 -n 2 -u {input.bed}  -o {output}"
 
-
-rule identify_APA_sites_HEK293:
-     input:
-        script="exe/predictAPA.pl",
-        bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['HEK293']['mock']),
-        bed="results/HEK293.utr.bed"
-     output:
-        "HEK293.APA.txt"
-     shell:
-        "{input.script} -i {input.bedgraphs} -g 1 -n 2 -u {input.bed}  -o {output}"
-
-rule identify_APA_sites_Huh7:
-     input:
-        script="exe/predictAPA.pl",
-        bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['Huh7']['mock']),
-        bed="results/Huh7.utr.bed"
-     output:
-        "Huh7.APA.txt"
-     shell:
-        "{input.script} -i {input.bedgraphs} -g 1 -n 4 -u {input.bed}  -o {output}"
-
-rule identify_APA_sites_IMR90:
-     input:
-        script="exe/predictAPA.pl",
-        bedgraphs=expand("results/{accession}.bedgraph", accession=config['PRJNA229375']['IMR90']['mock']),
-        bed="results/IMR90.utr.bed"
-     output:
-        "IMR90.APA.txt"
-     shell:
-        "{input.script} -i {input.bedgraphs} -g 1 -n 2 -u {input.bed}  -o {output}"
-
-rule identify_APA_sites_brain:
+rule identify_APA_sites_in_brain_tissue:
      input:
         script="exe/predictAPA.pl",
         bedgraphs= lambda wildcards: 'results/' + str(config['brain'][wildcards.brain_region]),
