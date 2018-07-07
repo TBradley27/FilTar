@@ -1,0 +1,33 @@
+#!/bin/bash
+
+rule download_single_end_fastq:
+       input:
+       output: "data/{accession, [^_]}.fastq"
+       benchmark:
+              "benchmarks/SRAtoolkit/{accession, [^_]}.txt"
+       shell: "fasterq-dump -O data/ --threads 1 {wildcards.accession, [^_]}"
+
+rule download_paired_end_fastq:
+       input:
+       output: "data/{accession}_1.fastq", "data/{accession}_2.fastq"
+       benchmark:
+              "benchmarks/SRAtoolkit/{accession}.txt"
+       shell: "fasterq-dump -O data/ --threads 1 {wildcards.accession}"
+
+rule compress_single_end_fastq_files:
+       input:
+           "data/{accession, [^_]}.fastq",
+       output:
+            "data/{accession, [^_]}.fastq.gz",
+       benchmark: "benchmarks/pigz/{accession, [^_]}.txt"
+       shell: "pigz {input}"
+
+rule compress_paired_end_fastq_files:
+       input: 
+           file1="data/{accession}_1.fastq",
+           file2="data/{accession}_2.fastq"
+       output: 
+            "data/{accession}_1.fastq.gz",
+            "data/{accession}_2.fastq.gz"
+       benchmark: "benchmarks/pigz/{accession}.txt"
+       shell: "pigz {input.file1} {input.file2}"

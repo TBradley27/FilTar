@@ -1,0 +1,90 @@
+#!/bin/bash
+
+rule create_gene_table:
+        input:
+           "src/create_gene_table.sql"
+        output:
+           "results/gene_table_created.txt"
+        shell:
+           "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+
+rule create_gene_species_table:
+        input:
+           "results/tx_and_gene_IDs.txt",
+           sql="src/create_gene_species_table.sql"
+        output:
+           "results/gene_species_table_created.txt"
+        shell:
+           "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input.sql} && touch {output}"
+
+rule create_mRNA_table:
+        input:
+           "src/create_mRNA_table.sql"
+        output:
+           "results/mRNA_table_created.txt"
+        shell:
+          "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+
+rule create_Tissues_table:
+        input:
+           "src/create_Tissues_table.sql"
+        output:
+           "results/tissues_table_created.txt"
+        shell:
+           "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+
+rule create_experiments_table:
+        input:
+           "src/create_experiments_table.sql"
+        output:
+           "results/experiments_table_created.txt"
+        shell:
+           "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+
+rule create_expression_profiles_table:
+         input:
+            "src/create_expression_profiles_table.sql"
+         output:
+            "results/expression_profiles_table_created.txt"
+         shell:
+            "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+
+rule create_mirna_table:
+        input:
+            "src/create_mirna_table.sql"
+        output:
+            "mirna_table_created.txt"
+        shell:
+            "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+
+rule create_species_table:
+        input:
+           "src/create_species_table.sql"
+        output:
+           "species_table_created.txt"
+        shell:
+           "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+
+rule build_contextpp_table:
+        input:
+             "create_contextpp.sql"
+        output:
+            "results/contextpp_created.txt"
+        shell:
+            "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+
+rule build_miRanda_table:
+        input:
+            "create_miRanda.sql"
+        output:
+            "results/miRanda_created.txt"
+        shell:
+            "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+
+rule build_PITA_table:
+        input:
+             "create_PITA.sql"
+        output:
+            "results/PITA_created.txt"
+        shell:
+            "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"

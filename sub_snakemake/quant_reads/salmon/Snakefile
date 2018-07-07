@@ -1,0 +1,19 @@
+#!/bin/bash
+
+rule salmon_index:
+        input:
+            "data/Mus_musculus.GRCm38.cdna.all.fa"
+        output:
+            "results/mmu_GRCm38_index"
+        shell:
+            "salmon index --threads 8 -t {input} -i {output} --type quasi -k 31"
+
+rule salmon_quant:
+        input:
+          index="results/mmu_GRCm38_index/",
+          reads="data/single-end/mouse/{accession}_trimmed.fq.gz"
+        output:
+          "results/single-end/mouse/{accession}_salmon"
+        threads: 8
+        shell:
+          "salmon quant -p {threads} -i {input.index} -l A -r {input.reads} -o {output}"

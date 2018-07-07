@@ -1,0 +1,73 @@
+#!/bin/bash
+
+rule filter_bed:
+        input:
+          three_utr_bed="results/{species}_3UTR_chr{chrom}.bed",
+          CDS_bed="results/{species}_CDS_chr{chrom}.bed",
+          script="src/pre-processing/filter_bed.R"
+        output:
+            "results/{species}_CDS_chr{chrom}.bed.filtered",
+        shell:
+            "Rscript {input.script} {input.three_utr_bed} {input.CDS_bed}"
+
+rule bed_to_fasta_human:
+        input:
+            bed_file="results/hsa_3UTR_chr{chrom}.bed",
+            dna_file="/tgac/workarea/users/bradleyt/DNA/Homo_sapiens.GRCh38.dna.chromosome.{chrom}.fa",
+            script="src/pre-processing/GetFastaFromBed.sh"
+        output:
+            temp("results/hsa_3UTR_chr{chrom}.fa") #tmp because of the additional required merging step
+        shell:
+            "{input.script} three_prime_utr {wildcards.chrom} hsa {input.bed_file}"
+
+rule bed_to_fasta_mouse:
+        input:
+            bed_file="results/mmu_3UTR_chr{chrom}.bed",
+            dna_file="/tgac/workarea/users/bradleyt/DNA/Mus_musculus.GRCm38.dna.chromosome.{chrom}.fa",
+            script="src/pre-processing/GetFastaFromBed.sh"
+        output:
+            temp("results/mmu_3UTR_chr{chrom}.fa")
+        shell:
+            "{input.script} three_prime_utr {wildcards.chrom} mmu {input.bed_file}"
+
+rule merge_fasta:
+        input:
+            fasta_not_merged="results/{species}_{feature}_chr{chrom}.fa",
+            script="src/pre-processing/MergeFasta.sh"
+        output:
+            "results/{species}_{feature}_chr{chrom}.fa.merged"
+        shell:
+            "{input.script} {wildcards.species} {wildcards.chrom} {wildcards.feature}"
+
+rule bed_to_fasta_CDS_human:
+        input:
+            bed="results/{species}_CDS_chr{chrom}.bed.filtered",
+            script="src/pre-processing/GetFastaFromBed.sh"
+        output:
+            "results/{species}_CDS_chr{chrom}.fa"
+        shell:
+            "{input.script} CDS {wildcards.chrom} {wildcards.species} {input.bed}"
+
+rule biopython_get_3UTR_tsv_alignments:
+        input:
+           bed_3UTR_file="results/{species}_3UTR_biopython.chr{chrom}.bed",
+	   maf_index="results/{species}_chr{chrom}.mafindex",
+           shell_script="src/targetscan7/biopython_maf_processing2.sh",
+           python_script="src/targetscan7/biopython_maf_processing2.py"
+        output:
+           "results/{species}_chr{chrom}_msa.tsv"
+        shell:
+           "{input.shell_script} three_UTR {wildcards.chrom} {wildcards.species}"
+
+rule fasta_to_tsv_CDS:
+	input:
+           merged_fasta_CDS="results/{species}_CDS_chr{chrom}.fa.merged",
+           script="src/targetscan7/convert_fasta_to_tsv2.sh"
+	output:
+           "results/{species}_CDS_chr{chrom}.tsv"
+	shell:
+           "{input.script} {input.merged_fasta_CDS} {wildcards.species}  > {output}"
+
+
+
+

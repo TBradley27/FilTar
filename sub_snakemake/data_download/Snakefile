@@ -1,42 +1,24 @@
 #!/bin/bash
 
-rule dowload_fastq_using_SRAtoolkit:
-       input:
-       output: "data/{accession, [^_]}.fastq"
-       benchmark:
-              "benchmarks/SRAtoolkit/{accession, [^_]}.txt"
-       shell: "fasterq-dump -O data/ --threads 9 {wildcards.accession}"
+rule download_dna_data_human: # fix this
+        input:
+        output:
+           "data/Homo_sapiens.GRCh38.dna.chromosome.{chrom}.fa"
+        shell:
+           "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.{wildcards.chrom}.fa.gz"
 
-rule compress_paired_end_fastq_files:
-       input: 
-           file1="data/{accession}_1.fastq",
-           file2="data/{accession}_2.fastq"
-       output: 
-            "data/{accession}_1.fastq.gz",
-            "data/{accession}_2.fastq.gz"
-       benchmark: "benchmarks/pigz/{accession}.txt"
-       shell: "pigz {input.file1} {input.file2}"
+rule download_dna_data_mouse: # fix this
+        input:
+        output:
+           "data/Mus_musculus.GRCm38.dna.chromosome.{chrom}.fa"
+        shell:
+           "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.chromosome.{wildcards.chrom}.fa.gz"
 
-#rule download_single_end_fastq_file:
-#       input:
-#       output: 
-#            "data/{accession, [^_]}.fastq.gz"
-#       benchmark: "benchmarks/ENA/{accession}.log"
-#       shell: 
-#            "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}.fastq.gz"
+rule download_maf_files:
+        input:
+        output:
+           "data/chr{chrom}.maf"
+        shell:
+           "wget --directory-prefix=data/ http://hgdownload.soe.ucsc.edu/goldenPath/hg38/multiz100way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}"
 
-#rule download_first_paired_end_fastq_file:
-#       input:
-#       output:
-#           "data/{accession}_1.fastq.gz",
-#       benchmark: "benchmarks/ENA/{accession}.log"
-#       shell:
-#          "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_1.fastq.gz"
 
-#rule download_second_paired_end_fastq_file:
-#       input:
-#       output:
-#           "data/{accession}_2.fastq.gz"
-#       benchmark: "benchmark/ENA/{accession}.log"
-#       shell:
-#          "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_2.fastq.gz"

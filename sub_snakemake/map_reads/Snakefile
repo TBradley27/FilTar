@@ -41,4 +41,7 @@ rule samtools_sort:
         "results/{accession}.bam.sorted"
     params:
         "-m 4G"
-    threads: 8
+    threads: 4
+    benchmark: "benchmakrs/samtools_sort/{accession}.log"
+    wrapper:
+        "0.27.0/bio/samtools/sort"

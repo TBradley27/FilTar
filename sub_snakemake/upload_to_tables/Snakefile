@@ -1,0 +1,112 @@
+#!/bin/bash
+
+rule extract_tx_and_gene_IDs:
+        input:
+           "data/Homo_sapiens.GRCh38.cdna.all.fa"
+        output:
+           "results/tx_and_gene_IDs.txt"
+        shell:
+           "cat {input} | grep '>' | awk '{{ print $1,$7 }}' | tr ' ' '\t' | sed 's/gene_symbol://g' | sed 's/>//g'  > {output}"
+
+rule extract_tx_and_gene_IDs_mouse:
+        input:
+           "data/Mus_musculus.GRCm38.cdna.all.fa"
+        output:
+           "results/tx_and_gene_IDs_mouse.txt"
+        shell:
+           "cat {input} | grep '>' | awk '{{ print $1,$7 }}' | tr ' ' '\t' | sed 's/gene_symbol://g' | sed 's/>//g'  > {output}"
+
+rule extract_unique_gene_names:
+       input:
+          "results/tx_and_gene_IDs_{species}.txt"
+       output:
+          "results/gene_names_unique_{species}.txt"
+       shell:
+          "awk '{{print $2}}' {input} | uniq > {output}"
+
+rule upload_to_gene_table: # Do we need to upload genes for every species?
+        input:
+           "results/gene_names_unique_{species}.txt"
+        output:
+           "results/gene_table_loaded_{species}.txt"
+        shell:
+           "./upload_to_gene_table.sh {input} {wildcards.species}"
+
+rule upload_to_gene_species_table:
+        input:
+           "results/gene_names_unique_{species}.txt"
+        output:
+           "results/gene_species_table_loaded_{species}.txt"
+        shell:
+           "./upload_to_gene_species_table.sh {output} {wildcards.species}"
+
+rule upload_to_mRNA_table:
+        input:
+           "results/tx_and_gene_IDs_{species}.txt"
+        output:
+           "results/mRNA_table_loaded_{species}.txt"
+        shell:
+           "./upload_to_mRNA_table.sh {input} {wildcards.species}"
+
+rule upload_to_Tissues_table:
+        input:
+           "data/experiments_{species}.tsv"
+        output:
+           "results/Tissues_table_loaded_{species}.txt"
+        shell:
+           "src/upload_to_Tissues_table.sh {input} {wildcards.species}"
+
+rule upload_to_experiments_table:    #Not quite sure how to do this yet - will likely have to go back to experiment/project slection processes upstream
+        input:
+           "data/experiments_{species}.tsv"
+        output:
+           "results/experiments_table_loaded_{species}.txt"
+        shell:
+           "src/upload_to_experiments_table.sh {input} {wildcards.species}"
+
+rule upload_to_expression_profiles_table:
+        input:
+           "results/single-end/mouse/{accession}_salmon/quant.sf"
+        output:
+           "results/{accession}_expression_profiles_table_loaded.txt"
+        shell:
+           "src/upload_to_expression_profiles_table.sh {wildcards.accession} {input}"
+
+rule upload_mirna_data:
+        input:
+            mirna_for_context_scores="results/hsa_mir_for_context_scores.tsv",
+            script="src/load_mirnas.s"
+        output:
+            "mirnas_loaded.txt"
+        shell:
+            "src/load_mirnas.sh {input.mirna_for_context_scores}"
+
+rule load_in_contextpp_scores:
+        input:
+           contextpp_results="results/{species}_chr{chrom}_msa.contextpp.tsv",
+           script="src/load_contextpp.sh"
+        output:
+           "results/{species}_chr{chrom}_loaded.targetscan7.txt"
+        shell:
+           "{input.script} {input.contextpp_results} {wildcards.chrom} {wildcards.species}"
+
+rule load_in_miRanda_scores:
+        input:
+           miRanda_results="results/{species}_chr{chrom}.miranda_proc",
+           script="src/load_miRanda.sh"
+        output:
+           "results/{species}_chr{chrom}_loaded.miRanda.txt"
+        shell:
+           "{input.script} {input.miRanda_results} {wildcards.chrom} {wildcards.species}"
+
+rule load_in_PITA_scores:
+        input:
+           PITA_results="results/{species}_chr{chrom}_pita_results.tab",
+           script="src/load_PITA.sh"
+        output:
+           "results/{species}_chr{chrom}_loaded.PITA.txt"
+        shell:
+           "{input.script} {input.PITA_results} {wildcards.chrom} {wildcards.species}"
+
+
+

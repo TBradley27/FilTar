@@ -1,0 +1,13 @@
+#!/bin/bash
+
+rule miRanda:
+        input:
+            mature_mirnas="data/mirbase_mature_{species}.fa",
+            fasta_3UTR_merged="results/{species}_3UTR_chr{chrom}.fa.merged",
+            script="src/miRanda/miRanda.sh"
+        output:
+            "results/{species}_chr{chrom}.miranda_proc"
+        benchmark:
+             "benchmarks/{species}_chr{chrom}_miRanda.log"
+        shell:
+            "{input.script} --species {wildcards.species} --chromosome {wildcards.chrom}"

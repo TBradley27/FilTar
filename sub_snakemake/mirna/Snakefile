@@ -1,0 +1,16 @@
+#!/bin/bash
+
+rule download_mirna_data:
+       input:
+       output:
+          "data/mature.fa"
+       shell:
+          "wget --directory-prefix=data/ ftp://mirbase.org/pub/mirbase/CURRENT/mature.fa.gz && gunzip {output}"
+
+rule mirna_species_fasta:
+        input:
+           "data/mature.fa"
+        output:
+           "data/mirbase_mature_{species}.fa"
+        shell:
+           "grep -A 1 {wildcards.species} {input} | awk '{{ print $1 }}' | sed 's/--//g' | sed '/^$/d' > {output} "
