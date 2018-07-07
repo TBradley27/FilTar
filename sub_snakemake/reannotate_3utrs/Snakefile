@@ -1,0 +1,49 @@
+#!/bin/bash
+
+rule get_bed6_file: #three_prime_utrs only
+        input:
+            script="exe/gtf_to_bed.sh",
+            gtf="data/Homo_sapiens.GRCh38.92.gtf"
+        output:
+            "results/Homo_sapiens.GRCh38.92.bed6"
+        shell:
+            "{input.script} {input.gtf} {output}"
+
+#rule split_bed_files:
+#       input: "results/Homo_sapiens.GRCh38.92.bed6"
+#       output: "results/Homo_sapiens.GRCh38.92.chr{chrom}.bed6"
+#       shell: "awk '$1 == {wildcards.chrom}' {input} {output}"
+
+#rule split_bed_files:
+#       input: "results/{cell_line}.utr.bed"
+#       output: "results/{cell_line}.utr.chr{chrom}.bed"
+#       shell: "awk '$1 == {wildcards.chrom}' {input} {output}"
+
+rule get_extended_bed_file:
+         input:
+            script="exe/extend_bed.R",
+            normal_bed="results/Homo_sapiens.GRCh38.92.bed6",
+            extended_bed="results/{cell_line}.utr.bed"
+         output:
+            "results/{cell_line}.utr.full.bed"
+         log:
+            "{cell_line}.log"
+         shell:
+             "Rscript {input.script} {input.normal_bed} {input.extended_bed} {output} 2> {log}"
+
+rule reformat_normal_bed_file:
+         input:
+           script="exe/reformat_normal_bed.R",
+           normal_bed="results/Homo_sapiens.GRCh38.92.bed6"
+         output: "results/Homo_sapiens.GRCh38.92.reformatted.bed6"
+         shell:
+             "Rscript {input.script} {input.normal_bed} {output}"
+
+#WARNING: diff has non-standard exit statuses. A non-zero exit status does not mean programme failure
+
+#rule find_bed_differences:
+#       input: 
+#           normal_bed="results/Homo_sapiens.GRCh38.92.reformatted.bed6",
+#           extended_bed="results/{cell_line}.utr.full.bed"
+#       output: "{cell_line}_bed_file_differences.txt"
+#       shell: "diff -y --suppress-common-lines {input.normal_bed} {input.extended_bed} > {output}"

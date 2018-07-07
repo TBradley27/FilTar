@@ -1,0 +1,15 @@
+#!/bin/bash
+
+rule run_fastqc:
+       input: "data/{accession}.fastq.gz"
+       output:
+            "results/{accession}_fastqc.html",
+            "results/{accession}_fastqc.zip"
+       conda: "envs/fastqc.yaml"
+       shell: "fastqc -o results {input}"
+
+rule run_multiqc:
+       input:
+           expand("results/{accession}_trimmed.fq.gz", accession=config['all_runs'])
+       output: "results/multiqc_report.html"
+       shell: "multiqc -f -o results/ results/"

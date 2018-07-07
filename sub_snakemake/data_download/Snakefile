@@ -1,0 +1,38 @@
+#!/bin/bash
+
+rule dowload_fastq_using_SRAtoolkit:
+       input:
+       output: "{accession}.fastq"
+       benchmark:
+              "benchmarks/SRAtoolkit/{accession}.txt"
+       shell: "fasterq-dump --threads 9 {wildcards.accession}"
+
+rule compress_fastq_files:
+       input: "{accession}.fastq"
+       output: "{accession}.fastq.gz"
+       benchmark: "benchmarks/pigz/{accession}.txt"
+       shell: "parallel -j 2 pigz ::: {wildcards.accession}*"
+
+rule download_single_end_fastq_file:
+       input:
+       output: 
+            "data/{accession, [^_]}.fastq.gz"
+       benchmark: "benchmarks/ENA/{accession}.log"
+       shell: 
+            "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}.fastq.gz"
+
+rule download_first_paired_end_fastq_file:
+       input:
+       output:
+           "data/{accession}_1.fastq.gz",
+       benchmark: "benchmarks/ENA/{accession}.log"
+       shell:
+          "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_1.fastq.gz"
+
+rule download_second_paired_end_fastq_file:
+       input:
+       output:
+           "data/{accession}_2.fastq.gz"
+       benchmark: "benchmark/ENA/{accession}.log"
+       shell:
+          "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_2.fastq.gz"

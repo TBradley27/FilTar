@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#rule trim_single_end_reads:
+#       input: 
+#           "data/{accession, [^_]}.fastq.gz"
+#       output: 
+#           "results/{accession, [^_]}_trimmed.fq.gz",
+#           "results/{accession, [^_]}.fastq.gz_trimming_report.txt"
+#       conda: 
+#          "envs/trim-galore.yaml"
+#       benchmark:
+#          "benchmarks/trim_galore/{accession, [^_]}.log"
+#       shell:
+#          "trim_galore --output_dir results/  --length 35 --stringency 4 {input}"
+
+rule run_cutadapt:
+    input:
+        ["data/{sample}_1.fastq.gz", "data/{sample}_2.fastq.gz"]
+    output:
+        fastq1="results/{sample}_trimmed.1.fastq.gz",
+        fastq2="results/{sample}_trimmed.2.fastq.gz",
+        qc="logs/{sample}.qc.txt"
+    benchmark: "benchmarks/cutadapt/{sample}.log"
+    params:
+        "-a AGATCGGAAGAGC -q 20 --cores=16" # illumina adapter
+    log:
+        "logs/cutadapt/{sample}.log"
+    shell:
+        "cutadapt {params} -o {output.fastq1} -p {output.fastq2} {input} > {output.qc}"
+
+#rule trim_paired_end_reads:
+#       input:
+#          file1="data/{accession}_1.fastq.gz",
+#          file2="data/{accession}_2.fastq.gz"
+#       output:
+#           "results/{accession}_1_val_1.fq.gz",
+#           "results/{accession}_2_val_2.fq.gz,"
+#           "results/{accession}_1.fastq.gz_trimming_report.txt",
+#           "results/{accession}_2.fastq.gz_trimming_report.txt"
+#       conda:
+#          "envs/trim-galore.yaml"
+#       benchmark:
+#          "benchmarks/trim_galore/{accession}.log"
+#       shell:
+#          "trim_galore --output_dir results/ --length 35 --stringency 4 --paired {input.file1} {input.file2}"

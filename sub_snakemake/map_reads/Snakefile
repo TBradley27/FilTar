@@ -1,0 +1,44 @@
+#!/bin/bash
+
+rule get_bowtie_index:
+        output: "data/GRCh38"
+        benchmark: "benchmarks/bowtie2/index_GRCh38.log"
+        shell:
+           "wget --directory-prefix=data/ ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh38/seqs_for_alignment_pipelines/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index.tar.gz"
+
+#rule map_reads:
+#        input:
+#           sample=["results/{accession}_trimmed.fq.gz"]
+#        output:
+#           "results/{accession}.bam"
+#        threads: 1
+#        benchmark: "benchmarks/bowtie2/{accession}.log"
+#        params: 
+#            index="data/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index",
+#            extra=""
+#        wrapper:
+#            "0.23.1/bio/bowtie2/align"
+
+rule map_paired_end_reads:
+        input:
+           sample=["results/{accession}_trimmed.1.fastq.gz", "results/{accession}_trimmed.2.fastq.gz"]
+        output:
+           "results/{accession}.bam"
+        log:
+            "logs/bowtie2/{accession}.log"
+        threads: 8
+        benchmark: "benchmarks/bowtie2/{accession}.log"
+        params:
+            index="data/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index",
+            extra=""
+        wrapper:
+            "0.23.1/bio/bowtie2/align"
+
+rule samtools_sort:
+    input:
+        "results/{accession}.bam"
+    output:
+        "results/{accession}.bam.sorted"
+    params:
+        "-m 4G"
+    threads: 8
