@@ -1,0 +1,9 @@
+.RData
+.RHistory
+*.log
+*.fastq
+*.gz
+*.zip
+*.fq
+*.fasta
+*.fa
