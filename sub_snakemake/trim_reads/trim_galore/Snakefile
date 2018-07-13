@@ -7,24 +7,26 @@ rule trim_single_end_reads:
            "results/{accession}_trimmed.fq.gz",
            "results/{accession}.fastq.gz_trimming_report.txt"
        conda: 
-          "/gpfs/afm/moxon/thomas2/APAtrap/envs/trim-galore.yaml"
+          "envs/trim-galore.yaml"
+       wildcard_constraints:
+             accession="[^_]"
        benchmark:
           "benchmarks/trim_galore/{accession}.log"
        shell:
           "trim_galore --output_dir results/  --length 35 --stringency 4 {input}"
 
-#rule trim_paired_end_reads:
-#       input:
-#          file1="data/{accession}_1.fastq.gz",
-#          file2="data/{accession}_2.fastq.gz"
-#       output:
-#           "results/{accession}_1_val_1.fq.gz",
-#           "results/{accession}_2_val_2.fq.gz,"
-#           "results/{accession}_1.fastq.gz_trimming_report.txt",
-#           "results/{accession}_2.fastq.gz_trimming_report.txt"
-#       conda:
-#          "envs/trim-galore.yaml"
-#       benchmark:
-#          "benchmarks/trim_galore/{accession}.log"
-#       shell:
-#          "trim_galore --output_dir results/ --length 35 --stringency 4 --paired {input.file1} {input.file2}"
+rule trim_paired_end_reads:
+       input:
+          file1="data/{accession}_1.fastq.gz",
+          file2="data/{accession}_2.fastq.gz"
+       output:
+           "results/{accession}_1_val_1.fq.gz",
+           "results/{accession}_2_val_2.fq.gz",
+           "results/{accession}_1.fastq.gz_trimming_report.txt",
+           "results/{accession}_2.fastq.gz_trimming_report.txt"
+       conda:
+          "envs/trim-galore.yaml"
+       benchmark:
+          "benchmarks/trim_galore/{accession}.log"
+       shell:
+          "trim_galore --output_dir results/ --length 35 --stringency 4 --paired {input.file1} {input.file2}"

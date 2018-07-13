@@ -1,6 +1,6 @@
 #!/bin/bash
 
-configfile: "config.yaml"
+#configfile: "config.yaml"
 
 rule run_fastqc:
        input: "data/{accession}.fastq.gz"
