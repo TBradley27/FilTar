@@ -7,3 +7,9 @@
 *.fq
 *.fasta
 *.fa
+.snakemake/
+benchmarks/
+data/
+logs/
+results/
+reports/fastqc/
