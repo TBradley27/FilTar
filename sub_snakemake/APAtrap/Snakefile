@@ -69,7 +69,7 @@ rule reannotatate_3utrs_in_cell_lines:
      shell:
         "{input.script} -i {input.bedgraph1} {input.bedgraph2} -m {input.bed}  -o {output}"
 
-rule extend_3utrs_brain:
+rule reannotate_3utrs_brain:
     input:
        script="exe/identifyDistal3UTR.pl",
        bed="results/Homo_sapiens.GRCh38.92.bed",
@@ -79,6 +79,18 @@ rule extend_3utrs_brain:
        "results/{brain_region}.utr.bed"
     shell:
        "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+
+rule reannotate_3utrs:
+    input:
+       script="exe/identifyDistal3UTR.pl",
+       bed="results/Homo_sapiens.GRCh38.92.bed",
+       bedgraphs= 'results/{accession}.bedgraph'
+    benchmark: "benchmarks/APAtrap/{accession}.log"
+    output:
+       "results/{accession}.utr.bed"
+    shell:
+       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+
 
 #rule identify_APA_sites_in_cell_lines:
 #     input:
