@@ -1,19 +1,40 @@
 #!/bin/bash
 
-rule salmon_index:
+
+rule download cdna_file:
+        input:
+        output: "data/Homo_sapiens.GRCh38.cdna.all.fa.gz"
+        shell: "wget -nv --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz"
+
+rule decompress_cdna_file:
+        input: "data/Homo_sapiens.GRCh38.cdna.all.fa.gz"
+        output: "data/Homo_sapiens.GRCh38.cdna.all.fa"
+        shell: "gunzip {input}"
+
+rule salmon_index_mouse:
         input:
             "data/Mus_musculus.GRCm38.cdna.all.fa"
         output:
             "results/mmu_GRCm38_index"
-        shell:
-            "salmon index --threads 8 -t {input} -i {output} --type quasi -k 31"
-
-rule salmon_quant:
-        input:
-          index="results/mmu_GRCm38_index/",
-          reads="data/single-end/mouse/{accession}_trimmed.fq.gz"
-        output:
-          "results/single-end/mouse/{accession}_salmon"
         threads: 8
+        shell:
+            "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
+
+rule salmon_index_humans:
+        input:
+            "data/Homo_sapiens.GRCh38.cdna.all.fa"
+        output:
+            "results/hsa_GRCh38_index/"
+        threads: 8
+        shell:
+            "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
+
+rule salmon_quant_human:
+        input:
+          index="results/hsa_GRCh38_index/",
+          reads="results/{accession}_trimmed.fq.gz"
+        output:
+          "results/{accession}_salmon/"
+        threads: 4
         shell:
           "salmon quant -p {threads} -i {input.index} -l A -r {input.reads} -o {output}"
