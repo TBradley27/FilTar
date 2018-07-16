@@ -2,21 +2,21 @@ sample_type:
     mouse:
        brain:
          paired_end: [SRR2927735]
-       heart:
+    heart:
          paired_end: [SRR2927736]
-       kidney:
+    kidney:
          paired_end: [SRR2927737]
-       liver: 
+    liver:
          paired_end: [SRR2927738]
-       lung: 
+    lung:
          paired_end: [SRR2927739]
-       skin: 
+    skin:
          paired_end: [SRR2927740]
-       spleen: 
+    spleen:
          paired_end: [SRR2927741]
-       testis: 
+    testis:
          paired_end: [SRR2927742]
-       thymus: 
+    thymus:
          paired_end: [SRR2927743]
 
     human:
@@ -25,615 +25,350 @@ sample_type:
                       placenta,prostate_gland,rectum,saliva_secreting_gland,skeletal_muscle_tissue,small_intestine,
                       smooth_muscle_tissue,spleen,stomach,testis,thyroid_gland,tonsil,urinary_bladder,vermiform_appendix,
                       zone_of_skin]
-        adipose_tissue:
-                paired_end:
-                    ISF: []
-                    ISR: [ERR579122, ERR579146]
-                    IU: [ERR030880, ERR315332, ERR315342, ERR315343, ERR315378, ERR315431]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030880, ERR315332, ERR315342, ERR315343, ERR315378, ERR315431, ERR579122,ERR579146]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030888]
-                    all: [ERR030888]
-        adrenal_gland:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030881, ERR315335, ERR315385, ERR315392, ERR315417, ERR315452]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030881, ERR315335, ERR315385, ERR315392, ERR315417, ERR315452]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030889]
-                    all: [ERR030889]
-          bone_marrow:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315333, ERR315395, ERR315396, ERR315404, ERR315406, ERR315469, ERR315486]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315333, ERR315395, ERR315396, ERR315404, ERR315406, ERR315469, ERR315486]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-          brain:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030882]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030882]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030890]
-                    all: [ERR030890]
-          breast:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030883]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030883]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030891]
-                    all: [ERR030891]
-          cerebral_cortex:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315432, ERR315455]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315432, ERR315455]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-          colon:
-                paired_end:
-                    ISF: []
-                    ISR: [ERR579129, ERR579148]
-                    IU: [ERR030884, ERR315348, ERR315357, ERR315403]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030884, ERR315348, ERR315357, ERR315403, ERR579129, ERR579148]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030892]
-                    all: [ERR030892]
-          duodenum:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315445, ERR315457, ERR315461]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315445, ERR315457, ERR315461]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-          endometrium:
-                paired_end:
-                    ISF: []
-                    ISR: [ERR579123, ERR579138]
-                    IU: [ERR315361, ERR315368, ERR315386, ERR315433, ERR315438, ERR315490, ERR315495]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315361, ERR315368, ERR315386, ERR315433, ERR315438, ERR315490, ERR315495,
-                      ERR579123, ERR579138]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-          esophagus:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315362, ERR315411, ERR315472, ERR315489]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315362, ERR315411, ERR315472, ERR315489]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-          fallopian_tube:
-                paired_end:
-                    ISF: []
-                    ISR: [ERR579124, ERR579134, ERR579136, ERR579150]
-                    IU: [ERR579128, ERR579155]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR579124, ERR579128, ERR579134, ERR579136, ERR579150, ERR579155]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-          gall_bladder:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315347, ERR315349, ERR315360, ERR315427, ERR315470, ERR315474]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315347, ERR315349, ERR315360, ERR315427, ERR315470, ERR315474]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-          heart:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030886, ERR315328, ERR315331, ERR315356, ERR315367, ERR315384, ERR315389,
-                      ERR315413, ERR315430]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030886, ERR315328, ERR315331, ERR315356, ERR315367, ERR315384, ERR315389,
-                      ERR315413, ERR315430]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030894]
-                    all: [ERR030894]
-          kidney:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030885, ERR315383, ERR315443, ERR315494]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030885, ERR315383, ERR315443, ERR315494]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030893]
-                    all: [ERR030893]
-          leukocyte:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030875]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030875]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030900]
-                    all: [ERR030900]
-          liver:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030887, ERR315327, ERR315394, ERR315451]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030887, ERR315327, ERR315394, ERR315451]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030895]
-                    all: [ERR030895]
-          lung:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030879, ERR315326, ERR315341, ERR315346, ERR315353, ERR315424, ERR315439,
-                      ERR315444, ERR315487]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030879, ERR315326, ERR315341, ERR315346, ERR315353, ERR315424, ERR315439,
-                      ERR315444, ERR315487]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030896]
-                    all: [ERR030896]
-          lymph_node:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030878, ERR315329, ERR315371, ERR315373, ERR315387, ERR315390, ERR315393,
-                      ERR315426, ERR315440, ERR315441, ERR315475, ERR315488, ERR315493]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030878, ERR315329, ERR315371, ERR315373, ERR315387, ERR315390, ERR315393,
-                      ERR315426, ERR315440, ERR315441, ERR315475, ERR315488, ERR315493]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030897]
-                    all: [ERR030897]
-          ovary:
-                paired_end:
-                    ISF: []
-                    ISR: [ERR579132]
-                    IU: [ERR030874, ERR315380]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030874, ERR315380, ERR579132]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030901]
-                    all: [ERR030901]
-          pancreas:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315479]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315479]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-          placenta:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315336, ERR315374, ERR315375, ERR315377, ERR315399]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315336, ERR315374, ERR315375, ERR315377, ERR315399]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-          prostate_gland:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030877, ERR315330, ERR315340, ERR315354, ERR315359, ERR315365, ERR315410]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030877, ERR315330, ERR315340, ERR315354, ERR315359, ERR315365, ERR315410]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030898]
-                    all: [ERR030898]
-          rectum:
-                paired_end:
-                    ISF: []
-                    ISR: [ERR579127, ERR579140, ERR579147, ERR579151]
-                    IU: []
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR579127, ERR579140, ERR579147, ERR579151]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-           saliva-secreting_gland:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315325, ERR315382, ERR315459]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315325, ERR315382, ERR315459]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-            skeletal_muscle_tissue:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030876, ERR579130, ERR579141, ERR579142, ERR579143, ERR579149, ERR579152]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030876, ERR579130, ERR579141, ERR579142, ERR579143, ERR579149, ERR579152]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030899]
-                    all: [ERR030899]
-            small_intestine:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315344, ERR315364, ERR315381, ERR315388, ERR315408, ERR315409, ERR315419,
-                      ERR315423]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315344, ERR315364, ERR315381, ERR315388, ERR315408, ERR315409, ERR315419,
-                      ERR315423]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-            smooth_muscle_tissue:
-                paired_end:
-                    ISF: []
-                    ISR: [ERR579125, ERR579131, ERR579153]
-                    IU: []
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR579125, ERR579131, ERR579153]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-            spleen:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315338, ERR315405, ERR315416, ERR315473]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315338, ERR315405, ERR315416, ERR315473]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-           stomach:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315369, ERR315379, ERR315467, ERR315485]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315369, ERR315379, ERR315467, ERR315485]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-            testis:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030873, ERR315350, ERR315351, ERR315352, ERR315391, ERR315415, ERR315446,
-                      ERR315456]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030873, ERR315350, ERR315351, ERR315352, ERR315391, ERR315415, ERR315446,
-                      ERR315456]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030902]
-                    all: [ERR030902]
-             thyroid_gland:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR030872, ERR315337, ERR315358, ERR315363, ERR315397, ERR315422, ERR315491]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR030872, ERR315337, ERR315358, ERR315363, ERR315397, ERR315422, ERR315491]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: [ERR030903]
-                    all: [ERR030903]
-             tonsil:
-                paired_end:
-                    ISF: []
-                    ISR: [ERR579133, ERR579135, ERR579139]
-                    IU: []
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR579133, ERR579135, ERR579139]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-             urinary_bladder:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315334, ERR315355, ERR315370, ERR315447, ERR315453]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315334, ERR315355, ERR315370, ERR315447, ERR315453]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-             vermiform_appendix:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315345, ERR315366, ERR315454, ERR315481]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315345, ERR315366, ERR315454, ERR315481]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
-             zone_of_skin:
-                paired_end:
-                    ISF: []
-                    ISR: []
-                    IU: [ERR315339, ERR315372, ERR315376, ERR315401]
-                    MSF: []
-                    MSR: []
-                    MU: []
-                    OSF: []
-                    OSR: []
-                    OU: []
-                    all: [ERR315339, ERR315372, ERR315376, ERR315401]
-                single_end:
-                    SF: []
-                    SR: []
-                    U: []
-                    all: []
+    adipose_tissue:
+      paired_end: [ERR030880, ERR315332, ERR315342, ERR315343, ERR315378, ERR315431, ERR579122,
+        ERR579146]
+      single_end: [ERR030888]
+    adrenal_gland:
+      paired_end: [ERR030881, ERR315335, ERR315385, ERR315392, ERR315417, ERR315452]
+      single_end: [ERR030889]
+    bone_marrow:
+      paired_end: [ERR315333, ERR315395, ERR315396, ERR315404, ERR315406, ERR315469, ERR315486]
+      single_end: []
+    brain:
+      paired_end: [ERR030882]
+      single_end: [ERR030890]
+    breast:
+      paired_end: [ERR030883]
+      single_end: [ERR030891]
+    cerebral_cortex:
+      paired_end: [ERR315432, ERR315455]
+      single_end: []
+    colon:
+      paired_end: [ERR030884, ERR315348, ERR315357, ERR315403, ERR579129, ERR579148]
+      single_end: [ERR030892]
+    duodenum:
+      paired_end: [ERR315445, ERR315457, ERR315461]
+      single_end: []
+    endometrium:
+      paired_end: [ERR315361, ERR315368, ERR315386, ERR315433, ERR315438, ERR315490, ERR315495,
+        ERR579123, ERR579138]
+      single_end: []
+    esophagus:
+      paired_end: [ERR315362, ERR315411, ERR315472, ERR315489]
+      single_end: []
+    fallopian_tube:
+      paired_end: [ERR579124, ERR579128, ERR579134, ERR579136, ERR579150, ERR579155]
+      single_end: []
+    gall_bladder:
+      paired_end: [ERR315347, ERR315349, ERR315360, ERR315427, ERR315470, ERR315474]
+      single_end: []
+    heart:
+      paired_end: [ERR030886, ERR315328, ERR315331, ERR315356, ERR315367, ERR315384, ERR315389,
+        ERR315413, ERR315430]
+      single_end: [ERR030894]
+    kidney:
+      paired_end: [ERR030885, ERR315383, ERR315443, ERR315494]
+      single_end: [ERR030893]
+    leukocyte:
+      paired_end: [ERR030875]
+      single_end: [ERR030900]
+    liver:
+      paired_end: [ERR030887, ERR315327, ERR315394, ERR315451]
+      single_end: [ERR030895]
+    lung:
+      paired_end: [ERR030879, ERR315326, ERR315341, ERR315346, ERR315353, ERR315424, ERR315439,
+        ERR315444, ERR315487]
+      single_end: [ERR030896]
+    lymph_node:
+      paired_end: [ERR030878, ERR315329, ERR315371, ERR315373, ERR315387, ERR315390, ERR315393,
+        ERR315426, ERR315440, ERR315441, ERR315475, ERR315488, ERR315493]
+      single_end: [ERR030897]
+    ovary:
+      paired_end: [ERR030874, ERR315380, ERR579132]
+      single_end: [ERR030901]
+    pancreas:
+      paired_end: [ERR315479]
+      single_end: []
+    placenta:
+      paired_end: [ERR315336, ERR315374, ERR315375, ERR315377, ERR315399]
+      single_end: []
+    prostate_gland:
+      paired_end: [ERR030877, ERR315330, ERR315340, ERR315354, ERR315359, ERR315365, ERR315410]
+      single_end: [ERR030898]
+    rectum:
+      paired_end: [ERR579127, ERR579140, ERR579147, ERR579151]
+      single_end: []
+    saliva_secreting_gland:
+      paired_end: [ERR315325, ERR315382, ERR315459]
+      single_end: []
+    skeletal_muscle_tissue:
+      paired_end: [ERR030876, ERR579130, ERR579141, ERR579142, ERR579143, ERR579149, ERR579152]
+      single_end: [ERR030899]
+    small_intestine:
+      paired_end: [ERR315344, ERR315364, ERR315381, ERR315388, ERR315408, ERR315409, ERR315419,
+        ERR315423]
+      single_end: []
+    smooth_muscle_tissue:
+      paired_end: [ERR579125, ERR579131, ERR579153]
+      single_end: []
+    spleen:
+      paired_end: [ERR315338, ERR315405, ERR315416, ERR315473]
+      single_end: []
+    stomach:
+      paired_end: [ERR315369, ERR315379, ERR315467, ERR315485]
+      single_end: []
+    testis:
+      paired_end: [ERR030873, ERR315350, ERR315351, ERR315352, ERR315391, ERR315415, ERR315446,
+        ERR315456]
+      single_end: [ERR030902]
+    thyroid_gland:
+      paired_end: [ERR030872, ERR315337, ERR315358, ERR315363, ERR315397, ERR315422, ERR315491]
+      single_end: [ERR030903]
+    tonsil:
+      paired_end: [ERR579133, ERR579135, ERR579139]
+      single_end: []
+    urinary_bladder:
+      paired_end: [ERR315334, ERR315355, ERR315370, ERR315447, ERR315453]
+      single_end: []
+    vermiform_appendix:
+      paired_end: [ERR315345, ERR315366, ERR315454, ERR315481]
+      single_end: []
+    zone_of_skin:
+      paired_end: [ERR315339, ERR315372, ERR315376, ERR315401]
+      single_end: []
 
+lib_types:
+        ERR030872: IU
+        ERR030873: IU
+        ERR030874: IU
+        ERR030875: IU
+        ERR030876: IU
+        ERR030877: IU
+        ERR030879: IU
+        ERR030880: IU
+        ERR030881: IU
+        ERR030882: IU
+        ERR030883: IU
+        ERR030884: IU
+        ERR030885: IU
+        ERR030886: IU
+        ERR030887: IU
+        ERR030888: U
+        ERR030889: U
+        ERR030890: U
+        ERR030891: U
+        ERR030892: U
+        ERR030893: U
+        ERR030894: U
+        ERR030895: U
+        ERR030896: U
+        ERR030897: U
+        ERR030898: U
+        ERR030899: U
+        ERR030900: U
+        ERR030901: U
+        ERR030902: U
+        ERR030903: U
+        ERR315325: IU
+        ERR315326: IU
+        ERR315327: IU
+        ERR315328: IU
+        ERR315329: IU
+        ERR315330: IU
+        ERR315331: IU
+        ERR315332: IU
+        ERR315333: IU
+        ERR315334: IU
+        ERR315335: IU
+        ERR315336: IU
+        ERR315337: IU
+        ERR315338: IU
+        ERR315339: IU
+        ERR315340: IU
+        ERR315341: IU
+        ERR315342: IU
+        ERR315343: IU
+        ERR315344: IU
+        ERR315345: IU
+        ERR315346: IU
+        ERR315347: IU
+        ERR315348: IU
+        ERR315349: IU
+        ERR315350: IU
+        ERR315351: IU
+        ERR315352: IU
+        ERR315353: IU
+        ERR315354: IU
+        ERR315355: IU
+        ERR315356: IU
+        ERR315357: IU
+        ERR315358: IU
+        ERR315359: IU
+        ERR315360: IU
+        ERR315361: IU
+        ERR315362: IU
+        ERR315363: IU
+        ERR315364: IU
+        ERR315365: IU
+        ERR315366: IU
+        ERR315367: IU
+        ERR315368: IU
+        ERR315369: IU
+        ERR315370: IU
+        ERR315371: IU
+        ERR315372: IU
+        ERR315373: IU
+        ERR315374: IU
+        ERR315375: IU
+        ERR315376: IU
+        ERR315377: IU
+        ERR315378: IU
+        ERR315379: IU
+        ERR315380: IU
+        ERR315381: IU
+        ERR315382: IU
+        ERR315383: IU
+        ERR315384: IU
+        ERR315385: IU
+        ERR315386: IU
+        ERR315387: IU
+        ERR315388: IU
+        ERR315389: IU
+        ERR315390: IU
+        ERR315391: IU
+        ERR315392: IU
+        ERR315393: IU
+        ERR315394: IU
+        ERR315395: IU
+        ERR315396: IU
+        ERR315397: IU
+        ERR315399: IU
+        ERR315401: IU
+        ERR315403: IU
+        ERR315404: IU
+        ERR315405: IU
+        ERR315406: IU
+        ERR315408: IU
+        ERR315409: IU
+        ERR315410: IU
+        ERR315411: IU
+        ERR315413: IU
+        ERR315415: IU
+        ERR315416: IU
+        ERR315417: IU
+        ERR315419: IU
+        ERR315422: IU
+        ERR315423: IU
+        ERR315424: IU
+        ERR315426: IU
+        ERR315427: IU
+        ERR315430: IU
+        ERR315431: IU
+        ERR315432: IU
+        ERR315433: IU
+        ERR315438: IU
+        ERR315439: IU
+        ERR315440: IU
+        ERR315441: IU
+        ERR315443: IU
+        ERR315444: IU
+        ERR315445: IU
+        ERR315446: IU
+        ERR315447: IU
+        ERR315451: IU
+        ERR315452: IU
+        ERR315453: IU
+        ERR315454: IU
+        ERR315455: IU
+        ERR315456: IU
+        ERR315457: IU
+        ERR315459: IU
+        ERR315461: IU
+        ERR315467: IU
+        ERR315469: IU
+        ERR315470: IU
+        ERR315472: IU
+        ERR315473: IU
+        ERR315474: IU
+        ERR315475: IU
+        ERR315479: IU
+        ERR315481: IU
+        ERR315485: IU
+        ERR315486: IU
+        ERR315487: IU
+        ERR315488: IU
+        ERR315489: IU
+        ERR315490: IU
+        ERR315491: IU
+        ERR315493: IU
+        ERR315494: IU
+        ERR315495: IU
+        ERR579122: ISR
+        ERR579123: ISR
+        ERR579124: ISR
+        ERR579125: ISR
+        ERR579127: ISR
+        ERR579128: IU
+        ERR579129: ISR
+        ERR579130: IU
+        ERR579131: ISR
+        ERR579132: ISR
+        ERR579133: ISR
+        ERR579134: ISR
+        ERR579135: ISR
+        ERR579136: ISR
+        ERR579138: ISR
+        ERR579139: ISR
+        ERR579140: ISR
+        ERR579141: IU
+        ERR579142: IU
+        ERR579143: IU
+        ERR579146: ISR
+        ERR579147: ISR
+        ERR579148: ISR
+        ERR579149: IU
+        ERR579150: ISR
+        ERR579151: ISR
+        ERR579152: IU
+        ERR579153: ISR
+        ERR579155: IU
 
+all_paired_end_human: [ERR030872, ERR030873, ERR030874, ERR030875, ERR030876, ERR030877,
+                        ERR030879, ERR030880, ERR030881, ERR030882, ERR030883,
+                        ERR030884, ERR030885, ERR030886, ERR030887, ERR315325, ERR315326,
+                        ERR315327, ERR315328, ERR315329, ERR315330, ERR315331, ERR315332, ERR315333, ERR315334,
+                        ERR315335, ERR315336, ERR315337, ERR315338, ERR315339, ERR315340,
+                        ERR315341, ERR315342, ERR315343, ERR315344, ERR315345, ERR315346,
+                        ERR315347, ERR315348, ERR315349, ERR315350, ERR315351, ERR315352,
+  ERR315353, ERR315354, ERR315355, ERR315356, ERR315357, ERR315358,
+  ERR315359, ERR315360, ERR315361, ERR315362, ERR315363, ERR315364,
+  ERR315365, ERR315366, ERR315367, ERR315368, ERR315369, ERR315370,
+  ERR315371, ERR315372, ERR315373, ERR315374, ERR315375, ERR315376,
+  ERR315377, ERR315378, ERR315379, ERR315380, ERR315381, ERR315382,
+  ERR315383, ERR315384, ERR315385, ERR315386, ERR315387, ERR315388,
+  ERR315389, ERR315390, ERR315391, ERR315392, ERR315393, ERR315394,
+  ERR315395, ERR315396, ERR315397, ERR315399, ERR315401, ERR315403,
+  ERR315404, ERR315405, ERR315406, ERR315408, ERR315409, ERR315410,
+  ERR315411, ERR315413, ERR315415, ERR315416, ERR315417, ERR315419,
+  ERR315422, ERR315423, ERR315424, ERR315426, ERR315427, ERR315430,
+  ERR315431, ERR315432, ERR315433, ERR315438, ERR315439, ERR315440,
+  ERR315441, ERR315443, ERR315444, ERR315445, ERR315446, ERR315447,
+  ERR315451, ERR315452, ERR315453, ERR315454, ERR315455, ERR315456,
+  ERR315457, ERR315459, ERR315461, ERR315467, ERR315469, ERR315470,
+  ERR315472, ERR315473, ERR315474, ERR315475, ERR315479, ERR315481,
+  ERR315485, ERR315486, ERR315487, ERR315488, ERR315489, ERR315490,
+  ERR315491, ERR315493, ERR315494, ERR315495, ERR579122, ERR579123,
+  ERR579124, ERR579125, ERR579127, ERR579128, ERR579129, ERR579130,
+  ERR579131, ERR579132, ERR579133, ERR579134, ERR579135,
+  ERR579136, ERR579138, ERR579139, ERR579140, ERR579141, ERR579142,
+  ERR579143, ERR579146, ERR579147, ERR579148, ERR579149, ERR579150,
+  ERR579151, ERR579152, ERR579153, ERR579155]
 
+all_single_end_human: [ERR030888,ERR030889,
+  ERR030890,ERR030891,ERR030892,ERR030893,ERR030894,ERR030895,
+  ERR030896,ERR030897,ERR030898,ERR030899,ERR030900,ERR030901,
+  ERR030902,ERR030903]
 
 projects:
    mouse:
@@ -716,9 +451,9 @@ all_single_end: [SRR652205,SRR652206,SRR652207,SRR652208,SRR652209,SRR652210,SRR
                  SRR652246,SRR652247,SRR652248,SRR652249,SRR652250,SRR652251,SRR652252,SRR652253,SRR652254,SRR786699,
                  SRR786700,SRR786701,SRR786702,ERR1361600, ERR1361601, ERR1361602, ERR1361603,ERR1361604, ERR1361605,
                  ERR1361606, ERR1361607, ERR030888, ERR030889, ERR030890, ERR030891,ERR030892, ERR030893, ERR030894,
-                 ERR030895,ERR030896, ERR030897, ERR030898, ERR030899,ERR030900, ERR030901, ERR030902, ERR030903, 
-                 SRR306757, SRR306758, SRR306759, SRR306760,SRR306761, SRR306762, SRR306763, SRR306764,SRR306765, 
-                 SRR306766, SRR306767, SRR306768,SRR306769, SRR306770, SRR306771, SRR306772,SRR306773, SRR306774, 
+                 ERR030895,ERR030896, ERR030897, ERR030898, ERR030899,ERR030900, ERR030901, ERR030902, ERR030903,
+                 SRR306757, SRR306758, SRR306759, SRR306760,SRR306761, SRR306762, SRR306763, SRR306764,SRR306765,
+                 SRR306766, SRR306767, SRR306768,SRR306769, SRR306770, SRR306771, SRR306772,SRR306773, SRR306774,
                  SRR306775, SRR306776]
 
 all_paired_end: [ERR579122, ERR579123, ERR579124, ERR579125, ERR579126, ERR579127, ERR579128, ERR579129, ERR579130,
@@ -751,8 +486,3 @@ all_paired_end: [ERR579122, ERR579123, ERR579124, ERR579125, ERR579126, ERR57912
                  ERR032206, ERR032207,ERR032208, ERR032209, ERR032210, ERR032211,ERR032212, ERR032213, ERR032214, ERR032215,
                  ERR032216, ERR032217, ERR032218, ERR032219,ERR032220, ERR032221, SRR786703,SRR786704,SRR786705,SRR786706,
                  SRR786707,SRR786708]
-
-
-
-
-
