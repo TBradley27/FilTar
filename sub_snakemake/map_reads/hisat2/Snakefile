@@ -1,0 +1,76 @@
+rule download_fasta:
+        input:
+        output: "data/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
+        shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
+
+rule decompress_file:
+        input: "data/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
+        output: "data/Homo_sapiens.GRCh38.dna.primary_assembly.fa"
+        threads: 8
+        shell: "pigz -p {threads} -d {input}"
+
+rule get_splice_sites_for_hisat2:
+        input:
+          gtf="data/Homo_sapiens.GRCh38.92.gtf",
+          script='exe/hisat2_extract_splice_sites.py'
+        output: "results/hisat2_splice_sites.txt"
+        shell: "python {input.script} {input.gtf} > {output}"
+
+rule get_exons_for_hisat2:
+        input:
+          gtf="data/Homo_sapiens.GRCh38.92.gtf",
+          script='exe/hisat2_extract_exons.py'
+        output: "results/hisat2_exons.txt"
+        shell: "python {input.script} {input.gtf} > {output}"
+
+rule create_index:
+        input:
+           assembly="data/Homo_sapiens.GRCh38.dna.primary_assembly.fa",
+           splice_sites="results/hisat2_splice_sites.txt",
+           exons="results/hisat2_exons.txt"
+        conda:
+           "envs/hisat2.yaml"
+        output: "data/hsa.1.ht2"
+        threads: 8
+        shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} hsa"
+
+
+def get_lib_type(wildcards):
+
+	hisat2_dict = {'IU':'','ISF':'FR','ISR':'RF'}	
+
+	dict = config['sample_type']['human'][wildcards.tissue]['paired_end']
+	for lib_type,accession_list in dict.items():
+		if wildcards.accession in accession_list:
+			tmp = hisat2_dict[lib_type]
+			break # this is a (not ideal) fudge to ensure the loop does not hit the 'all' key
+	
+	if tmp == 'FR':
+		return ("--rna-strandness FR")
+	elif tmp == 'RF':
+		return ("--rna-strandness RF")
+	else:
+		return ("")
+
+rule map_paired_end:
+	input:
+           reads1="results/trimmed_fastq/{accession}_1_val_1.fq.gz",
+           reads2="results/trimmed_fastq/{accession}_2_val_2.fq.gz"
+	conda:
+           "envs/hisat2.yaml"
+	output: "results/bam/{tissue}/{accession}.bam"
+	params:
+             lib_type= get_lib_type
+	shell: "hisat2 -x data/hsa -1 {input.reads1} -2 {input.reads2} {params.lib_type}" # --rna-strandness {params.lib_type}"
+
+rule samtools_sort:
+    input:
+        "results/{accession}.bam"
+    output:
+        "results/{accession}.bam.sorted"
+    params:
+        "-m 4G"
+    threads: 4
+    benchmark: "benchmarks/samtools_sort/{accession}.log"
+    wrapper:
+        "0.27.0/bio/samtools/sort"
