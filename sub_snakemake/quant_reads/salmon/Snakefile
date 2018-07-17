@@ -1,6 +1,3 @@
-#!/bin/bash
-
-
 rule download cdna_file:
         input:
         output: "data/Homo_sapiens.GRCh38.cdna.all.fa.gz"
@@ -22,19 +19,62 @@ rule salmon_index_mouse:
 
 rule salmon_index_humans:
         input:
-            "data/Homo_sapiens.GRCh38.cdna.all.fa"
+            ancient("data/Homo_sapiens.GRCh38.cdna.all.fa")
         output:
-            "results/hsa_GRCh38_index/"
+            ancient("results/hsa_GRCh38_index/")
         threads: 8
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
 
-rule salmon_quant_human:
+rule salmon_quant_single_end:
         input:
-          index="results/hsa_GRCh38_index/",
-          reads="results/{accession}_trimmed.fq.gz"
+          index=ancient("results/hsa_GRCh38_index/"),
+          reads="results/trimmed_fastq/{accession}_trimmed.fq.gz"
         output:
-          "results/{accession}_salmon/"
-        threads: 4
+          "results/single_end_salmon/{accession}/"
+        threads: 1
         shell:
           "salmon quant -p {threads} -i {input.index} -l A -r {input.reads} -o {output}"
+
+rule salmon_quant_paired_end:
+        input:
+          index=ancient("results/hsa_GRCh38_index/"),
+          forward_reads="results/trimmed_fastq/{accession}_1_val_1.fq.gz",
+          reverse_reads="results/trimmed_fastq/{accession}_2_val_2.fq.gz"
+        output:
+          "results/paired_end_salmon/{accession}/"
+        threads: 1
+        shell:
+          "salmon quant -p {threads} -i {input.index} -l A -1 {input.forward_reads} -2 {input.reverse_reads} -o {output}"
+
+rule salmon_quantmerge:
+	input:
+           paired_end = lambda wildcards: expand('results/paired_end_salmon/{accession}/', accession=config['sample_type']['human'][wildcards.tissue]['paired_end']),
+           single_end = lambda wildcards: expand('results/single_end_salmon/{accession}/', accession=config['sample_type']['human'][wildcards.tissue]['single_end'])
+	output: "results/{tissue}.sf"
+        params:
+           paired_end = lambda wildcards: expand('{accession}', accession=config['sample_type']['human'][wildcards.tissue]['paired_end']),
+           single_end = lambda wildcards: expand('{accession}', accession=config['sample_type']['human'][wildcards.tissue]['single_end'])
+	shell: "salmon quantmerge --quants {input.paired_end} {input.single_end} --names {params.paired_end} {params.single_end} -o {output}"
+
+rule salmon_average_quantmerge:
+	input: 
+            quant_file="results/{tissue}.sf",
+            script = "exe/average_quant_file.R"
+	output: "results/{tissue}_avg.sf"
+	shell: "Rscript {input.script} {input.quant_file} {output}"
+
+rule construct_config_file:
+	input: "/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/multiqc_data.json"
+        output: "/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/tmp_config.txt"
+        shell: "grep 'ISF\|ISR\|IU\|ERR*\|SRR*\|OSF\|OSR\|OU\|MSF\|MSR\|MU' {input} | grep -v lib | sed 's/://g' | sed 's/{{//g' | paste - - > {output}"
+
+rule construct_config_file2:
+        input: 
+            json_file="/gpfs/afm/moxon/thomas2/APAtrap/reports/multiqc_salmon_single_end_data/multiqc_data.json",
+            config_file="/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/tmp_config.txt"
+        output: "tmp_config2.txt"
+        shell: "grep 'SF\|SR\|U\|ERR*\|SRR*' {input.json_file} | grep -v lib | sed 's/://g' | sed 's/{{//g' | paste - - >> {input.config_file} && mv {input.config_file} {output}"
+
+
+
