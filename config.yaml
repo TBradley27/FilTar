@@ -20,123 +20,123 @@ sample_type:
          paired_end: [SRR2927743]
 
     human:
-        all_tissues: [adipose_tissue,adrenal_gland,bone_marrow,brain,breast,cerebral_cortex,colon,duodenum,endometrium,
-                      esophagus,fallopian_tube,gall_bladder,heart,kidney,leukocyte,liver,lung,lymph_node,ovary,pancreas,
-                      placenta,prostate_gland,rectum,saliva_secreting_gland,skeletal_muscle_tissue,small_intestine,
-                      smooth_muscle_tissue,spleen,stomach,testis,thyroid_gland,tonsil,urinary_bladder,vermiform_appendix,
-                      zone_of_skin]
-    adipose_tissue:
-      paired_end: [ERR030880, ERR315332, ERR315342, ERR315343, ERR315378, ERR315431, ERR579122,
-        ERR579146]
-      single_end: [ERR030888]
-    adrenal_gland:
-      paired_end: [ERR030881, ERR315335, ERR315385, ERR315392, ERR315417, ERR315452]
-      single_end: [ERR030889]
-    bone_marrow:
-      paired_end: [ERR315333, ERR315395, ERR315396, ERR315404, ERR315406, ERR315469, ERR315486]
-      single_end: []
-    brain:
-      paired_end: [ERR030882]
-      single_end: [ERR030890]
-    breast:
-      paired_end: [ERR030883]
-      single_end: [ERR030891]
-    cerebral_cortex:
-      paired_end: [ERR315432, ERR315455]
-      single_end: []
-    colon:
-      paired_end: [ERR030884, ERR315348, ERR315357, ERR315403, ERR579129, ERR579148]
-      single_end: [ERR030892]
-    duodenum:
-      paired_end: [ERR315445, ERR315457, ERR315461]
-      single_end: []
-    endometrium:
-      paired_end: [ERR315361, ERR315368, ERR315386, ERR315433, ERR315438, ERR315490, ERR315495,
-        ERR579123, ERR579138]
-      single_end: []
-    esophagus:
-      paired_end: [ERR315362, ERR315411, ERR315472, ERR315489]
-      single_end: []
-    fallopian_tube:
-      paired_end: [ERR579124, ERR579128, ERR579134, ERR579136, ERR579150, ERR579155]
-      single_end: []
-    gall_bladder:
-      paired_end: [ERR315347, ERR315349, ERR315360, ERR315427, ERR315470, ERR315474]
-      single_end: []
-    heart:
-      paired_end: [ERR030886, ERR315328, ERR315331, ERR315356, ERR315367, ERR315384, ERR315389,
-        ERR315413, ERR315430]
-      single_end: [ERR030894]
-    kidney:
-      paired_end: [ERR030885, ERR315383, ERR315443, ERR315494]
-      single_end: [ERR030893]
-    leukocyte:
-      paired_end: [ERR030875]
-      single_end: [ERR030900]
-    liver:
-      paired_end: [ERR030887, ERR315327, ERR315394, ERR315451]
-      single_end: [ERR030895]
-    lung:
-      paired_end: [ERR030879, ERR315326, ERR315341, ERR315346, ERR315353, ERR315424, ERR315439,
-        ERR315444, ERR315487]
-      single_end: [ERR030896]
-    lymph_node:
-      paired_end: [ERR030878, ERR315329, ERR315371, ERR315373, ERR315387, ERR315390, ERR315393,
-        ERR315426, ERR315440, ERR315441, ERR315475, ERR315488, ERR315493]
-      single_end: [ERR030897]
-    ovary:
-      paired_end: [ERR030874, ERR315380, ERR579132]
-      single_end: [ERR030901]
-    pancreas:
-      paired_end: [ERR315479]
-      single_end: []
-    placenta:
-      paired_end: [ERR315336, ERR315374, ERR315375, ERR315377, ERR315399]
-      single_end: []
-    prostate_gland:
-      paired_end: [ERR030877, ERR315330, ERR315340, ERR315354, ERR315359, ERR315365, ERR315410]
-      single_end: [ERR030898]
-    rectum:
-      paired_end: [ERR579127, ERR579140, ERR579147, ERR579151]
-      single_end: []
-    saliva_secreting_gland:
-      paired_end: [ERR315325, ERR315382, ERR315459]
-      single_end: []
-    skeletal_muscle_tissue:
-      paired_end: [ERR030876, ERR579130, ERR579141, ERR579142, ERR579143, ERR579149, ERR579152]
-      single_end: [ERR030899]
-    small_intestine:
-      paired_end: [ERR315344, ERR315364, ERR315381, ERR315388, ERR315408, ERR315409, ERR315419,
-        ERR315423]
-      single_end: []
-    smooth_muscle_tissue:
-      paired_end: [ERR579125, ERR579131, ERR579153]
-      single_end: []
-    spleen:
-      paired_end: [ERR315338, ERR315405, ERR315416, ERR315473]
-      single_end: []
-    stomach:
-      paired_end: [ERR315369, ERR315379, ERR315467, ERR315485]
-      single_end: []
-    testis:
-      paired_end: [ERR030873, ERR315350, ERR315351, ERR315352, ERR315391, ERR315415, ERR315446,
-        ERR315456]
-      single_end: [ERR030902]
-    thyroid_gland:
-      paired_end: [ERR030872, ERR315337, ERR315358, ERR315363, ERR315397, ERR315422, ERR315491]
-      single_end: [ERR030903]
-    tonsil:
-      paired_end: [ERR579133, ERR579135, ERR579139]
-      single_end: []
-    urinary_bladder:
-      paired_end: [ERR315334, ERR315355, ERR315370, ERR315447, ERR315453]
-      single_end: []
-    vermiform_appendix:
-      paired_end: [ERR315345, ERR315366, ERR315454, ERR315481]
-      single_end: []
-    zone_of_skin:
-      paired_end: [ERR315339, ERR315372, ERR315376, ERR315401]
-      single_end: []
+            all_tissues: [adipose_tissue,adrenal_gland,bone_marrow,brain,breast,cerebral_cortex,colon,duodenum,endometrium,
+                              esophagus,fallopian_tube,gall_bladder,heart,kidney,leukocyte,liver,lung,lymph_node,ovary,pancreas,
+                              placenta,prostate_gland,rectum,saliva_secreting_gland,skeletal_muscle_tissue,small_intestine,
+                              smooth_muscle_tissue,spleen,stomach,testis,thyroid_gland,tonsil,urinary_bladder,vermiform_appendix,
+                              zone_of_skin]
+            adipose_tissue:
+              paired_end: [ERR030880, ERR315332, ERR315342, ERR315343, ERR315378, ERR315431, ERR579122,
+                ERR579146]
+              single_end: [ERR030888]
+            adrenal_gland:
+              paired_end: [ERR030881, ERR315335, ERR315385, ERR315392, ERR315417, ERR315452]
+              single_end: [ERR030889]
+            bone_marrow:
+              paired_end: [ERR315333, ERR315395, ERR315396, ERR315404, ERR315406, ERR315469, ERR315486]
+              single_end: []
+            brain:
+              paired_end: [ERR030882]
+              single_end: [ERR030890]
+            breast:
+              paired_end: [ERR030883]
+              single_end: [ERR030891]
+            cerebral_cortex:
+              paired_end: [ERR315432, ERR315455]
+              single_end: []
+            colon:
+              paired_end: [ERR030884, ERR315348, ERR315357, ERR315403, ERR579129, ERR579148]
+              single_end: [ERR030892]
+            duodenum:
+              paired_end: [ERR315445, ERR315457, ERR315461]
+              single_end: []
+            endometrium:
+              paired_end: [ERR315361, ERR315368, ERR315386, ERR315433, ERR315438, ERR315490, ERR315495,
+                ERR579123, ERR579138]
+              single_end: []
+            esophagus:
+              paired_end: [ERR315362, ERR315411, ERR315472, ERR315489]
+              single_end: []
+            fallopian_tube:
+              paired_end: [ERR579124, ERR579128, ERR579134, ERR579136, ERR579150, ERR579155]
+              single_end: []
+            gall_bladder:
+              paired_end: [ERR315347, ERR315349, ERR315360, ERR315427, ERR315470, ERR315474]
+              single_end: []
+            heart:
+              paired_end: [ERR030886, ERR315328, ERR315331, ERR315356, ERR315367, ERR315384, ERR315389,
+                ERR315413, ERR315430]
+              single_end: [ERR030894]
+            kidney:
+              paired_end: [ERR030885, ERR315383, ERR315443, ERR315494]
+              single_end: [ERR030893]
+            leukocyte:
+              paired_end: [ERR030875]
+              single_end: [ERR030900]
+            liver:
+              paired_end: [ERR030887, ERR315327, ERR315394, ERR315451]
+              single_end: [ERR030895]
+            lung:
+              paired_end: [ERR030879, ERR315326, ERR315341, ERR315346, ERR315353, ERR315424, ERR315439,
+                ERR315444, ERR315487]
+              single_end: [ERR030896]
+            lymph_node:
+              paired_end: [ERR030878, ERR315329, ERR315371, ERR315373, ERR315387, ERR315390, ERR315393,
+                ERR315426, ERR315440, ERR315441, ERR315475, ERR315488, ERR315493]
+              single_end: [ERR030897]
+            ovary:
+              paired_end: [ERR030874, ERR315380, ERR579132]
+              single_end: [ERR030901]
+            pancreas:
+              paired_end: [ERR315479]
+              single_end: []
+            placenta:
+              paired_end: [ERR315336, ERR315374, ERR315375, ERR315377, ERR315399]
+              single_end: []
+            prostate_gland:
+              paired_end: [ERR030877, ERR315330, ERR315340, ERR315354, ERR315359, ERR315365, ERR315410]
+              single_end: [ERR030898]
+            rectum:
+              paired_end: [ERR579127, ERR579140, ERR579147, ERR579151]
+              single_end: []
+            saliva_secreting_gland:
+              paired_end: [ERR315325, ERR315382, ERR315459]
+              single_end: []
+            skeletal_muscle_tissue:
+              paired_end: [ERR030876, ERR579130, ERR579141, ERR579142, ERR579143, ERR579149, ERR579152]
+              single_end: [ERR030899]
+            small_intestine:
+              paired_end: [ERR315344, ERR315364, ERR315381, ERR315388, ERR315408, ERR315409, ERR315419,
+                ERR315423]
+              single_end: []
+            smooth_muscle_tissue:
+              paired_end: [ERR579125, ERR579131, ERR579153]
+              single_end: []
+            spleen:
+              paired_end: [ERR315338, ERR315405, ERR315416, ERR315473]
+              single_end: []
+            stomach:
+              paired_end: [ERR315369, ERR315379, ERR315467, ERR315485]
+              single_end: []
+            testis:
+              paired_end: [ERR030873, ERR315350, ERR315351, ERR315352, ERR315391, ERR315415, ERR315446,
+                ERR315456]
+              single_end: [ERR030902]
+            thyroid_gland:
+              paired_end: [ERR030872, ERR315337, ERR315358, ERR315363, ERR315397, ERR315422, ERR315491]
+              single_end: [ERR030903]
+            tonsil:
+              paired_end: [ERR579133, ERR579135, ERR579139]
+              single_end: []
+            urinary_bladder:
+              paired_end: [ERR315334, ERR315355, ERR315370, ERR315447, ERR315453]
+              single_end: []
+            vermiform_appendix:
+              paired_end: [ERR315345, ERR315366, ERR315454, ERR315481]
+              single_end: []
+            zone_of_skin:
+              paired_end: [ERR315339, ERR315372, ERR315376, ERR315401]
+              single_end: []
 
 lib_types:
         ERR030872: IU
