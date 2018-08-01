@@ -1,0 +1,13 @@
+configfile: "config.yaml"
+
+include: "../sub_snakemake/data_download/ENA/Snakefile"
+include: "../sub_snakemake/qc/Snakefile"
+include: "../sub_snakemake/trim_reads/trim_galore/Snakefile"
+include: "../sub_snakemake/map_reads/hisat2/Snakefile"
+include: "../sub_snakemake/APAtrap/Snakefile"
+include: "../sub_snakemake/reannotate_3utrs/Snakefile"
+include: "../sub_snakemake/quant_reads/salmon/Snakefile"
+
+rule all:
+     input: expand("results/single_end_salmon/{accession}/", accession=config['PRJNA229375']['HeLa']['mock']),
+            expand("results/single_end_salmon/{accession}/", accession=config['PRJNA229375']['HeLa']['miR-124']) 
