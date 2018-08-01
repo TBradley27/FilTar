@@ -46,50 +46,50 @@ rule get_chrom_sizes:
 
 rule get_bedgraph:
     input:
-        sorted_bam="results/{accession}.bam.sorted",
+        sorted_bam="results/{lib_type}/{accession}.bam.sorted",
         genome_sizes="results/hg38.chrom.sizes"
     output:
-        "results/{accession}.bedgraph"
+        "results/{lib_type}/{accession}.bedgraph"
     conda:
         "envs/bedtools.yaml"
     benchmark:
-        "benchmarks/genomeCoverageBed/{accession}.txt"
+        "benchmarks/genomeCoverageBed/{lib_type}/{accession}.txt"
     shell:
         "genomeCoverageBed -bg -ibam {input.sorted_bam} -g {input.genome_sizes} -split > {output}"
 
-rule reannotatate_3utrs_in_cell_lines:
-     input:
-        script="exe/identifyDistal3UTR.pl",
-        bedgraph1= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][0]) + '.bedgraph',
-        bedgraph2= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][1]) + '.bedgraph',
-        bed="results/Homo_sapiens.GRCh38.92.bed"
-     benchmark: "benchmarks/APAtrap/{cell_line}.log"
-     output:
-        "results/{cell_line}.utr.bed"
-     shell:
-        "{input.script} -i {input.bedgraph1} {input.bedgraph2} -m {input.bed}  -o {output}"
+#rule reannotatate_3utrs_in_cell_lines:
+#     input:
+#        script="exe/identifyDistal3UTR.pl",
+#        bedgraph1= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][0]) + '.bedgraph',
+#       bedgraph2= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][1]) + '.bedgraph',
+#        bed="results/Homo_sapiens.GRCh38.92.bed"
+#     benchmark: "benchmarks/APAtrap/{cell_line}.log"
+#     output:
+#        "results/{cell_line}.utr.bed"
+#     shell:
+#        "{input.script} -i {input.bedgraph1} {input.bedgraph2} -m {input.bed}  -o {output}"
 
-rule reannotate_3utrs_brain:
-    input:
-       script="exe/identifyDistal3UTR.pl",
-       bed="results/Homo_sapiens.GRCh38.92.bed",
-       bedgraphs= lambda wildcards: 'results/' + str(config['brain'][wildcards.brain_region]) + '.bedgraph'
-    benchmark: "benchmarks/APAtrap/{brain_region}.log"
-    output:
-       "results/{brain_region}.utr.bed"
-    shell:
-       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+#rule reannotate_3utrs_brain:
+#    input:
+#       script="exe/identifyDistal3UTR.pl",
+#       bed="results/Homo_sapiens.GRCh38.92.bed",
+#       bedgraphs= lambda wildcards: 'results/' + str(config['brain'][wildcards.brain_region]) + '.bedgraph'
+#    benchmark: "benchmarks/APAtrap/{brain_region}.log"
+#    output:
+#       "results/{brain_region}.utr.bed"
+#    shell:
+#       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
 
-rule reannotate_3utrs:
-    input:
-       script="exe/identifyDistal3UTR.pl",
-       bed="results/Homo_sapiens.GRCh38.92.bed",
-       bedgraphs= 'results/{accession}.bedgraph'
-    benchmark: "benchmarks/APAtrap/{accession}.log"
-    output:
-       "results/{accession}.utr.bed"
-    shell:
-       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+#rule reannotate_3utrs:
+#    input:
+#       script="exe/identifyDistal3UTR.pl",
+#       bed="results/Homo_sapiens.GRCh38.92.bed",
+#       bedgraphs= 'results/{accession}.bedgraph'
+#    benchmark: "benchmarks/APAtrap/{accession}.log"
+#    output:
+#       "results/{accession}.utr.bed"
+#    shell:
+#       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
 
 
 #rule identify_APA_sites_in_cell_lines:

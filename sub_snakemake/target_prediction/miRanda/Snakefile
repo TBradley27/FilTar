@@ -1,13 +1,46 @@
 #!/bin/bash
 
-rule miRanda:
+#rule miRanda:
+#        input:
+#            mature_mirnas="data/mirbase_mature_{species}.fa",
+#            fasta_3UTR_merged="results/{species}_3UTR_chr{chrom}.fa.merged",
+#            script="exe/miRanda.sh"
+#        output:
+#            "results/{species}_chr{chrom}.miranda_proc"
+#        benchmark:
+#             "benchmarks/{species}_chr{chrom}_miRanda.log"
+#        shell:
+#            "{input.script} --species {wildcards.species} --chromosome {wildcards.chrom}"
+
+rule build_miRanda_table:
         input:
-            mature_mirnas="data/mirbase_mature_{species}.fa",
-            fasta_3UTR_merged="results/{species}_3UTR_chr{chrom}.fa.merged",
-            script="src/miRanda/miRanda.sh"
+            script="exe/SQL/SQLite/create_miRanda.sql",
+            dependency_species="results/species_table_created.txt",
+            dependency_mirna="results/mirna_table_loaded.txt"
         output:
-            "results/{species}_chr{chrom}.miranda_proc"
-        benchmark:
-             "benchmarks/{species}_chr{chrom}_miRanda.log"
+            "results/miRanda_created.txt"
         shell:
-            "{input.script} --species {wildcards.species} --chromosome {wildcards.chrom}"
+            "sqlite3 filtar.db < {input.script} && touch {output}"
+
+rule add_species_to_miRanda_files: # fix this at the point where we originally process the miRanda output - need a separation between data output and post-processing
+	input: "results/{species}_chr{chrom}.miranda_proc"
+	output: "results/{species}_chr{chrom}.miranda_proc2"
+	shell: "exe/reformat_miRanda_output.sh {input} {output}" 
+
+rule load_in_miRanda_scores_SQLite:
+        input:
+           miRanda_results="results/{species}_chr{chrom}.miranda_proc2",
+           miRanda_table_created="results/miRanda_created.txt"
+        output:
+           "results/{species}_chr{chrom}_loaded.miRanda.txt"
+        shell:
+           "sqlite3 filtar.db -separator '\t' '.import {input.miRanda_results} miRanda' && touch {output}"
+
+#rule load_in_miRanda_scores:
+#        input:
+#           miRanda_results="results/{species}_chr{chrom}.miranda_proc",
+#           script="exe/load_miRanda.sh"
+#        output:
+#           "results/{species}_chr{chrom}_loaded.miRanda.txt"
+#        shell:
+#           "{input.script} {input.miRanda_results} {wildcards.chrom} {wildcards.species}"

@@ -31,6 +31,14 @@ rule get_extended_bed_file:
          shell:
              "Rscript {input.script} {input.normal_bed} {input.extended_bed} {output} 2> {log}"
 
+rule split_bed:
+	input:
+		"results/longest.utr.full.bed"
+	output:
+		"results/hsa_3UTR_chr{chrom}.bed"
+	shell:
+		"grep '^{wildcards.chrom}' {input} > {output}"
+
 rule reformat_normal_bed_file:
          input:
            script="exe/reformat_normal_bed.R",

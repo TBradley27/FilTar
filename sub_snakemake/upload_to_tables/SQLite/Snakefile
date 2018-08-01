@@ -72,14 +72,21 @@ rule upload_to_expression_profiles_table:
         shell:
            "src/upload_to_expression_profiles_table.sh {wildcards.accession} {input}"
 
+rule prep_mirnas_for_loading:
+	input: 
+            mirnas="results/mature_mirna.tsv",
+            script="exe/prep_mirs_for_loading.sh"
+	output: "results/mature_mirna_for_db.tsv"
+	shell: "{input.script} {input.mirnas} > {output}"
+
 rule upload_mirna_data:
         input:
-            mirna_for_context_scores="results/hsa_mir_for_context_scores.tsv",
-            script="src/load_mirnas.s"
+            miRNAs="results/mature_mirna_for_db.tsv",
+            dependency="results/mirna_table_created.txt"
         output:
-            "mirnas_loaded.txt"
+            "results/mirnas_loaded.txt"
         shell:
-            "src/load_mirnas.sh {input.mirna_for_context_scores}"
+            "sqlite3 filtar.db -separator '\t' '.import {input.miRNAs} miRNA' && touch {output}"
 
 rule load_in_contextpp_scores:
         input:
@@ -90,15 +97,6 @@ rule load_in_contextpp_scores:
         shell:
            "{input.script} {input.contextpp_results} {wildcards.chrom} {wildcards.species}"
 
-rule load_in_miRanda_scores:
-        input:
-           miRanda_results="results/{species}_chr{chrom}.miranda_proc",
-           script="src/load_miRanda.sh"
-        output:
-           "results/{species}_chr{chrom}_loaded.miRanda.txt"
-        shell:
-           "{input.script} {input.miRanda_results} {wildcards.chrom} {wildcards.species}"
-
 rule load_in_PITA_scores:
         input:
            PITA_results="results/{species}_chr{chrom}_pita_results.tab",
@@ -107,6 +105,3 @@ rule load_in_PITA_scores:
            "results/{species}_chr{chrom}_loaded.PITA.txt"
         shell:
            "{input.script} {input.PITA_results} {wildcards.chrom} {wildcards.species}"
-
-
-
