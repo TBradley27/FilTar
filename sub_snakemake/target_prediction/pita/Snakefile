@@ -13,3 +13,11 @@ rule pita:
              "benchmarks/{species}_chr{chrom}_pita.log"
         shell:
             "src/PITA/pita_prediction.pl -utr {input.fasta_3UTR_merged}  -mir {input.mirnas}  -prefix {wildcards.species}_chr{wildcards.chrom} && mv {wildcards.species}_chr{wildcards.chrom}_pita_results.tab {output}"
+
+rule build_PITA_table:
+        input:
+             "create_PITA.sql"
+        output:
+            "results/PITA_created.txt"
+        shell:
+            "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"

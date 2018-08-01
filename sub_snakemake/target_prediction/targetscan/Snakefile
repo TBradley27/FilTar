@@ -169,3 +169,10 @@ rule targetscan_context_scores:
         shell:
             "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} species['{wildcards.species}']"
 
+rule build_contextpp_table:
+        input:
+             "create_contextpp.sql"
+        output:
+            "results/contextpp_created.txt"
+        shell:
+            "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"

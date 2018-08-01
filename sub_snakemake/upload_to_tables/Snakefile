@@ -1,0 +1,6 @@
+rule pre_mRNA_for_loading:
+	input: 
+           data="data/Homo_sapiens.GRCh38.92.gtf",
+           script="exe/prepare_mRNA_for_loading.sh"
+	output: "results/mRNA_to_be_loaded.tsv"
+	shell: "{input.script} {input.data} > {output}"

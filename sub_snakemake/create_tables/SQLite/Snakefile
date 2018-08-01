@@ -19,11 +19,11 @@ rule create_gene_species_table:
 
 rule create_mRNA_table:
         input:
-           "src/create_mRNA_table.sql"
+           "exe/SQL/SQLite/create_mRNA_table.py"
         output:
            "results/mRNA_table_created.txt"
         shell:
-          "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+          "{input} {output}"
 
 rule create_Tissues_table:
         input:
@@ -59,25 +59,9 @@ rule create_species_table:
 
 rule create_mirna_table:
         input:
-           script="exe/SQL/SQLite/create_mirna_table.sql",
+           script="exe/SQL/SQLite/create_mirna_table.py",
            dependency="results/species_table_created.txt"
         output:
             "results/mirna_table_created.txt"
         shell:
-            "sqlite3 filtar.db < {input.script} && touch {output}"
-
-rule build_contextpp_table:
-        input:
-             "create_contextpp.sql"
-        output:
-            "results/contextpp_created.txt"
-        shell:
-            "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
-
-rule build_PITA_table:
-        input:
-             "create_PITA.sql"
-        output:
-            "results/PITA_created.txt"
-        shell:
-            "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+            "{input.script} {output}"

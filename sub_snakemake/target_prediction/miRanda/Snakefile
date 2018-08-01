@@ -16,7 +16,8 @@ rule build_miRanda_table:
         input:
             script="exe/SQL/SQLite/create_miRanda.sql",
             dependency_species="results/species_table_created.txt",
-            dependency_mirna="results/mirna_table_loaded.txt"
+            dependency_mirna="results/mirna_table_loaded.txt",
+            dependency_mrna="results/mrna_table_loaded.txt"
         output:
             "results/miRanda_created.txt"
         shell:

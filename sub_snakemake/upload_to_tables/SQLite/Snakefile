@@ -42,11 +42,12 @@ rule upload_to_gene_species_table:
 
 rule upload_to_mRNA_table:
         input:
-           "results/tx_and_gene_IDs_{species}.txt"
+           data="results/mRNA_to_be_loaded.tsv",
+           script="exe/SQL/SQLite/upload_to_table.py"
         output:
            "results/mRNA_table_loaded_{species}.txt"
         shell:
-           "./upload_to_mRNA_table.sh {input} {wildcards.species}"
+           "{input.script} {input.data} mRNA {output}"
 
 rule upload_to_Tissues_table:
         input:
@@ -81,12 +82,13 @@ rule prep_mirnas_for_loading:
 
 rule upload_mirna_data:
         input:
-            miRNAs="results/mature_mirna_for_db.tsv",
-            dependency="results/mirna_table_created.txt"
+            data="results/mature_mirna_for_db.tsv",
+            dependency="results/mirna_table_created.txt",
+            script="exe/SQL/SQLite/upload_to_table.py"
         output:
             "results/mirnas_loaded.txt"
         shell:
-            "sqlite3 filtar.db -separator '\t' '.import {input.miRNAs} miRNA' && touch {output}"
+            "{input.script} {input.data} miRNA {output}"
 
 rule load_in_contextpp_scores:
         input:
