@@ -22,7 +22,7 @@ def create_table():
                 CONSTRAINT UNIQUE_mRNA_ID UNIQUE (`mRNA_ID`)
                 );''')
 
-	c.execute("CREATE INDEX 'key_Gene_Name' ON mRNA (Gene_Name);")
+	c.execute("CREATE INDEX 'key_Gene_Name' ON mRNA (Gene_ID);")
 
 	conn.commit()
 	conn.close()

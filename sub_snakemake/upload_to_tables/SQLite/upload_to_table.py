@@ -6,15 +6,20 @@ import os
 from subprocess import call
 import pandas
 
+print (snakemake.params['columns'])
+
 conn = sqlite3.connect('filtar.db')
 c = conn.cursor()
 
-c.execute("DELETE FROM {};".format(snakemake.params['tables']))
+c.execute("DELETE FROM {};".format(snakemake.params['table']))
 conn.commit()
 c.execute("PRAGMA foreign_keys = ON")
 conn.commit()
 
-data = pandas.read_csv(snakemake.input)
+data = pandas.read_csv(snakemake.input['data'], sep="\t")
+
+print(data)
+
 data.columns = snakemake.params['columns']
 data.index.names = ['id']
 
@@ -22,7 +27,7 @@ data.index.names = ['id']
 
 #call("sqlite3 filtar.db -separator '\t' '.import {} {}'".format(sys.argv[1], sys.argv[2]), shell=True)
 
-data.to_sql('{}'.format(snakemake.params['tables']), con=conn, if_exists='append')
+data.to_sql('{}'.format(snakemake.params['table']), con=conn, if_exists='append')
 
 conn.commit()
 conn.close()
