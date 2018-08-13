@@ -1,21 +1,20 @@
 #!/bin/bash
 
 rule create_gene_table:
-        input:
-           "src/create_gene_table.sql"
         output:
            "results/gene_table_created.txt"
-        shell:
-           "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+        script:
+           "create_gene_table.py"
 
 rule create_gene_species_table:
-        input:
-           "results/tx_and_gene_IDs.txt",
-           sql="src/create_gene_species_table.sql"
         output:
            "results/gene_species_table_created.txt"
-        shell:
-           "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input.sql} && touch {output}"
+        script:
+           "create_gene_species_table.py"
+
+rule create_utr_lengths_table:
+	output: "results/utr_length_table_created.txt"
+	script: "create_utr_length_table.py"
 
 rule create_mRNA_table:
         input:
@@ -27,27 +26,32 @@ rule create_mRNA_table:
 
 rule create_Tissues_table:
         input:
-           "src/create_Tissues_table.sql"
+           "exe/SQL/SQLite/create_tissues_table.py"
         output:
            "results/tissues_table_created.txt"
         shell:
-           "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+           "{input} {output}"
 
-rule create_experiments_table:
+rule create_samples_table:
         input:
-           "src/create_experiments_table.sql"
+          dependency_tissue="results/Tissues_table_loaded_hsa.txt"
         output:
-           "results/experiments_table_created.txt"
-        shell:
-           "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+           "results/samples_table_created.txt"
+        script:
+           "create_samples_table.py"
+
+rule create_runs_table:
+	output: "results/runs_table_created.txt"
+	script: "create_runs_table.py"
 
 rule create_expression_profiles_table:
          input:
-            "src/create_expression_profiles_table.sql"
+            script="exe/SQL/SQLite/create_expression_profiles_table.py",
+            dependency="results/mRNA_table_created.txt"
          output:
             "results/expression_profiles_table_created.txt"
          shell:
-            "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+            "{input.script} {output}"
 
 rule create_species_table:
         input:
@@ -62,6 +66,6 @@ rule create_mirna_table:
            script="exe/SQL/SQLite/create_mirna_table.py",
            dependency="results/species_table_created.txt"
         output:
-            "results/mirna_table_created.txt"
+           "results/mirna_table_created.txt"
         shell:
-            "{input.script} {output}"
+           "{input.script} {output}"
