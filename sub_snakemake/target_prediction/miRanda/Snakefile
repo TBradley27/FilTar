@@ -14,28 +14,39 @@
 
 rule build_miRanda_table:
         input:
-            script="exe/SQL/SQLite/create_miRanda.sql",
+            script="exe/SQL/SQLite/create_miRanda_table.py",
             dependency_species="results/species_table_created.txt",
-            dependency_mirna="results/mirna_table_loaded.txt",
-            dependency_mrna="results/mrna_table_loaded.txt"
+            dependency_mirna="results/mirnas_loaded.txt",
+            dependency_mrna="results/mRNA_table_loaded_hsa.txt"
         output:
             "results/miRanda_created.txt"
         shell:
-            "sqlite3 filtar.db < {input.script} && touch {output}"
+            "{input.script} {output}"
 
 rule add_species_to_miRanda_files: # fix this at the point where we originally process the miRanda output - need a separation between data output and post-processing
 	input: "results/{species}_chr{chrom}.miranda_proc"
 	output: "results/{species}_chr{chrom}.miranda_proc2"
 	shell: "exe/reformat_miRanda_output.sh {input} {output}" 
 
+# if we decide to write data to the table in one big chunk instead
+rule cat_miRanda_file:
+	input: expand("results/hsa_chr{chrom}.miranda_proc2", chrom=config['chromosomes']['human']),
+        output: "results/hsa.miranda_proc2"
+	shell: "cat {input} > {output}"
+
+# should not be run as a parallel job
 rule load_in_miRanda_scores_SQLite:
-        input:
-           miRanda_results="results/{species}_chr{chrom}.miranda_proc2",
-           miRanda_table_created="results/miRanda_created.txt"
-        output:
-           "results/{species}_chr{chrom}_loaded.miRanda.txt"
-        shell:
-           "sqlite3 filtar.db -separator '\t' '.import {input.miRanda_results} miRanda' && touch {output}"
+	input:
+           data="results/hsa_chr{chrom}.miranda_proc2",
+           miRanda_table_created="results/miRanda_created.txt",
+           script="sub_snakemake/target_prediction/miRanda/upload_to_table.py"
+	output:
+           "results/miRanda{chrom}_loaded.txt"
+	params:
+		table="miRanda",
+		columns=["mirna_id","mrna_id","Species","score","UTR_START","UTR_END"]
+	script:
+           "upload_to_table.py"
 
 #rule load_in_miRanda_scores:
 #        input:

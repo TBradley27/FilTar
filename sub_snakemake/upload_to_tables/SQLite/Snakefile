@@ -1,94 +1,100 @@
 #!/bin/bash
 
-rule extract_tx_and_gene_IDs:
-        input:
-           "data/Homo_sapiens.GRCh38.cdna.all.fa"
-        output:
-           "results/tx_and_gene_IDs.txt"
-        shell:
-           "cat {input} | grep '>' | awk '{{ print $1,$7 }}' | tr ' ' '\t' | sed 's/gene_symbol://g' | sed 's/>//g'  > {output}"
-
-rule extract_tx_and_gene_IDs_mouse:
-        input:
-           "data/Mus_musculus.GRCm38.cdna.all.fa"
-        output:
-           "results/tx_and_gene_IDs_mouse.txt"
-        shell:
-           "cat {input} | grep '>' | awk '{{ print $1,$7 }}' | tr ' ' '\t' | sed 's/gene_symbol://g' | sed 's/>//g'  > {output}"
-
-rule extract_unique_gene_names:
-       input:
-          "results/tx_and_gene_IDs_{species}.txt"
-       output:
-          "results/gene_names_unique_{species}.txt"
-       shell:
-          "awk '{{print $2}}' {input} | uniq > {output}"
-
 rule upload_to_gene_table: # Do we need to upload genes for every species?
         input:
-           "results/gene_names_unique_{species}.txt"
+           "results/gene_to_be_loaded.tsv"
         output:
            "results/gene_table_loaded_{species}.txt"
-        shell:
-           "./upload_to_gene_table.sh {input} {wildcards.species}"
+        params:
+           table="Gene"
+        script:
+           "upload_to_gene_table.py"
 
 rule upload_to_gene_species_table:
         input:
-           "results/gene_names_unique_{species}.txt"
+           "results/gene_to_be_loaded.tsv"
         output:
            "results/gene_species_table_loaded_{species}.txt"
-        shell:
-           "./upload_to_gene_species_table.sh {output} {wildcards.species}"
+        params:
+            table="Gene_species"
+        script:
+           "upload_to_gene_species_table.py"
+
+rule upload_to_utr_length_table:
+	input:
+		"results/{tissue}.utr.full.tsv"
+	output:
+		"results/utr_lengths_{tissue}_loaded.txt"
+	params:
+		table="utr_length"
+	script:
+		"upload_to_utr_length_table.py"
 
 rule upload_to_mRNA_table:
         input:
-           data="results/mRNA_to_be_loaded.tsv",
-           script="exe/SQL/SQLite/upload_to_table.py"
+           data="results/tx_and_gene_IDs.txt",
+           script="sub_snakemake/upload_to_tables/SQLite/upload_to_table.py"
         output:
            "results/mRNA_table_loaded_{species}.txt"
-        shell:
-           "{input.script} {input.data} mRNA {output}"
+	params:
+		table="mRNA",
+		columns=["mRNA_ID","annotator","annotation_version","Gene_ID"]
+	script:
+           "upload_to_table.py"
 
 rule upload_to_Tissues_table:
         input:
-           "data/experiments_{species}.tsv"
+           dependency="results/tissues_table_created.txt",
         output:
            "results/Tissues_table_loaded_{species}.txt"
-        shell:
-           "src/upload_to_Tissues_table.sh {input} {wildcards.species}"
+        params:
+           table="Tissues"
+        script:
+           "upload_to_tissues_table.py"
 
-rule upload_to_experiments_table:    #Not quite sure how to do this yet - will likely have to go back to experiment/project slection processes upstream
+rule upload_to_samples_table:
         input:
-           "data/experiments_{species}.tsv"
+           "data/read_sample_mapping.tsv"
         output:
-           "results/experiments_table_loaded_{species}.txt"
-        shell:
-           "src/upload_to_experiments_table.sh {input} {wildcards.species}"
+           "results/samples_table_loaded_hsa.txt"
+        params:
+           table="Samples"
+        script:
+           "upload_to_samples_table.py"
+
+rule upload_to_runs_table:
+        input:
+           "data/read_sample_mapping.tsv"
+        output:
+           "results/runs_table_loaded_hsa.txt"
+        params:
+           table="Runs"
+        script:
+           "upload_to_runs_table.py"
 
 rule upload_to_expression_profiles_table:
         input:
-           "results/single-end/mouse/{accession}_salmon/quant.sf"
+           data="results/{tissue}_avg.sf",
+           dependency_exp_table="results/expression_profiles_table_created.txt",
+           dependency_mrna_loaded="results/mRNA_table_loaded_hsa.txt",
+           script="exe/SQL/SQLite/upload_to_expression_profiles_table.py"
         output:
-           "results/{accession}_expression_profiles_table_loaded.txt"
+           "results/{tissue}_expression_profiles_table_loaded.txt"
         shell:
-           "src/upload_to_expression_profiles_table.sh {wildcards.accession} {input}"
-
-rule prep_mirnas_for_loading:
-	input: 
-            mirnas="results/mature_mirna.tsv",
-            script="exe/prep_mirs_for_loading.sh"
-	output: "results/mature_mirna_for_db.tsv"
-	shell: "{input.script} {input.mirnas} > {output}"
+           "{input.script} {input.data} expression_profiles {output} {wildcards.tissue}"
 
 rule upload_mirna_data:
         input:
             data="results/mature_mirna_for_db.tsv",
             dependency="results/mirna_table_created.txt",
-            script="exe/SQL/SQLite/upload_to_table.py"
+            script="sub_snakemake/upload_to_tables/SQLite/upload_to_table.py"
         output:
             "results/mirnas_loaded.txt"
-        shell:
-            "{input.script} {input.data} miRNA {output}"
+	params:
+		table="miRNA",
+		columns = ['name','species']
+	script:
+            "upload_to_table.py"
 
 rule load_in_contextpp_scores:
         input:
@@ -98,12 +104,3 @@ rule load_in_contextpp_scores:
            "results/{species}_chr{chrom}_loaded.targetscan7.txt"
         shell:
            "{input.script} {input.contextpp_results} {wildcards.chrom} {wildcards.species}"
-
-rule load_in_PITA_scores:
-        input:
-           PITA_results="results/{species}_chr{chrom}_pita_results.tab",
-           script="src/load_PITA.sh"
-        output:
-           "results/{species}_chr{chrom}_loaded.PITA.txt"
-        shell:
-           "{input.script} {input.PITA_results} {wildcards.chrom} {wildcards.species}"

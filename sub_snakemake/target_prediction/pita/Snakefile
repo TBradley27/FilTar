@@ -21,3 +21,12 @@ rule build_PITA_table:
             "results/PITA_created.txt"
         shell:
             "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+
+rule load_in_PITA_scores:
+        input:
+           PITA_results="results/{species}_chr{chrom}_pita_results.tab",
+           script="src/load_PITA.sh"
+        output:
+           "results/{species}_chr{chrom}_loaded.PITA.txt"
+        shell:
+           "{input.script} {input.PITA_results} {wildcards.chrom} {wildcards.species}"

@@ -51,9 +51,9 @@ rule targetscan_sites:
 	input:
            msa=ancient("results/{species}_chr{chrom}_msa.tsv"),
            mirna_families=ancient("results/mirna_family.tsv"),
-           script=ancient("exe/targetscan7/targetscan_70.pl")
+           script="exe/targetscan7/targetscan_70.pl"
 	output:
-           protected("results/{species}_chr{chrom}_msa.sites.tsv")
+           "results/{species}_chr{chrom}_msa.sites.tsv"
 	benchmark:
            "benchmarks/{species}_chr{chrom}_msa.sites.log"
 	shell:
@@ -117,8 +117,8 @@ rule targetscan_PCTs:
             "results/{species}_chr{chrom}_msa.PCTs.tsv"
         benchmark:
             "benchmarks/{species}_chr{chrom}_msa.PCTs.log"
-        conda:
-            "envs/targetscan.yaml"
+        #conda:
+        #    "envs/targetscan.yaml"
         shell:
             "{input.script} {input.mirna_family} {input.mirna_sites} {input.branch_lengths} > {output}"
 
@@ -150,6 +150,11 @@ rule targetscan_eightmers:
         shell:
             "{input.script} {input.mirna_seeds} {input.CDS_3UTRs} > {output.eightmer_counts}"
 
+rule get_AIR_file:
+	input: "{tissue}.APA.txt" #output from APA usage file
+	output: "exe/targetscan7/{tissue}.AIRs.txt"
+	script: "get_tissue_specific_APA_file.R"
+
 rule targetscan_context_scores:
         input:
             mirnas="results/{species}_mir_for_context_scores.tsv",
@@ -169,10 +174,22 @@ rule targetscan_context_scores:
         shell:
             "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} species['{wildcards.species}']"
 
-rule build_contextpp_table:
-        input:
-             "create_contextpp.sql"
+rule create_contextpp_table:
         output:
-            "results/contextpp_created.txt"
-        shell:
-            "mysql -u tgac --password=tgac_bioinf -h tgac-db1.hpccluster bradleyt_filtar < {input} && touch {output}"
+           "results/targetscan_table_created.txt"
+        script:
+           "create_targetscan_table.py"
+
+rule upload_to_contextpp_table:
+        input:
+            data="results/{species}_chr{chrom}_msa.contextpp.tsv",
+            dependency="results/targetscan_table_created.txt",
+            script="sub_snakemake/upload_to_tables/SQLite/upload_to_table.py"
+        output:
+            "results/contextpp_chr{wildcards.chrom}_loaded.txt"
+        params:
+                table="contextpp",
+                columns = ['mirna_id','mrna_id','Species','UTR_START','UTR_END','Site_Type','score','weighted_score']
+        script:
+            "upload_to_contextpp_table.py"
+
