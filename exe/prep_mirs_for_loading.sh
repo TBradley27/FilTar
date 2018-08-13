@@ -1,1 +1,1 @@
-awk '{OFS=""}{print $1,"\t","\t","\t",$2}' $1
+awk '{OFS="\t"}{print $1,$2}' $1
