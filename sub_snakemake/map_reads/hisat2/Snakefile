@@ -34,9 +34,8 @@ rule create_index:
         threads: 8
         shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} hsa"
 
-
 def get_lib_type(wildcards):
-	hisat2_dict = {'IU':'','ISF':'FR','ISR':'RF'}	
+	hisat2_dict = {'IU':'','ISF':'FR','ISR':'RF', 'U':'','SF':'F','SR':'R'}	
 	lib_type = config['lib_types'][wildcards.accession]
 	tmp = hisat2_dict[lib_type]
 	
@@ -44,65 +43,80 @@ def get_lib_type(wildcards):
 		return ("--rna-strandness FR")
 	elif tmp == 'RF':
 		return ("--rna-strandness RF")
+	elif tmp == 'F':
+		return ("--rna-strandness F")
+	elif tmp == 'R':
+		return ("--rna-strandness R")
 	else:
 		return ("")
 
-rule map_paired_end:
-	input:
-           reads1="results/trimmed_fastq/{accession}_1_val_1.fq.gz",
-           reads2="results/trimmed_fastq/{accession}_2_val_2.fq.gz"
+#rule map_paired_end:
+#	input:
+#          reads1="results/trimmed_fastq/{accession}_1_val_1.fq.gz",
+#          reads2="results/trimmed_fastq/{accession}_2_val_2.fq.gz"
+#	conda:
+#           "envs/hisat2.yaml"
+#	output: "results/bam/{accession}.sam"
+#	params:
+#            lib_type = get_lib_type
+#	shell: "hisat2 -x data/hsa -1 {input.reads1} -2 {input.reads2} -S {output} {params.lib_type}"
+
+#rule map_single_end:
+#        input:
+#           reads="results/trimmed_fastq/{accession}_trimmed.fq.gz",
+#        conda:
+#           "envs/hisat2.yaml"
+#        output: "results/bam/{accession}.sam"
+#        params:
+#             lib_type = get_lib_type
+#        shell: "hisat2 -x data/hsa -U {input.reads} -S {output} {params.lib_type}" #
+
+def get_input_files (wildcards):
+	if wildcards.accession in config['all_paired_end']:
+		input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession), 
+				'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession)
+				] 
+		return(input_files)
+	else:
+		input_file = "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
+		return(input_file)
+
+rule map_reads:
+	output: "results/bam/{accession}.sam"
+	input: get_input_files
 	conda:
-           "envs/hisat2.yaml"
-	output: "results/bam/paired_end/{accession}.sam"
+		"envs/hisat2.yaml"
 	params:
-             lib_type = get_lib_type
-	shell: "hisat2 -x data/hsa -1 {input.reads1} -2 {input.reads2} -S {output} {params.lib_type}" # --rna-strandness {params.lib_type}"
-
-def get_lib_type_single_end(wildcards):
-        hisat2_dict = {'U':'','SF':'F','SR':'R'}
-        lib_type = config['lib_types'][wildcards.accession]
-        tmp = hisat2_dict[lib_type]
-
-        if tmp == 'F':
-                return ("--rna-strandness F")
-        elif tmp == 'R':
-                return ("--rna-strandness R")
-        else:
-                return ("")
-
-rule map_single_end:
-        input:
-           reads="results/trimmed_fastq/{accession}_trimmed.fq.gz",
-        conda:
-           "envs/hisat2.yaml"
-        output: "results/bam/single_end/{accession}.sam"
-        params:
-             lib_type = get_lib_type_single_end
-        shell: "hisat2 -x data/hsa -U {input.reads} -S {output} {params.lib_type}" # --rna-strandness {params.lib_type}"
+		lib_type = get_lib_type
+	run:
+		if len(input) == 1:
+			shell('"hisat2 -x data/hsa -U {input} -S {output} {params.lib_type}"')
+		else:
+			 shell('hisat2 -x data/hsa -1 {input[0]} -2 {input[1]} -S {output} {params.lib_type}')
 
 rule sam_to_bam:
-	input: "results/bam/{lib_type}/{accession}.sam",
-        output: "results/bam/{lib_type}/{accession}.bam"
+	input: "results/bam/{accession}.sam",
+        output: "results/bam/{accession}.bam"
         conda:
 	   "envs/hisat2.yaml"
 	shell: "samtools view -Sb  {input}  >  {output}"
 
 rule samtools_sort:
     input:
-        "results/{lib_type}/{accession}.bam"
+        "results/{accession}.bam"
     output:
-        "results/{lib_type}/{accession}.bam.sorted"
+        "results/{accession}.bam.sorted"
     params:
         "-m 2G"
     threads: 1
-    benchmark: "benchmarks/samtools_sort/{lib_type}_{accession}.log"
+    benchmark: "benchmarks/samtools_sort/{accession}.log"
     wrapper:
         "0.27.0/bio/samtools/sort"
 
-rule merge_bam:
-	input:
-		single_end = lambda wildcards: expand("/gpfs/afm/moxon/thomas2/APAtrap/results/bam/single_end/{accession}.bam.sorted", accession=config['sample_type']['human'][wildcards.tissue]['single-end']),
-		paired_end = lambda wildcards: expand("/gpfs/afm/moxon/thomas2/APAtrap/results/bam/paired_end/{accession}.bam.sorted", accession=config['sample_type']['human'][wildcards.tissue]['paired-end'])
-	output: "results/bam/{tissue}.bam"
-	shell: "samtools merge {output} {input.paired_end} {input.single_end}"
+#rule merge_bam:
+#	input:
+#		single_end = lambda wildcards: expand("/gpfs/afm/moxon/thomas2/APAtrap/results/bam/single_end/{accession}.bam.sorted", accession=config['sample_type']['human'][wildcards.tissue]['single-end']),
+#		paired_end = lambda wildcards: expand("/gpfs/afm/moxon/thomas2/APAtrap/results/bam/paired_end/{accession}.bam.sorted", accession=config['sample_type']['human'][wildcards.tissue]['paired-end'])
+#	output: "results/bam/{tissue}.bam"
+#	shell: "samtools merge {output} {input.paired_end} {input.single_end}"
 
