@@ -26,33 +26,53 @@ rule salmon_index_humans:
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
 
-rule salmon_quant_single_end:
-        input:
-          index=ancient("results/hsa_GRCh38_index/"),
-          reads="results/trimmed_fastq/{accession}_trimmed.fq.gz"
-        output:
-          "results/single_end_salmon/{accession}/"
-        threads: 1
-        shell:
-          "salmon quant -p {threads} -i {input.index} -l A -r {input.reads} -o {output}"
+#rule salmon_quant_single_end:
+#        input:
+#          index=ancient("results/hsa_GRCh38_index/"),
+#          reads="results/trimmed_fastq/{accession}_trimmed.fq.gz"
+#        output:
+#           "results/single_end_salmon/{accession}/quant.sf"
+#        threads: 1
+#        shell:
+#          "salmon quant -p {threads} -i {input.index} -l A -r {input.reads} -o results/single_end_salmon/{wildcards.accession}/"
 
-rule salmon_quant_paired_end:
-        input:
-          index=ancient("results/hsa_GRCh38_index/"),
-          forward_reads="results/trimmed_fastq/{accession}_1_val_1.fq.gz",
-          reverse_reads="results/trimmed_fastq/{accession}_2_val_2.fq.gz"
-        output:
-          "results/paired_end_salmon/{accession}/"
-        threads: 1
-        shell:
-          "salmon quant -p {threads} -i {input.index} -l A -1 {input.forward_reads} -2 {input.reverse_reads} -o {output}"
+#rule salmon_quant_paired_end:
+#        input:
+#          index=ancient("results/hsa_GRCh38_index/"),
+#          forward_reads="results/trimmed_fastq/{accession}_1_val_1.fq.gz",
+#          reverse_reads="results/trimmed_fastq/{accession}_2_val_2.fq.gz"
+#        output:
+#            "results/paired_end_salmon/{accession}/quant.sf"
+#        threads: 1
+#        shell:
+#          "salmon quant -p {threads} -i {input.index} -l A -1 {input.forward_reads} -2 {input.reverse_reads} -o {output}"
+
+def get_input_files (wildcards):
+        if wildcards.accession in config['all_paired_end']:
+                input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession),
+                                'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession)
+                                ]
+                return(input_files)
+        else:
+                input_file = "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
+                return(input_file)
+
+rule salmon_quant:
+        output: "results/{accession}/quant.sf"
+        input: get_input_files
+        conda:
+                "envs/salmon.yaml"
+        script:
+                "salmon_quant.py"
 
 rule salmon_quantmerge:
 	input:
            paired_end = lambda wildcards: expand('results/paired_end_salmon/{accession}/', accession=config['sample_type']['human'][wildcards.tissue]['paired_end']),
            single_end = lambda wildcards: expand('results/single_end_salmon/{accession}/', accession=config['sample_type']['human'][wildcards.tissue]['single_end'])
 	output: "results/{tissue}.sf"
-        params:
+	wildcard_constraints:
+           tissue="[^/]"  
+	params:
            paired_end = lambda wildcards: expand('{accession}', accession=config['sample_type']['human'][wildcards.tissue]['paired_end']),
            single_end = lambda wildcards: expand('{accession}', accession=config['sample_type']['human'][wildcards.tissue]['single_end'])
 	shell: "salmon quantmerge --quants {input.paired_end} {input.single_end} --names {params.paired_end} {params.single_end} -o {output}"

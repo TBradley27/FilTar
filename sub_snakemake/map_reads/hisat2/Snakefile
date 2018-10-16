@@ -86,13 +86,9 @@ rule map_reads:
 	input: get_input_files
 	conda:
 		"envs/hisat2.yaml"
-	params:
-		lib_type = get_lib_type
-	run:
-		if len(input) == 1:
-			shell('"hisat2 -x data/hsa -U {input} -S {output} {params.lib_type}"')
-		else:
-			 shell('hisat2 -x data/hsa -1 {input[0]} -2 {input[1]} -S {output} {params.lib_type}')
+	params: get_lib_type
+	script:
+		"map_reads.py"
 
 rule sam_to_bam:
 	input: "results/bam/{accession}.sam",

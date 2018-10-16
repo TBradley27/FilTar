@@ -46,16 +46,59 @@ rule get_chrom_sizes:
 
 rule get_bedgraph:
     input:
-        sorted_bam="results/{lib_type}/{accession}.bam.sorted",
-        genome_sizes="results/hg38.chrom.sizes"
+        sorted_bam="results/bam/{accession}.bam.sorted",
     output:
-        "results/{lib_type}/{accession}.bedgraph"
+        "results/bam/{accession}.bedgraph"
     conda:
         "envs/bedtools.yaml"
     benchmark:
-        "benchmarks/genomeCoverageBed/{lib_type}/{accession}.txt"
+        "benchmarks/genomeCoverageBed/{accession}.txt"
     shell:
-        "genomeCoverageBed -bg -ibam {input.sorted_bam} -g {input.genome_sizes} -split > {output}"
+        "genomeCoverageBed -bg -ibam {input.sorted_bam} -split > {output}"
+
+rule merge_bedgraphs_by_sample:
+        input:
+             lambda wildcards: expand("results/bam/{accession}.bedgraph", accession=config['samples'][wildcards.sample])
+        output:
+             "results/{sample}_tmp.bedgraph"
+        wildcard_constraints:
+             sample="[E|D|S]RS.*"
+        conda:
+             "envs/bedtools.yaml"
+        script: "merge_bedgraphs_by_sample.py"
+                #if len(input) > 1:
+                #        shell("bedtools unionbedg -i {input} > {output}")
+                #else:
+                #        shell("cp {input} {output}")
+
+rule avg_merged_bedgraph:
+        input:
+                "results/{sample}_tmp.bedgraph"
+        output:
+                "results/{sample}.bedgraph"
+        wildcard_constraints:
+             sample="[E|D|S]RS.*[0-9]"
+        script:
+                "get_average_bedgraph.R"
+
+rule merge_bedgraphs_by_cell_line:
+        input:
+             lambda wildcards: expand("results/{cell_line}.bedgraph", cell_line=config['PRJNA229375'][wildcards.cell_line])
+        output:
+             "results/{cell_line}_tmp.bedgraph"
+        conda:
+             "envs/bedtools.yaml"
+        shell: "bedtools unionbedg -i {input} > {output}"
+
+rule avg_merged_bedgraph_by_cell_line:
+        input:
+                lambda wildcards: expand("results/{cell_line}_tmp.bedgraph", cell_line=config['PRJNA229375'][wildcards.cell_line])
+        output:
+                "results/{cell_line}.bedgraph"
+        wildcard_constraints:
+             sample="[E|D|S]RS.*[0-9]"
+        script:
+                "get_average_bedgraph.R"
 
 #rule reannotatate_3utrs_in_cell_lines:
 #     input:

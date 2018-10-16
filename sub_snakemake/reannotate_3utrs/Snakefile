@@ -33,7 +33,7 @@ rule get_extended_bed_file:
 
 rule split_bed:
 	input:
-		"results/longest.utr.full.bed"
+		"results/longest.utr.bed"
 	output:
 		"results/hsa_3UTR_chr{chrom}.bed"
 	shell:
@@ -55,3 +55,12 @@ rule reformat_normal_bed_file:
 #           extended_bed="results/{cell_line}.utr.full.bed"
 #       output: "{cell_line}_bed_file_differences.txt"
 #       shell: "diff -y --suppress-common-lines {input.normal_bed} {input.extended_bed} > {output}"
+
+
+rule get_longest_utr_bed:
+	input: 'results/Homo_sapiens.GRCh38.92.bed6'
+	output: 'results/longest.utr.bed'
+	params:
+		bed_dir='/gpfs/afm/moxon/thomas2/APAtrap/validation/results/'
+	script: 'merge_multiple_bed_files.R'  
+

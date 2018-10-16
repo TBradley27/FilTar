@@ -11,12 +11,12 @@ rule prep_mirna_seeds:
 
 rule prep_mirna_family_file:
         input:
-           mature_mirna_seeds="results/mature_mirna_seed.tsv",
-           script="exe/get_mirna_family.R"
+           mature_mirna_seeds="results/mature_mirna_seed.tsv"
+#           script="exe/get_mirna_family.R"
         output:
            "results/mirna_family.tsv",
-        shell:
-           "Rscript {input.script} {input.mature_mirna_seeds} {output}" # this is an awful hack and really needs to be fixed
+        script:
+           "get_mirna_family.R" # this is an awful hack and really needs to be fixed
 
 rule prep_mirna_mature_alt:
         input:

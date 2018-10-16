@@ -1,4 +1,4 @@
-configfile: "config.yaml"
+configfile: "../config.yaml"
 
 include: "../sub_snakemake/data_download/ENA/Snakefile"
 include: "../sub_snakemake/qc/Snakefile"
@@ -6,8 +6,36 @@ include: "../sub_snakemake/trim_reads/trim_galore/Snakefile"
 include: "../sub_snakemake/map_reads/hisat2/Snakefile"
 include: "../sub_snakemake/APAtrap/Snakefile"
 include: "../sub_snakemake/reannotate_3utrs/Snakefile"
-include: "../sub_snakemake/quant_reads/salmon/Snakefile"
+#include: "../sub_snakemake/quant_reads/salmon/Snakefile"
+include: "../sub_snakemake/quant_reads/kallisto/Snakefile"
+include: "sub_snakemake/get_utr_and_cds/Snakefile"
+include: "sub_snakemake/targetscan/Snakefile"
+include: "sub_snakemake/cumulative_plots/Snakefile"
 
 rule all:
-     input: expand("results/single_end_salmon/{accession}/", accession=config['PRJNA229375']['HeLa']['mock']),
-            expand("results/single_end_salmon/{accession}/", accession=config['PRJNA229375']['HeLa']['miR-124']) 
+     input: #expand("results/single_end_salmon/{accession}/", accession=config['PRJNA229375']['HeLa']['mock']),
+            #expand("results/single_end_salmon/{accession}/", accession=config['PRJNA229375']['HeLa']['miR-124']),
+            #expand("results/hsa_chr{chrom}_msa.contextpp.tsv", chrom=config['chromosomes']['human']),
+            #expand("results/{miRNA}_{cell_line}_cumulative_plot.png", cell_line=config['PRJNA229375']['cell_lines'], miRNA=config['PRJNA229375']['miRNAs']),
+            #expand("results/{sample}.bedgraph", sample=config["all_validation_samples"]),
+            #expand("results/hsa_3UTR_chr{chrom}.bed", chrom=config["chromosomes"]["human"]),
+            #expand("results/hsa_chr{chrom}_msa.tsv", chrom=config["chromosomes"]["human"] )
+            #expand("results/hsa_chr{chrom}_msa.sites.tsv", chrom=config["chromosomes"]["human"])
+            #expand("results/miR-124_{cell_line}_cumulative_plot.png", cell_line=config['PRJNA229375']['cell_lines'] ),
+            #expand("results/miR-155_{cell_line}_cumulative_plot.png", cell_line=config['PRJNA229375']['cell_lines2'] )
+            #expand("results/{cell_line}.utr.lengths.tsv", cell_line=config['PRJNA229375']['cell_lines3'])
+             expand("results/{cell_line}.sites.tsv", cell_line=config['PRJNA229375']['cell_lines3']),
+            #expand("results/miR-124-3p_{cell_line}_alt_utr.png", cell_line=config['PRJNA229375']['cell_lines']),
+            #expand("results/miR-155-5p_{cell_line}_alt_utr.png", cell_line=config['PRJNA229375']['cell_lines2'])
+             "results/GRCh38.idx",
+             #expand("results/single_end_kallisto/{accession}/abundance.tsv", accession=config['PRJNA223608']['all_runs']),
+             #expand("results/single_end_kallisto/{accession}/abundance.tsv", accession=config['PRJNA231560']['all_runs']),
+             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA187476']['all_runs']),
+             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA292016']['all_runs']),
+             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA165157']['all_runs']),
+             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA271411']['all_runs']),
+             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA304643']['all_runs']),
+             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA340017']['all_runs'])
+
+
+
