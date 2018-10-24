@@ -2,7 +2,6 @@ import sys
 import os
 
 if len(snakemake.input) == 1:
-        os.system('salmon quant -p {} -i {} -l A -r {} -o results/{}/'.format(snakemake.params['threads'],snakemake.input['index'],snakemake.index['reads'],snakemake.wildcards['accession']))
+        os.system('salmon quant -p {} -i results/hsa_GRCh38_index/ -l A -r {} -o results/salmon/{}'.format(snakemake.threads,snakemake.input[0],snakemake.wildcards['accession']))
 else:
-        os.system('salmon quant -p {} -i {} -l A -1 {} -2 {} -o results/{}/'.format(snakemake.params['threads'],snakemake.input['index'],snakemake.index['forward_reads'],snakemake.index['reverse_reads'],snakemake.wildcards['accession']))
-~                                                                                                                                                  
+        os.system('salmon quant -p {} -i results/hsa_GRCh38_index/ -l A -1 {} -2 {} -o results/salmon/{}'.format(snakemake.threads,snakemake.input[0],snakemake.input[1],snakemake.wildcards['accession']))                                                                                                                                                  

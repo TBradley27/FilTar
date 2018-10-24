@@ -1,3 +1,5 @@
+import os
+
 rule download_fasta:
         input:
         output: "data/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
@@ -36,8 +38,15 @@ rule create_index:
 
 def get_lib_type(wildcards):
 	hisat2_dict = {'IU':'','ISF':'FR','ISR':'RF', 'U':'','SF':'F','SR':'R'}	
-	lib_type = config['lib_types'][wildcards.accession]
+	#lib_type = config['lib_types'][wildcards.accession]
+        print('testing')
+	if not os.path.exists('results/salmon/{}/lib_type.txt'.format(wildcards.accession)): return '' # stmps an error being generated when this file is missing
+        fp=open('results/salmon/{}/lib_type.txt'.format(wildcards.accession))
+        fp2 = fp.readlines()[0]
+        print(fp2)
+        lib_type = fp2.replace("\n","") 
 	tmp = hisat2_dict[lib_type]
+	print(tmp)
 	
 	if tmp == 'FR':
 		return ("--rna-strandness FR")
@@ -74,11 +83,14 @@ def get_lib_type(wildcards):
 def get_input_files (wildcards):
 	if wildcards.accession in config['all_paired_end']:
 		input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession), 
-				'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession)
+			       'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession),
+                               'results/salmon/{}/lib_type.txt'.format(wildcards.accession)
 				] 
 		return(input_files)
 	else:
-		input_file = "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
+		input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession),
+                              'results/salmon/{}/lib_type.txt'.format(wildcards.accession)
+                             ]
 		return(input_file)
 
 rule map_reads:

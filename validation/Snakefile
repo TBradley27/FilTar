@@ -1,4 +1,5 @@
 configfile: "../config.yaml"
+configfile: "validation.yaml"
 
 include: "../sub_snakemake/data_download/ENA/Snakefile"
 include: "../sub_snakemake/qc/Snakefile"
@@ -6,7 +7,7 @@ include: "../sub_snakemake/trim_reads/trim_galore/Snakefile"
 include: "../sub_snakemake/map_reads/hisat2/Snakefile"
 include: "../sub_snakemake/APAtrap/Snakefile"
 include: "../sub_snakemake/reannotate_3utrs/Snakefile"
-#include: "../sub_snakemake/quant_reads/salmon/Snakefile"
+include: "../sub_snakemake/quant_reads/salmon/Snakefile"
 include: "../sub_snakemake/quant_reads/kallisto/Snakefile"
 include: "sub_snakemake/get_utr_and_cds/Snakefile"
 include: "sub_snakemake/targetscan/Snakefile"
@@ -24,18 +25,22 @@ rule all:
             #expand("results/miR-124_{cell_line}_cumulative_plot.png", cell_line=config['PRJNA229375']['cell_lines'] ),
             #expand("results/miR-155_{cell_line}_cumulative_plot.png", cell_line=config['PRJNA229375']['cell_lines2'] )
             #expand("results/{cell_line}.utr.lengths.tsv", cell_line=config['PRJNA229375']['cell_lines3'])
-             expand("results/{cell_line}.sites.tsv", cell_line=config['PRJNA229375']['cell_lines3']),
+            #expand("results/{cell_line}.sites.tsv", cell_line=config['PRJNA229375']['cell_lines3']),
             #expand("results/miR-124-3p_{cell_line}_alt_utr.png", cell_line=config['PRJNA229375']['cell_lines']),
-            #expand("results/miR-155-5p_{cell_line}_alt_utr.png", cell_line=config['PRJNA229375']['cell_lines2'])
-             "results/GRCh38.idx",
-             #expand("results/single_end_kallisto/{accession}/abundance.tsv", accession=config['PRJNA223608']['all_runs']),
-             #expand("results/single_end_kallisto/{accession}/abundance.tsv", accession=config['PRJNA231560']['all_runs']),
-             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA187476']['all_runs']),
-             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA292016']['all_runs']),
-             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA165157']['all_runs']),
-             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA271411']['all_runs']),
-             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA304643']['all_runs']),
-             expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA340017']['all_runs'])
-
-
-
+            #expand("results/PRJNA229375_miR-155-5p_{cell_line}_alt_utr_tmp.png", cell_line=config['PRJNA229375']['cell_lines2']),
+            #expand("results/PRJNA229375_miR-124-3p_{cell_line}_alt_utr_tmp.png", cell_line=config['PRJNA229375']['cell_lines']),
+            #expand("results/PRJNA229375_miR-155-5p_{cell_line}_exp.png", cell_line=config['PRJNA229375']['cell_lines2']),
+            #expand("results/PRJNA229375_miR-124-3p_{cell_line}_exp.png", cell_line=config['PRJNA229375']['cell_lines']),
+            #expand("results/PRJNA231560_{miRNAs}_HeLa_alt_utr_tmp.png", miRNAs=config['PRJNA231560']['miRNAs']),
+            #expand("results/PRJNA271411_{miRNAs}_HeLa_alt_utr_tmp.png", miRNAs=config['PRJNA271411']['miRNAs']),
+            #expand("results/PRJNA223608_{miRNAs}_U20S_alt_utr_tmp.png", miRNAs=config['PRJNA223608']['miRNAs']),
+            #"results/GRCh38.idx",
+            #expand("results/single_end_kallisto/{accession}/abundance.tsv", accession=config['PRJNA223608']['all_runs']),
+            #expand("results/single_end_kallisto/{accession}/abundance.tsv", accession=config['PRJNA231560']['all_runs']),
+            #expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA187476']['all_runs']),
+            #expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA292016']['all_runs']),
+            #expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA165157']['all_runs']),
+            #expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA271411']['all_runs']),
+            #expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA304643']['all_runs']),
+            #expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA270999']['all_runs'])
+                    "results/U343.sites.tsv", "results/16HBE14o.sites.tsv", "results/A549.sites.tsv", "results/Du145.sites.tsv"

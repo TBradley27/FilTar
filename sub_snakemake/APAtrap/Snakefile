@@ -48,7 +48,7 @@ rule get_bedgraph:
     input:
         sorted_bam="results/bam/{accession}.bam.sorted",
     output:
-        "results/bam/{accession}.bedgraph"
+        "results/bam/run/{accession}.bedgraph"
     conda:
         "envs/bedtools.yaml"
     benchmark:
@@ -56,11 +56,11 @@ rule get_bedgraph:
     shell:
         "genomeCoverageBed -bg -ibam {input.sorted_bam} -split > {output}"
 
-rule merge_bedgraphs_by_sample:
+rule merge_bedgraphs_by_run:
         input:
-             lambda wildcards: expand("results/bam/{accession}.bedgraph", accession=config['samples'][wildcards.sample])
+             lambda wildcards: expand("results/bam/run/{accession}.bedgraph", accession=config['samples'][wildcards.sample])
         output:
-             "results/{sample}_tmp.bedgraph"
+             "results/bam/sample/{sample}_tmp.bedgraph"
         wildcard_constraints:
              sample="[E|D|S]RS.*"
         conda:
@@ -71,32 +71,32 @@ rule merge_bedgraphs_by_sample:
                 #else:
                 #        shell("cp {input} {output}")
 
-rule avg_merged_bedgraph:
+rule avg_merged_bedgraph_by_run:
         input:
-                "results/{sample}_tmp.bedgraph"
+                "results/bam/sample/{sample}_tmp.bedgraph"
         output:
-                "results/{sample}.bedgraph"
+                "results/bam/sample/{sample}.bedgraph"
         wildcard_constraints:
              sample="[E|D|S]RS.*[0-9]"
         script:
                 "get_average_bedgraph.R"
 
-rule merge_bedgraphs_by_cell_line:
+rule merge_bedgraphs_by_sample:
         input:
-             lambda wildcards: expand("results/{cell_line}.bedgraph", cell_line=config['PRJNA229375'][wildcards.cell_line])
+             lambda wildcards: expand("results/bam/sample/{sample}.bedgraph", sample=config['tissues'][wildcards.cell_line])
         output:
-             "results/{cell_line}_tmp.bedgraph"
+             "results/bam/tissue/{cell_line}.bedgraph.tmp"
+        #wildcard_constraints:
+        #     cell_line="U251"
         conda:
              "envs/bedtools.yaml"
         shell: "bedtools unionbedg -i {input} > {output}"
 
-rule avg_merged_bedgraph_by_cell_line:
+rule avg_merged_bedgraph_by_sample:
         input:
-                lambda wildcards: expand("results/{cell_line}_tmp.bedgraph", cell_line=config['PRJNA229375'][wildcards.cell_line])
+                "results/bam/tissue/{cell_line}.bedgraph.tmp"
         output:
-                "results/{cell_line}.bedgraph"
-        wildcard_constraints:
-             sample="[E|D|S]RS.*[0-9]"
+                "results/bam/tissue/{cell_line}.bedgraph"
         script:
                 "get_average_bedgraph.R"
 
@@ -123,17 +123,16 @@ rule avg_merged_bedgraph_by_cell_line:
 #    shell:
 #       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
 
-#rule reannotate_3utrs:
-#    input:
-#       script="exe/identifyDistal3UTR.pl",
-#       bed="results/Homo_sapiens.GRCh38.92.bed",
-#       bedgraphs= 'results/{accession}.bedgraph'
-#    benchmark: "benchmarks/APAtrap/{accession}.log"
-#    output:
-#       "results/{accession}.utr.bed"
-#    shell:
-#       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
-
+rule reannotate_3utrs:
+    input:
+       script="exe/identifyDistal3UTR.pl",
+       bed="results/Homo_sapiens.GRCh38.92.bed",
+       bedgraphs= 'results/bam/tissue/{cell_line}.bedgraph'
+    benchmark: "benchmarks/APAtrap/{cell_line}.log"
+    output:
+       "results/{cell_line}.utr.bed"
+    shell:
+       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
 
 #rule identify_APA_sites_in_cell_lines:
 #     input:

@@ -58,43 +58,49 @@ def get_input_files (wildcards):
                 return(input_file)
 
 rule salmon_quant:
-        output: "results/{accession}/quant.sf"
+        output: "results/salmon/{accession}/quant.sf", "results/salmon/{accession}/lib_format_counts.json"
         input: get_input_files
         conda:
                 "envs/salmon.yaml"
+	threads: 4
         script:
-                "salmon_quant.py"
+                "quant_salmon.py"
 
-rule salmon_quantmerge:
-	input:
-           paired_end = lambda wildcards: expand('results/paired_end_salmon/{accession}/', accession=config['sample_type']['human'][wildcards.tissue]['paired_end']),
-           single_end = lambda wildcards: expand('results/single_end_salmon/{accession}/', accession=config['sample_type']['human'][wildcards.tissue]['single_end'])
-	output: "results/{tissue}.sf"
-	wildcard_constraints:
-           tissue="[^/]"  
-	params:
-           paired_end = lambda wildcards: expand('{accession}', accession=config['sample_type']['human'][wildcards.tissue]['paired_end']),
-           single_end = lambda wildcards: expand('{accession}', accession=config['sample_type']['human'][wildcards.tissue]['single_end'])
-	shell: "salmon quantmerge --quants {input.paired_end} {input.single_end} --names {params.paired_end} {params.single_end} -o {output}"
+rule salmon_get_lib_type:
+	input: "results/salmon/{run_accession}/lib_format_counts.json"
+	output: "results/salmon/{run_accession}/lib_type.txt"
+        shell: "grep 'expected' {input} | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
 
-rule salmon_average_quantmerge:
-	input: 
-            quant_file="results/{tissue}.sf",
-            script = "exe/average_quant_file.R"
-	output: "results/{tissue}_avg.sf"
-	shell: "Rscript {input.script} {input.quant_file} {output}"
+#rule salmon_quantmerge:
+#	input:
+#           paired_end = lambda wildcards: expand('results/paired_end_salmon/{accession}/', accession=config['sample_type']['human'][wildcards.tissue]['paired_end']),
+#           single_end = lambda wildcards: expand('results/single_end_salmon/{accession}/', accession=config['sample_type']['human'][wildcards.tissue]['single_end'])
+#	output: "results/{tissue}.sf"
+#	wildcard_constraints:
+#           tissue="[^/]"  
+#	params:
+#           paired_end = lambda wildcards: expand('{accession}', accession=config['sample_type']['human'][wildcards.tissue]['paired_end']),
+#           single_end = lambda wildcards: expand('{accession}', accession=config['sample_type']['human'][wildcards.tissue]['single_end'])
+#	shell: "salmon quantmerge --quants {input.paired_end} {input.single_end} --names {params.paired_end} {params.single_end} -o {output}"
 
-rule construct_config_file:
-	input: "/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/multiqc_data.json"
-        output: "/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/tmp_config.txt"
-        shell: "grep 'ISF\|ISR\|IU\|ERR*\|SRR*\|OSF\|OSR\|OU\|MSF\|MSR\|MU' {input} | grep -v lib | sed 's/://g' | sed 's/{{//g' | paste - - > {output}"
+#rule salmon_average_quantmerge:
+#	input: 
+#            quant_file="results/{tissue}.sf",
+#            script = "exe/average_quant_file.R"
+#	output: "results/{tissue}_avg.sf"
+#	shell: "Rscript {input.script} {input.quant_file} {output}"
 
-rule construct_config_file2:
-        input: 
-            json_file="/gpfs/afm/moxon/thomas2/APAtrap/reports/multiqc_salmon_single_end_data/multiqc_data.json",
-            config_file="/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/tmp_config.txt"
-        output: "tmp_config2.txt"
-        shell: "grep 'SF\|SR\|U\|ERR*\|SRR*' {input.json_file} | grep -v lib | sed 's/://g' | sed 's/{{//g' | paste - - >> {input.config_file} && mv {input.config_file} {output}"
+#rule construct_config_file:
+#	input: "/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/multiqc_data.json"
+#        output: "/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/tmp_config.txt"
+#        shell: "grep 'ISF\|ISR\|IU\|ERR*\|SRR*\|OSF\|OSR\|OU\|MSF\|MSR\|MU' {input} | grep -v lib | sed 's/://g' | sed 's/{{//g' | paste - - > {output}"
+
+#rule construct_config_file2:
+#        input: 
+#            json_file="/gpfs/afm/moxon/thomas2/APAtrap/reports/multiqc_salmon_single_end_data/multiqc_data.json",
+#            config_file="/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/tmp_config.txt"
+#        output: "tmp_config2.txt"
+#        shell: "grep 'SF\|SR\|U\|ERR*\|SRR*' {input.json_file} | grep -v lib | sed 's/://g' | sed 's/{{//g' | paste - - >> {input.config_file} && mv {input.config_file} {output}"
 
 
 
