@@ -1,0 +1,45 @@
+#        HEK293:
+#        #                mock:  [SRR2031923]
+#        #                miR-603-3p: [SRR2031924]
+#
+#
+
+#PRJNA231560:
+##        HeLa:
+##                mock: SRR1049359
+##                miR-15a-5p: SRR1049360
+##                miR-16-5p: SRR1049361
+##                miR-503-5p: SRR1049362
+##        all_runs: [SRR1049359,SRR1049360,SRR1049361,SRR1049362]
+##        miRNAs: [miR-15a-5p,miR-16-5p,miR-503-5p]
+#
+
+#PRJNA309820:
+##        SW900:
+##          miR-19a-3p: SRR3125902
+##          mock: SRR3125903
+#        all_runs: [SRR3125902,SRR3125903]
+#
+#
+
+#PRJNA187476: # paired-end
+##        MCF-7:
+##            miR-26a-5p: SRR653048
+##            mock: SRR653049
+##        MDA-MB-231:
+##            miR-26a-5p: SRR653050
+##            mock: SRR653051
+##        all_runs: [SRR653048,SRR653049,SRR653050,SRR653051]
+#
+##        LAPC9:
+##          mock: [SRR2146412]
+##          miR-141-3p: [SRR2146413,SRR2146414]
+#
+##PRJNA165157:
+##        MCF-7:
+##          miR-23b-3p: SRR496394
+##          mock: SRR496395
+##        MDA-MB-231:
+##          miR-23b-3p: SRR496397
+##          mock: SRR496398
+##        all_runs: [SRR496394,SRR496395,SRR496397,SRR496398]

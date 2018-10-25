@@ -1,0 +1,7 @@
+brain:
+  cerebellum: SRR1222586
+  frontal_lobe: SRR1222589
+  parietal_lobe: SRR1222599
+  medulla_oblongata: SRR1222588
+   
+all_brain_runs: [SRR1222586, SRR1222589, SRR1222599, SRR1222588]
