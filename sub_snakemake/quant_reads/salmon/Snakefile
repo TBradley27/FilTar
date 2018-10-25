@@ -1,4 +1,4 @@
-rule download cdna_file:
+rule download_cdna_file:
         input:
         output: "data/Homo_sapiens.GRCh38.cdna.all.fa.gz"
         shell: "wget -nv --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz"
@@ -12,7 +12,7 @@ rule salmon_index_mouse:
         input:
             "data/Mus_musculus.GRCm38.cdna.all.fa"
         output:
-            "results/mmu_GRCm38_index"
+            "results/salmon/mmu_GRCm38_index"
         threads: 8
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
@@ -21,7 +21,7 @@ rule salmon_index_humans:
         input:
             ancient("data/Homo_sapiens.GRCh38.cdna.all.fa")
         output:
-            ancient("results/hsa_GRCh38_index/")
+               "results/salmon/hsa_GRCh38_index/"
         threads: 8
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
@@ -50,11 +50,14 @@ rule salmon_index_humans:
 def get_input_files (wildcards):
         if wildcards.accession in config['all_paired_end']:
                 input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession),
-                                'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession)
+                                'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession),
+                                'results/salmon/hsa_GRCh38_index/'
                                 ]
                 return(input_files)
         else:
-                input_file = "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
+                input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession),
+                              "results/salmon/hsa_GRCh38_index/"
+                             ]
                 return(input_file)
 
 rule salmon_quant:

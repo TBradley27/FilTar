@@ -23,21 +23,13 @@ rule get_extended_bed_file:
          input:
             script="exe/extend_bed.R",
             normal_bed="results/Homo_sapiens.GRCh38.92.bed6",
-            extended_bed="results/{cell_line}.utr.bed"
+            extended_bed="results/bed/specific/{cell_line}.utr.bed"
          output:
-            "results/{cell_line}.utr.full.bed"
+            "results/bed/specific/{cell_line}.utr.full.bed"
          log:
             "{cell_line}.log"
          shell:
              "Rscript {input.script} {input.normal_bed} {input.extended_bed} {output} 2> {log}"
-
-rule split_bed:
-	input:
-		"results/longest.utr.bed"
-	output:
-		"results/hsa_3UTR_chr{chrom}.bed"
-	shell:
-		"grep '^{wildcards.chrom}' {input} > {output}"
 
 rule reformat_normal_bed_file:
          input:
@@ -59,8 +51,16 @@ rule reformat_normal_bed_file:
 
 rule get_longest_utr_bed:
 	input: 'results/Homo_sapiens.GRCh38.92.bed6'
-	output: 'results/longest.utr.bed'
+	output: 'results/bed/longest/longest.utr.bed'
 	params:
 		bed_dir='/gpfs/afm/moxon/thomas2/APAtrap/validation/results/'
 	script: 'merge_multiple_bed_files.R'  
+
+rule split_bed:
+        input:
+                "results/bed/longest/longest.utr.bed"
+        output:
+                "results/bed/longest/hsa_3UTR_chr{chrom}.bed"
+        shell:
+                "grep '^{wildcards.chrom}' {input} > {output}"
 

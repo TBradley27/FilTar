@@ -1,5 +1,5 @@
 configfile: "../config.yaml"
-configfile: "validation.yaml"
+configfile: "config/validation.yaml"
 
 include: "../sub_snakemake/data_download/ENA/Snakefile"
 include: "../sub_snakemake/qc/Snakefile"
@@ -43,4 +43,5 @@ rule all:
             #expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA271411']['all_runs']),
             #expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA304643']['all_runs']),
             #expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA270999']['all_runs'])
-                    "results/U343.sites.tsv", "results/16HBE14o.sites.tsv", "results/A549.sites.tsv", "results/Du145.sites.tsv"
+             "results/targets/specific/U343.sites.tsv", "results/targets/specific/16HBE14o.sites.tsv",
+             "results/targets/specific/A549.sites.tsv", "results/targets/specific/Du145.sites.tsv"

@@ -4,13 +4,13 @@ subworkflow main_workflow:
 
 rule index_cDNA_file_human:
 	input: "data/Homo_sapiens.GRCh38.cdna.all.fa"
-	output: "results/GRCh38.idx"
+	output: "results/kallisto/GRCh38.idx"
 	conda: "envs/kallisto.yaml"	
 	shell: "kallisto index -i {output} {input}"
 
 rule index_cDNA_file_mouse:
 	input: "data/Mus_musculus.GRCm38.cdna.all.fa"
-	output: "results/GRCm38.idx"
+	output: "results/kallisto/GRCm38.idx"
 	conda: "envs/kallisto.yaml"
 	shell: "kallisto index -i {output} {input}"
 

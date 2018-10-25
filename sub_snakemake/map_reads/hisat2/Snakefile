@@ -39,14 +39,11 @@ rule create_index:
 def get_lib_type(wildcards):
 	hisat2_dict = {'IU':'','ISF':'FR','ISR':'RF', 'U':'','SF':'F','SR':'R'}	
 	#lib_type = config['lib_types'][wildcards.accession]
-        print('testing')
 	if not os.path.exists('results/salmon/{}/lib_type.txt'.format(wildcards.accession)): return '' # stmps an error being generated when this file is missing
         fp=open('results/salmon/{}/lib_type.txt'.format(wildcards.accession))
         fp2 = fp.readlines()[0]
-        print(fp2)
         lib_type = fp2.replace("\n","") 
 	tmp = hisat2_dict[lib_type]
-	print(tmp)
 	
 	if tmp == 'FR':
 		return ("--rna-strandness FR")

@@ -100,29 +100,6 @@ rule avg_merged_bedgraph_by_sample:
         script:
                 "get_average_bedgraph.R"
 
-#rule reannotatate_3utrs_in_cell_lines:
-#     input:
-#        script="exe/identifyDistal3UTR.pl",
-#        bedgraph1= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][0]) + '.bedgraph',
-#       bedgraph2= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][1]) + '.bedgraph',
-#        bed="results/Homo_sapiens.GRCh38.92.bed"
-#     benchmark: "benchmarks/APAtrap/{cell_line}.log"
-#     output:
-#        "results/{cell_line}.utr.bed"
-#     shell:
-#        "{input.script} -i {input.bedgraph1} {input.bedgraph2} -m {input.bed}  -o {output}"
-
-#rule reannotate_3utrs_brain:
-#    input:
-#       script="exe/identifyDistal3UTR.pl",
-#       bed="results/Homo_sapiens.GRCh38.92.bed",
-#       bedgraphs= lambda wildcards: 'results/' + str(config['brain'][wildcards.brain_region]) + '.bedgraph'
-#    benchmark: "benchmarks/APAtrap/{brain_region}.log"
-#    output:
-#       "results/{brain_region}.utr.bed"
-#    shell:
-#       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
-
 rule reannotate_3utrs:
     input:
        script="exe/identifyDistal3UTR.pl",
@@ -130,32 +107,7 @@ rule reannotate_3utrs:
        bedgraphs= 'results/bam/tissue/{cell_line}.bedgraph'
     benchmark: "benchmarks/APAtrap/{cell_line}.log"
     output:
-       "results/{cell_line}.utr.bed"
+       "results/bed/specific/{cell_line}.utr.bed"
     shell:
        "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
-
-#rule identify_APA_sites_in_cell_lines:
-#     input:
-#        script="exe/predictAPA.pl",
-#        bedgraph1= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][0]) + '.bedgraph',
-#        bedgraph2= lambda wildcards: 'results/' + str(config['PRJNA229375'][wildcards.cell_line]['mock'][1]) + '.bedgraph',
-#        bed="results/{cell_line}.utr.bed"
-#     output:
-#        "{cell_line}.APA.txt"
-#     shell:
-#        "{input.script} -i {input.bedgraph1} {input.bedgraph2} -g 1 -n 2 -u {input.bed}  -o {output}"
-
-#rule identify_APA_sites_in_brain_tissue:
-#     input:
-#        script="exe/predictAPA.pl",
-#        bedgraphs= lambda wildcards: 'results/' + str(config['brain'][wildcards.brain_region]),
-#        bed="results/{brain_region}.utr.bed"
-#     output:
-#        "{brain_region}.APA.txt"
-#     shell:
-#        "{input.script} -i {input.bedgraphs} -g 1 -n 1 -u {input.bed}  -o {output}"
-
-
-
-
 
