@@ -1,5 +1,11 @@
 #!/bin/bash
 
+def get_bed_file(wildcards):
+        if wildcards.species == 'hsa':
+                return('results/Homo_sapiens.GRCh38.92.bed')
+        elif wildcards.species == 'mmu':
+                return('results/Mus_musculus.GRCm38.92.bed6')
+
 rule download_fetchChromSizes:
      output: "exe/fetchChromSizes"
      shell: "wget --directory-prefix=exe/ http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/fetchChromSizes"
@@ -66,10 +72,6 @@ rule merge_bedgraphs_by_run:
         conda:
              "envs/bedtools.yaml"
         script: "merge_bedgraphs_by_sample.py"
-                #if len(input) > 1:
-                #        shell("bedtools unionbedg -i {input} > {output}")
-                #else:
-                #        shell("cp {input} {output}")
 
 rule avg_merged_bedgraph_by_run:
         input:
@@ -103,11 +105,11 @@ rule avg_merged_bedgraph_by_sample:
 rule reannotate_3utrs:
     input:
        script="exe/identifyDistal3UTR.pl",
-       bed="results/Homo_sapiens.GRCh38.92.bed",
+       bed=get_bed_file,
        bedgraphs= 'results/bam/tissue/{cell_line}.bedgraph'
-    benchmark: "benchmarks/APAtrap/{cell_line}.log"
+    benchmark: "benchmarks/APAtrap/{species}_{cell_line}.log"
     output:
-       "results/bed/specific/{cell_line}.utr.bed"
+       "results/bed/specific/{species}_{cell_line}.utr.bed"
     shell:
        "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
 

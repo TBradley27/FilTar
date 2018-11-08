@@ -26,12 +26,12 @@ rule download_dna_data_human: # fix this
         shell:
            "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.{wildcards.chrom}.fa.gz && gunzip data/Homo_sapiens.GRCh38.dna.chromosome.{wildcards.chrom}.fa.gz"
 
-#rule download_dna_data_mouse: # fix this
-#        input:
-#        output:
-#           "data/Mus_musculus.GRCm38.dna.chromosome.{chrom}.fa"
-#        shell:
-#           "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.chromosome.{wildcards.chrom}.fa.gz"
+rule download_dna_data_mouse: # fix this
+        input:
+        output:
+           "data/Mus_musculus.GRCm38.dna.chromosome.{chrom}.fa"
+        shell:
+           "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.chromosome.{wildcards.chrom}.fa.gz"
 
 rule bed_to_fasta_human:
         input:
@@ -45,15 +45,17 @@ rule bed_to_fasta_human:
         shell:
             "{input.script} {input.dna_file} {input.bed_file} {output} {wildcards.chrom}"
 
-#rule bed_to_fasta_mouse:
-#        input:
-#            bed_file="results/mmu_3UTR_chr{chrom}.bed",
-#            dna_file="/tgac/workarea/users/bradleyt/DNA/Mus_musculus.GRCm38.dna.chromosome.{chrom}.fa",
-#            script="src/pre-processing/GetFastaFromBed.sh"
-#        output:
-#            temp("results/mmu_3UTR_chr{chrom}.fa")
-#        shell:
-#            "{input.script} three_prime_utr {wildcards.chrom} mmu {input.bed_file}"
+rule bed_to_fasta_mouse:
+        input:
+            bed_file="results/mmu_3UTR_chr{chrom}.bed",
+            dna_file="data/Mus_musculus.GRCm38.dna.chromosome.{chrom}.fa",
+            script="exe/pre-processing/GetFastaFromBed.sh"
+        output:
+            "results/mmu_3UTR_chr{chrom}.fa"
+        conda:
+            "envs/bedtools.yaml"
+        shell:
+            "{input.script} {input.dna_file} {input.bed_file} {output} {wildcards.chrom}"
 
 rule merge_fasta:
         input:
@@ -76,9 +78,9 @@ rule bed_to_fasta_CDS_human:
         shell:
             "{input.script} {input.dna} {input.bed} {output} {wildcards.chrom}"
 
-rule index_maf_files_human:
+rule index_maf_files:
 	input:
-	   maf="data/chr{chrom}.maf",
+	   maf="data/maf_{species}/chr{chrom}.maf",
            script="exe/targetscan7/biopython_maf_processing.py"
 	output:
 	   protected("data/{species}_chr{chrom}.mafindex")
@@ -87,16 +89,6 @@ rule index_maf_files_human:
 	shell:
 	   "{input.script} {output} {input.maf} {wildcards.species} {wildcards.chrom}"
 
-#rule index_maf_files_mouse:
-#        input:
-#           maf="/tgac/workarea/users/bradleyt/maf/60-way/chr{chrom}.maf",
-#           script="src/targetscan7/biopython_maf_processing.sh"
-#        output:
-#           "results/mmu_chr{chrom}.mafindex"
-#	benchmark:
-#           "benchmarks/mmu_chr{chrom}.mafindex.log"
-#	shell:
-#           "{input.script} three_UTR {wildcards.chrom} mmu"
 
 rule fasta_to_tsv_CDS:
         input:
@@ -120,25 +112,34 @@ rule gtf_to_bed_biopython_human:
         shell:
             "{input.script} 3UTR {wildcards.chrom} hsa biopython"
 
-#rule gtf_to_bed_biopython_mouse:
-#        input:
-#            gtf_mouse="data/Mus_musculus.GRCm38.92.gtf",
-#            script="src/pre-processing/gtf_to_bed.sh"
-#        output:
-#            "results/mmu_3UTR_biopython.chr{chrom}.bed"
-#        shell:
-#            "{input.script} 3UTR {wildcards.chrom} mmu biopython"
+rule gtf_to_bed_biopython_mouse:
+        input:
+            gtf_mouse="data/Mus_musculus.GRCm38.92.gtf",
+            script="exe/pre-processing/gtf_to_bed.sh"
+        output:
+            "results/mmu_3UTR_biopython.chr{chrom}.bed"
+        conda:
+             "envs/biopython.yaml"
+        shell:
+            "{input.script} 3UTR {wildcards.chrom} mmu biopython"
 
-rule download_maf_files:
+rule download_maf_files_human:
         input:
         output:
-           "data/chr{chrom}.maf"
+           "data/maf_hsa/chr{chrom}.maf"
         shell:
-           "wget --directory-prefix=data/ -nv http://hgdownload.soe.ucsc.edu/goldenPath/hg38/multiz100way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"
+           "wget --directory-prefix=data/maf_hsa/ -nv http://hgdownload.soe.ucsc.edu/goldenPath/hg38/multiz100way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"
+
+rule download_maf_files_mouse:
+        input:
+        output:
+           "data/maf_mmu/chr{chrom}.maf"
+        shell:
+           "wget --directory-prefix=data/maf_mmu/ -nv http://hgdownload.cse.ucsc.edu/goldenPath/mm10/multiz60way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"
 
 rule biopython_get_3UTR_tsv_alignments:
         input:
-           maf="data/chr{chrom}.maf",
+           maf="data/maf_{species}/chr{chrom}.maf",
            bed="results/{species}_3UTR_biopython.chr{chrom}.bed",
            maf_index="data/{species}_chr{chrom}.mafindex",
            script="exe/targetscan7/biopython_maf_processing2.py",

@@ -47,10 +47,10 @@ PRJNA284262: # Zhang et al. 2016 - Primate-specific miR-603 is implicated in the
 PRJNA231155:
         U251:
                 mock: [SRR1047622,SRR1047623]
-                miR-137: [SRR1047623,SRR1047625]
+                miR-137-3p: [SRR1047623,SRR1047625]
         U343:
                 mock: [SRR1047630,SRR1047631]
-                miR-137: [SRR1047632,SRR1047633]
+                miR-137-3p: [SRR1047632,SRR1047633]
         all_runs: [SRR1047622,SRR1047623,SRR1047623,SRR1047625,SRR1047630,SRR1047631,SRR1047632,SRR1047633]
 
 PRJNA292016:
@@ -94,7 +94,7 @@ PRJNA340017: # beware contains technical replicates
                    SRR4054996,SRR4054997,SRR4054998,SRR4054999,SRR4055000,SRR4055001,SRR4055002,SRR4055003,
                    SRR4055004,SRR4055005,SRR4055006,SRR4055007]
 
-PRJNA270999: # biological replicates
+PRJNA270999: # technical replicates
         ESCs:
                 mock: [SRR1734389,SRR1734390,SRR1734391,SRR1734392]
                 miR-294-3p: [SRR1734393,SRR1734394,SRR1734395,SRR1734396]

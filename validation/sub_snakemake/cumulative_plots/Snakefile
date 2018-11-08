@@ -3,61 +3,55 @@ subworkflow mainworkflow:
 	workdir: "../"
         snakefile: "../Snakefile"
 
-#rule get_canonical_utrs:
-#	input: "results/Homo_sapiens.GRCh38.92.bed6"
-#	output: "results/canonical.utr.full.bed"
-#	shell: "sed 's;\..;;1' {input} > {output}"
-
 rule get_utr_lengths:
-	input:	'results/bed/specific/{cell_line}.utr.full.bed'
-	output: 'results/utrs/{cell_line}.utr.lengths.tsv'
+	input:	'results/bed/specific/{species}_{cell_line}.utr.full.bed'
+	output: 'results/utrs/{species}_{cell_line}.utr.lengths.tsv'
 	script: 'get_utr_lengths.R'
 
 rule get_cell_line_targets:
 	input:
-		targets='results/hsa_msa_sites.tsv',
-		utr_lens='results/utrs/{cell_line}.utr.lengths.tsv'
-	output: 'results/targets/specific/{cell_line}.sites.tsv'
+		targets='results/{species}_msa_sites.tsv',
+		utr_lens='results/utrs/{species}_{cell_line}.utr.lengths.tsv'
+	output: 'results/targets/specific/{species}_{cell_line}.sites.tsv'
 	script: 'alt_sites.R'
 
-#rule get_cumulative_plot_alt_utrs: # UTR reannotation analysis
-#        input:
-#                quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
-#                quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-#                cl_targets= "results/{cell_line}.sites.tsv",
-#                canon_targets = "results/canonical.sites.tsv"
-#        params:
-#                pseudocount= 1,
-#                site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
-#                exp_threshold= 0.001,
-#                x_lim=2
-#        output: "results/{project}_{miRNA}_{cell_line}_alt_utr_tmp.png"
-#        script: "alt_utrs.R"
+rule get_canon_targets:
+	input:
+           msa=mainworkflow("results/{species}_chr{chrom}_msa.tsv"),
+           mirna_families="results/{species}_mirna_family.tsv",
+           script="exe/targetscan7/targetscan_70.pl"
+	output: "results/targets/canonical/{species}_chr{chrom}_msa.sites.tsv"
+	shell: '{input.script} {input.mirna_families} {input.msa} {output}'
 
-rule get_cumulative_plot_expression: # UTR reannotation analysis
+rule aggregate_canon_targets:
+	input: lambda wildcards: expand("results/targets/canonical/{species}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
+	output: "results/targets/canonical/{species}_msa.sites.tsv"
+	shell: "cat {input} | sed '1b;/Gene/d'  > {output}"
+
+rule get_cumulative_plot_expression:
         input:
                 quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
                 quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-                cl_targets= "results/{cell_line}.sites.tsv",
-                canon_targets = mainworkflow("results/hsa_msa.sites.tsv")
+                cl_targets= "results/targets/specific/{species}_{cell_line}.sites.tsv",
+                canon_targets = "results/targets/canonical/{species}_msa.sites.tsv"
         params:
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=5,
-                x_lim=8
-        output: "results/plots/{project}_{miRNA}_{cell_line}_exp.png"
+                x_lim=2.5
+        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_exp.png"
         script: "alt_utrs_deseq_exp.R"
 
 rule get_cumulative_plot_alt_utrs: # UTR reannotation analysis
         input:
                 quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
                 quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-                cl_targets= "results/{cell_line}.sites.tsv",
-                canon_targets = mainworkflow("results/hsa_msa.sites.tsv")
+                cl_targets= "results/targets/specific/{species}_{cell_line}.sites.tsv",
+                canon_targets ="results/targets/canonical/{species}_msa.sites.tsv"
         params:
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=0,
-                x_lim=8
-        output: "results/plots/{project}_{miRNA}_{cell_line}_alt_utr.png"
+                x_lim=2.5
+        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr.png"
         script: "alt_utrs_deseq.R"

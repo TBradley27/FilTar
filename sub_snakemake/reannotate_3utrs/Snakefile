@@ -1,33 +1,30 @@
 #!/bin/bash
 
+def get_bed6_file(wildcards):
+        if wildcards.species == 'hsa':
+                return('results/Homo_sapiens.GRCh38.92.bed6')
+        elif wildcards.species == 'mmu':
+                return('results/Mus_musculus.GRCm38.92.bed6')
+
 rule get_bed6_file: #three_prime_utrs only
         input:
             script="exe/gtf_to_bed.sh",
-            gtf="data/Homo_sapiens.GRCh38.92.gtf"
+            gtf="data/{prefix}.gtf"
         output:
-            "results/Homo_sapiens.GRCh38.92.bed6"
+            "results/{prefix}.bed6"
         shell:
             "{input.script} {input.gtf} {output}"
 
-#rule split_bed_files:
-#       input: "results/Homo_sapiens.GRCh38.92.bed6"
-#       output: "results/Homo_sapiens.GRCh38.92.chr{chrom}.bed6"
-#       shell: "awk '$1 == {wildcards.chrom}' {input} {output}"
-
-#rule split_bed_files:
-#       input: "results/{cell_line}.utr.bed"
-#       output: "results/{cell_line}.utr.chr{chrom}.bed"
-#       shell: "awk '$1 == {wildcards.chrom}' {input} {output}"
 
 rule get_extended_bed_file:
          input:
             script="exe/extend_bed.R",
-            normal_bed="results/Homo_sapiens.GRCh38.92.bed6",
-            extended_bed="results/bed/specific/{cell_line}.utr.bed"
+            normal_bed= get_bed6_file,
+            extended_bed="results/bed/specific/{species}_{cell_line}.utr.bed"
          output:
-            "results/bed/specific/{cell_line}.utr.full.bed"
+            "results/bed/specific/{species}_{cell_line}.utr.full.bed"
          log:
-            "{cell_line}.log"
+            "{species}_{cell_line}.log"
          shell:
              "Rscript {input.script} {input.normal_bed} {input.extended_bed} {output} 2> {log}"
 
@@ -48,19 +45,18 @@ rule reformat_normal_bed_file:
 #       output: "{cell_line}_bed_file_differences.txt"
 #       shell: "diff -y --suppress-common-lines {input.normal_bed} {input.extended_bed} > {output}"
 
-
 rule get_longest_utr_bed:
-	input: 'results/Homo_sapiens.GRCh38.92.bed6'
-	output: 'results/bed/longest/longest.utr.bed'
+	input: get_bed6_file
+	output: 'results/bed/longest/{species}_longest.utr.bed'
 	params:
-		bed_dir='/gpfs/afm/moxon/thomas2/APAtrap/validation/results/'
+		bed_dir='results/bed/specific/'
 	script: 'merge_multiple_bed_files.R'  
 
 rule split_bed:
         input:
-                "results/bed/longest/longest.utr.bed"
+                "results/bed/longest/{species}_longest.utr.bed"
         output:
-                "results/bed/longest/hsa_3UTR_chr{chrom}.bed"
+                "results/bed/longest/{species}_3UTR_chr{chrom}.bed"
         shell:
                 "grep '^{wildcards.chrom}' {input} > {output}"
 

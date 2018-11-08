@@ -32,7 +32,7 @@ rule download_targetscan_data1:
 rule targetscan_sites:
 	input:
            msa="results/utrs/longest/{species}_chr{chrom}_msa.tsv",
-           mirna_families=ancient("results/mirna_family.tsv"),
+           mirna_families=ancient("results/{species}_mirna_family.tsv"),
            script="exe/targetscan7/targetscan_70.pl"
 	output:
            "results/targets/longest_utrs/{species}_chr{chrom}_msa.sites.tsv"
@@ -42,7 +42,7 @@ rule targetscan_sites:
            "{input.script} {input.mirna_families} {input.msa} {output}"
 
 rule cat_sites:
-	input: expand("results/targets/longest_utrs/hsa_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes']['human'])
-	output: "results/hsa_msa_sites.tsv"
+	input: lambda wildcards: expand("results/targets/longest_utrs/{species}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
+	output: "results/{species}_msa_sites.tsv"
 	shell: "cat {input} | sed '1b;/Gene/d'  > {output}" # cat and delete all headers except for the first one
 

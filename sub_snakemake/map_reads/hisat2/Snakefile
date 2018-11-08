@@ -1,40 +1,59 @@
 import os
 
+def get_species_synonym(wildcards):
+	if wildcards.species_prefix == 'Mus_musculus.GRCm38':
+		return ('mus_musculus')
+	elif wildcards.species_prefix == 'Homo_sapiens.GRCh38':
+		return ('homo_sapiens')
+
+def get_gtf_file(wildcards):
+	if wildcards.species == 'mmu':
+                return('data/Mus_musculus.GRCm38.92.gtf')
+	elif wildcards.species == 'hsa':
+		return('data/Homo_sapiens.GRCh38.92.gtf')
+
+def get_assembly(wildcards):
+	if wildcards.species == 'mmu':
+		return("data/Mus_musculus.GRCm38.dna.primary_assembly.fa")
+	if wildcards.species == 'hsa':
+		return("data/Homo_sapiens.GRCh38.dna.primary_assembly.fa")
+
 rule download_fasta:
         input:
-        output: "data/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
-        shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
+        output: "data/{species_prefix}.dna.primary_assembly.fa.gz"
+        params: get_species_synonym
+        shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/{params}/dna/{wildcards.species_prefix}.dna.primary_assembly.fa.gz"
 
 rule decompress_file:
-        input: "data/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
-        output: "data/Homo_sapiens.GRCh38.dna.primary_assembly.fa"
+        input: "data/{species_prefix}.dna.primary_assembly.fa.gz"
+        output: "data/{species_prefix}.dna.primary_assembly.fa"
         threads: 8
         shell: "pigz -p {threads} -d {input}"
 
 rule get_splice_sites_for_hisat2:
         input:
-          gtf="data/Homo_sapiens.GRCh38.92.gtf",
-          script='exe/hisat2_extract_splice_sites.py'
-        output: "results/hisat2_splice_sites.txt"
-        shell: "python {input.script} {input.gtf} > {output}"
+          gtf=get_gtf_file,
+          py_script='exe/hisat2_extract_splice_sites.py'
+        output: "results/{species}_hisat2_splice_sites.txt"
+        shell: "python {input.py_script} {input.gtf} > {output}"
 
 rule get_exons_for_hisat2:
         input:
-          gtf="data/Homo_sapiens.GRCh38.92.gtf",
-          script='exe/hisat2_extract_exons.py'
-        output: "results/hisat2_exons.txt"
-        shell: "python {input.script} {input.gtf} > {output}"
+          gtf=get_gtf_file,
+          py_script='exe/hisat2_extract_exons.py'
+        output: "results/{species}_hisat2_exons.txt"
+        shell: "python {input.py_script} {input.gtf} > {output}"
 
 rule create_index:
         input:
-           assembly="data/Homo_sapiens.GRCh38.dna.primary_assembly.fa",
-           splice_sites="results/hisat2_splice_sites.txt",
-           exons="results/hisat2_exons.txt"
+           assembly=get_assembly,
+           splice_sites="results/{species}_hisat2_splice_sites.txt",
+           exons="results/{species}_hisat2_exons.txt"
         conda:
            "envs/hisat2.yaml"
-        output: "data/hsa.1.ht2"
+        output: "data/{species}.1.ht2"
         threads: 8
-        shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} hsa"
+        shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} data/{wildcards.species}"
 
 def get_lib_type(wildcards):
 	hisat2_dict = {'IU':'','ISF':'FR','ISR':'RF', 'U':'','SF':'F','SR':'R'}	
@@ -56,46 +75,26 @@ def get_lib_type(wildcards):
 	else:
 		return ("")
 
-#rule map_paired_end:
-#	input:
-#          reads1="results/trimmed_fastq/{accession}_1_val_1.fq.gz",
-#          reads2="results/trimmed_fastq/{accession}_2_val_2.fq.gz"
-#	conda:
-#           "envs/hisat2.yaml"
-#	output: "results/bam/{accession}.sam"
-#	params:
-#            lib_type = get_lib_type
-#	shell: "hisat2 -x data/hsa -1 {input.reads1} -2 {input.reads2} -S {output} {params.lib_type}"
-
-#rule map_single_end:
-#        input:
-#           reads="results/trimmed_fastq/{accession}_trimmed.fq.gz",
-#        conda:
-#           "envs/hisat2.yaml"
-#        output: "results/bam/{accession}.sam"
-#        params:
-#             lib_type = get_lib_type
-#        shell: "hisat2 -x data/hsa -U {input.reads} -S {output} {params.lib_type}" #
-
-def get_input_files (wildcards):
+def get_read_files (wildcards):
 	if wildcards.accession in config['all_paired_end']:
 		input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession), 
 			       'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession),
-                               'results/salmon/{}/lib_type.txt'.format(wildcards.accession)
 				] 
 		return(input_files)
 	else:
-		input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession),
-                              'results/salmon/{}/lib_type.txt'.format(wildcards.accession)
+		input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
                              ]
 		return(input_file)
 
 rule map_reads:
-	output: "results/bam/{accession}.sam"
-	input: get_input_files
+	input: 
+		reads=get_read_files,
+		lib_type_file='results/salmon/{accession}/lib_type.txt',
+		index="data/mmu.1.ht2"
 	conda:
 		"envs/hisat2.yaml"
 	params: get_lib_type
+        output: "results/bam/{accession}.sam"
 	script:
 		"map_reads.py"
 

@@ -60,9 +60,9 @@ rule targetscan_sites:
            "{input.script} {input.mirna_families} {input.msa} {output}"
 
 rule aggregate_targetscan_sites:
-	input: expand("results/hsa_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes']['human'])
+	input: expand("results/hsa_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes']['hsa'])
   	output: "results/hsa_msa.sites.tsv"
-	shell: "cat {input} | sed '1b;/Gene/d > {output}"
+	shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
 rule download_targetscan_data2:
         input:

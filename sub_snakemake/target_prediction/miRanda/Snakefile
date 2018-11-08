@@ -30,7 +30,7 @@ rule add_species_to_miRanda_files: # fix this at the point where we originally p
 
 # if we decide to write data to the table in one big chunk instead
 rule cat_miRanda_file:
-	input: expand("results/hsa_chr{chrom}.miranda_proc2", chrom=config['chromosomes']['human']),
+	input: expand("results/hsa_chr{chrom}.miranda_proc2", chrom=config['chromosomes']['hsa']),
         output: "results/hsa.miranda_proc2"
 	shell: "cat {input} > {output}"
 

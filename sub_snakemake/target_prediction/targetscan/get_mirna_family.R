@@ -1,9 +1,7 @@
 #!/bin/env Rscript
 
-library(readr)
-library(dplyr)
-library(stringr)
-library(purrr)
+library(plyr)
+library(tidyverse)
 
 mirna_seeds = read_table2(snakemake@input[[1]], col_names=c("identifier", "seq"))
 
@@ -37,14 +35,39 @@ mirna_seeds$tax_id = map(mirna_seeds$species, map_ids)
 mirna_seeds$species = NULL
 
 mirna_seeds$tax_id = as.character(mirna_seeds$tax_id)
+
+# delete families which do not include a human orhtologue
+
+delete_mirs_without_hsa = function(string) {
+
+	x = filter(mirna_seeds, seq == string)
+
+	if ('9606' %in% x$tax_id) {
+		return (x)
+}
+	else {
+		return ()
+}
+}
+
+
+unique_seeds = mirna_seeds$seq %>% unique()
+
+mirna_seeds = map(unique_seeds, delete_mirs_without_hsa)
+
+mirna_seeds = ldply(mirna_seeds, data.frame) %>% as.tibble()
+
+print(mirna_seeds)
+
 mirna_seeds$seq = as.factor(mirna_seeds$seq)
 mirna_seeds$identifier = as.integer(mirna_seeds$seq)
 
+# remove duplicate lines
+
+mirna_seeds = unique( mirna_seeds[,] )
+
+# delete families which does not include a human orhtologue
+
+
+
 write.table(mirna_seeds, snakemake@output[[1]], sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
-
-
-
-
-
-
-

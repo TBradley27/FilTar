@@ -5,13 +5,13 @@ subworkflow main_workflow:
 
 rule biopython_get_3UTR_tsv_alignments:
         input:
-           maf=main_workflow("data/chr{chrom}.maf"),
+           maf=main_workflow("data/maf_{species}/chr{chrom}.maf"),
            bed="results/bed/longest/{species}_3UTR_chr{chrom}.bed",
            maf_index=main_workflow("data/{species}_chr{chrom}.mafindex"),
            script=main_workflow("exe/targetscan7/biopython_maf_processing2.py"),
            shell_script=main_workflow("exe/targetscan7/convert_fasta_to_tsv.sh")
         output:
-           "results/utrs/{species}_chr{chrom}_msa.tsv"
+           "results/utrs/longest/{species}_chr{chrom}_msa.tsv"
         conda:
            "envs/biopython.yaml"
         shell:

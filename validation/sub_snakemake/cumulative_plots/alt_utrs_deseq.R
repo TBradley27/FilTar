@@ -25,22 +25,32 @@ canon_targets = read_tsv(
 
 mock1 = strsplit(snakemake@input$quant_mock[1], split='/')[[1]][3]
 mock2 = strsplit(snakemake@input$quant_mock[2], split='/')[[1]][3]
+mock3 = strsplit(snakemake@input$quant_mock[3], split='/')[[1]][3]
+mock4 = strsplit(snakemake@input$quant_mock[4], split='/')[[1]][3]
 real1 = strsplit(snakemake@input$quant_real[1], split='/')[[1]][3]
 real2 = strsplit(snakemake@input$quant_real[2], split='/')[[1]][3]
+real3 = strsplit(snakemake@input$quant_real[3], split='/')[[1]][3]
+real4 = strsplit(snakemake@input$quant_real[4], split='/')[[1]][3]
 
 samples = data.frame(
-  run=c(mock1,mock2,real1,real2),
-  treatment = factor(rep(c('miRNA',"negative_control"),each=2),
+  run=c(mock1,mock2,mock3,mock4,real1,real2,real3,real4),
+  treatment = factor(rep(c("negative_control","miRNA"),each=4),
                        ordered=FALSE)
 )
+
+print(samples)
   
 rownames(samples) = samples$run
   
 files = c(
   paste(snakemake@input$quant_mock[1]),
   paste(snakemake@input$quant_mock[2]),
+  paste(snakemake@input$quant_mock[3]),
+  paste(snakemake@input$quant_mock[4]),
   paste(snakemake@input$quant_real[1]),
-  paste(snakemake@input$quant_real[2])
+  paste(snakemake@input$quant_real[2]),
+  paste(snakemake@input$quant_real[3]),
+  paste(snakemake@input$quant_real[4])
 )
 names(files) = samples$run
 
@@ -51,6 +61,8 @@ cl_targets = filter(cl_targets, miRNA_family_ID == snakemake@wildcards$miRNA)
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$nontarget_site_types)
 canon_targets = filter(canon_targets, miRNA_family_ID == snakemake@wildcards$miRNA)
+
+canon_targets$a_Gene_ID = gsub('\\..*','', canon_targets$a_Gene_ID)
 
 ### DESeq2
 
@@ -83,6 +95,8 @@ results$`resLFC@rownames` = gsub('\\..*','',results$`resLFC@rownames`)
 
 exp_data = filter(results, baseMean >= snakemake@params$exp_threshold)
 
+print(exp_data)
+
 # subset the expression data
 
 non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
@@ -106,8 +120,12 @@ old_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% old_ta
 nontargets = tibble(fc=non_targets_exp)
 nontargets$legend = stringr::str_interp("No seed binding (n=${length(non_targets_exp)})")
 
+print(cl_targets_exp)
+
 cl_targets = tibble(fc=cl_targets_exp)
 cl_targets$legend = stringr::str_interp("${snakemake@wildcards$cell_line} targets (n=${length(cl_targets_exp)})")
+
+print(cl_targets)
 
 canon_targets = tibble(fc=canon_targets_exp)
 canon_targets$legend = stringr::str_interp("ensembl targets (n=${length(canon_targets_exp)})")
