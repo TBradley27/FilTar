@@ -9,24 +9,24 @@ from Bio import AlignIO
 from Bio.AlignIO import MafIO
 from subprocess import call
 
-if sys.argv[3] == "hsa" and sys.argv[5] == 'test':    #Identify the species identifier passed through the command line
+if snakemake.wildcards['species'] == "hsa" and snakemake.params == 'test':    #Identify the species identifier passed through the command line
         build = "hg19"
-elif sys.argv[3] == "hsa" and sys.argv[5] != 'test':
+elif snakemake.wildcards['species'] == "hsa" and snakemake.params != 'test':
        build = "hg38"
-elif sys.argv[3] == "mmu":
+elif snakemake.wildcards['species'] == "mmu":
         build = "mm10"
 else:
         build = ''
 
-print (sys.argv)
+print (snakemake)
 print (build)
 
-idx = AlignIO.MafIO.MafIndex(sys.argv[1], sys.argv[2], "{}.chr{}".format(build, sys.argv[4])  )
+idx = AlignIO.MafIO.MafIndex(snakemake.input['maf_index'], snakemake.input['maf'], "{}.chr{}".format(build, snakemake.wildcards['chrom'])  )
 
 start_pos = []
 end_pos = []
 accession = 'empty'
-with open(sys.argv[6] ) as f:
+with open(snakemake.input['bed'] ) as f:
     for line in f:    #Open and loop through line-by-line the relevant BED file
         parts = line.split()  
 
@@ -58,10 +58,10 @@ with open(sys.argv[6] ) as f:
            new_multiple_alignment = idx.get_spliced(start_pos, end_pos, strand) # splice through the index
            AlignIO.write(new_multiple_alignment, "results/{}.fa".format(accession), "fasta")
            
-           call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}.fa {} > tmp{}.tsv".format(accession, accession, sys.argv[4]), shell=True) #Execute a shell command
+           call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}.fa {} > tmp{}.tsv".format(accession, accession, snakemake.wildcards['chrom']), shell=True) #Execute a shell command
            call(["rm", "results/{}.fa".format(accession)])
-           call("cat tmp{}.tsv >> results/hsa_chr{}_msa_tmp.tsv".format(sys.argv[4], sys.argv[4]), shell=True)
-           call(["rm","tmp{}.tsv".format(sys.argv[4])])
+           call("cat tmp{}.tsv >> results/hsa_chr{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['chrom']), shell=True)
+           call(["rm","tmp{}.tsv".format(snakemake.wildcards['chrom'])])
            
            start_pos = [] # initialise a new transcript record
            end_pos = []
@@ -83,10 +83,10 @@ with open(sys.argv[6] ) as f:
        new_multiple_alignment = idx.get_spliced(start_pos, end_pos, strand)
        AlignIO.write(new_multiple_alignment, "results/{}.fa".format(accession), "fasta")
 
-       call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}.fa {} > tmp{}.tsv".format(accession, accession, sys.argv[4]), shell=True) #Execute a shell command
+       call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}.fa {} > tmp{}.tsv".format(accession, accession, snakemake.wildcards['chrom']), shell=True) #Execute a shell command
        call(["rm", "results/{}.fa".format(accession)])
-       call("cat tmp{}.tsv >> results/hsa_chr{}_msa_tmp.tsv".format(sys.argv[4], sys.argv[4]), shell=True)
-       call(["rm","tmp{}.tsv".format(sys.argv[4])])
+       call("cat tmp{}.tsv >> results/hsa_chr{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['chrom']), shell=True)
+       call(["rm","tmp{}.tsv".format(snakemake.wildcards['chrom'])])
 
 TaxID = {"hg38":"9606", "hg19":"9606", "panTro4":"9598", "panTro5":"9598", "gorGor3":"9595",   "ponAbe2":"9601",   "nomLeu3":"9581", "nomLeu2":"9581", "nomLeu1":"9581","rheMac3":"9544",  
      "rheMac8":"9544", "macFas5":"9541",  "papHam1":"9557",	"tarSyr1":"9476",	"tarSyr2":"9476",	"dipOrd1":"10020",	"tupBel1":"37347",	"micMur1":"30608",	"choHof1":"9358",	"proCap1":"9813",
@@ -117,12 +117,12 @@ CommonName = {"hg38":"Human", "panTro4":"Chimp", "gorGor3":"Gorilla",   "ponAbe2
      "allMis1":"American alligator",   "cheMyd1":"Green seaturtle",  "chrPic2":"Painted turtle", "pelSin1":"Chinese softshell turtle",   "apaSpi1":"Spiny softshell turtle",   "anoCar2":"Lizard",   "xenTro7":"Xenopus",   
      "latCha1":"Coelacanth"}
 
-f = open("results/hsa_chr{}_msa_tmp.tsv".format(sys.argv[4]), 'r')
+f = open("results/hsa_chr{}_msa_tmp.tsv".format(snakemake.wildcards['chrom']), 'r')
 
 # prevents writing to an already existing file
-call(["rm",sys.argv[7]])
+call(["rm",snakemake.output[0]])
 
-target = open(sys.argv[7], 'w')
+target = open(snakemake,output[0], 'w')
 
 for line in iter(f):
     #result = pattern.sub(lambda x: d[x.group()], line)
@@ -131,4 +131,4 @@ for line in iter(f):
     del result
 f.close()
 
-call(["rm","results/hsa_chr{}_msa_tmp.tsv".format(sys.argv[4])])
+call(["rm","results/hsa_chr{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'])])
