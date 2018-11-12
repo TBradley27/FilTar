@@ -45,6 +45,11 @@ delete_mirs_without_hsa = function(string) {
 	if ('9606' %in% x$tax_id) {
 		return (x)
 }
+	else if ('10090' %in% x$tax_id) {
+
+		return(x)
+}
+
 	else {
 		return ()
 }

@@ -1,4 +1,9 @@
-configfile: "config.yaml"
+configfile: "config/accession_mappings.yaml"
+configfile: "config/lib_types.yaml"
+configfile: "matedness.yaml"
+configfile: "projects.yaml"
+configfile: "species_basic.yaml"
+configfile: "species_sequencing.yaml"
 
 include: "sub_snakemake/data_download/ENA/Snakefile"
 include: "sub_snakemake/qc/Snakefile"
@@ -38,4 +43,3 @@ rule all:
             #expand("results/bam/single_end/{accession}.bam.sorted", accession=config['all_single_end_human']),
             #expand("results/hsa_chr{chrom}_msa.branch_lengths.tsv", chrom=config['chromosomes']['human'])
             #expand("results/hsa_CDS_chr{chrom}.tsv", chrom=config['chromosomes']['human'])
-             "results/bam/ERR030878.bedgraph"

@@ -1,24 +1,29 @@
 #!/bin/bash
 
-rule download_dna_data_human: # fix this
+def get_latin_name(wildcards):
+	if wildcards.species_prefix == 'Homo_sapiens.GRCh38':
+		return('homo_sapiens')
+	elif wildcards.species_prefix == 'Mus_musculus.GRCm38':
+		return('mus_musculus')
+
+rule download_dna_data:
         input:
         output:
-           "data/Homo_sapiens.GRCh38.dna.chromosome.{chrom}.fa"
+           "data/{species_prefix}.dna.chromosome.{chrom}.fa"
+	params: get_latin_name
         shell:
-           "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.{wildcards.chrom}.fa.gz"
+           "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/{params}/dna/{wildcards.species}.dna.chromosome.{wildcards.chrom}.fa.gz"
 
-rule download_dna_data_mouse: # fix this
+rule download_maf_files_human:
         input:
         output:
-           "data/Mus_musculus.GRCm38.dna.chromosome.{chrom}.fa"
+           "data/maf_hsa/chr{chrom}.maf"
         shell:
-           "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.chromosome.{wildcards.chrom}.fa.gz"
+           "wget --directory-prefix=data/maf_hsa/ -nv http://hgdownload.soe.ucsc.edu/goldenPath/hg38/multiz100way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"
 
-rule download_maf_files:
+rule download_maf_files_mouse:
         input:
         output:
-           "data/chr{chrom}.maf"
+           "data/maf_mmu/chr{chrom}.maf"
         shell:
-           "wget --directory-prefix=data/ http://hgdownload.soe.ucsc.edu/goldenPath/hg38/multiz100way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}"
-
-
+           "wget --directory-prefix=data/maf_mmu/ -nv http://hgdownload.cse.ucsc.edu/goldenPath/mm10/multiz60way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"

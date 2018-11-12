@@ -1,11 +1,8 @@
 #!/usr/bin/env Rscript
 
-library(tibble)
+library(tidyverse)
 library(plyr)
-library(readr)
-library(dplyr, warn.conflicts = FALSE)
-library(tidyr)
-library(stringr)
+source('MergeFasta_function.R')
 
 MergeFasta = function(file) {
   
@@ -42,6 +39,5 @@ MergeFasta = function(file) {
   
 }
 
-args = commandArgs(trailingOnly=TRUE)
-fasta = MergeFasta(args[1])
-write.table(fasta, args[2], quote=FALSE, col.names=FALSE, row.names = FALSE)
+fasta = MergeFasta(snakemake@input[[1]])
+write.table(fasta, snakemake@output[[1]], quote=FALSE, col.names=FALSE, row.names = FALSE)

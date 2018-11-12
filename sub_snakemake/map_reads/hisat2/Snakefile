@@ -57,7 +57,6 @@ rule create_index:
 
 def get_lib_type(wildcards):
 	hisat2_dict = {'IU':'','ISF':'FR','ISR':'RF', 'U':'','SF':'F','SR':'R'}	
-	#lib_type = config['lib_types'][wildcards.accession]
 	if not os.path.exists('results/salmon/{}/lib_type.txt'.format(wildcards.accession)): return '' # stmps an error being generated when this file is missing
         fp=open('results/salmon/{}/lib_type.txt'.format(wildcards.accession))
         fp2 = fp.readlines()[0]
@@ -86,15 +85,21 @@ def get_read_files (wildcards):
                              ]
 		return(input_file)
 
+def get_index_files(widlcards):
+	if wildcards.accession in config['human_runs']:
+		return ('data/hsa.1.ht2')
+	elif wildcards.accession in config['mouse_runs']:
+		return ('data/mmu.1.ht2')
+
 rule map_reads:
 	input: 
 		reads=get_read_files,
 		lib_type_file='results/salmon/{accession}/lib_type.txt',
-		index="data/mmu.1.ht2"
+                index=get_index_files
 	conda:
 		"envs/hisat2.yaml"
 	params: get_lib_type
-        output: "results/bam/{accession}.sam"
+        output: "results/bam/{species}/{accession}.sam"
 	script:
 		"map_reads.py"
 
@@ -116,11 +121,3 @@ rule samtools_sort:
     benchmark: "benchmarks/samtools_sort/{accession}.log"
     wrapper:
         "0.27.0/bio/samtools/sort"
-
-#rule merge_bam:
-#	input:
-#		single_end = lambda wildcards: expand("/gpfs/afm/moxon/thomas2/APAtrap/results/bam/single_end/{accession}.bam.sorted", accession=config['sample_type']['human'][wildcards.tissue]['single-end']),
-#		paired_end = lambda wildcards: expand("/gpfs/afm/moxon/thomas2/APAtrap/results/bam/paired_end/{accession}.bam.sorted", accession=config['sample_type']['human'][wildcards.tissue]['paired-end'])
-#	output: "results/bam/{tissue}.bam"
-#	shell: "samtools merge {output} {input.paired_end} {input.single_end}"
-

@@ -31,19 +31,10 @@ rule get_extended_bed_file:
 rule reformat_normal_bed_file:
          input:
            script="exe/reformat_normal_bed.R",
-           normal_bed="results/Homo_sapiens.GRCh38.92.bed6"
-         output: "results/Homo_sapiens.GRCh38.92.reformatted.bed6"
+           normal_bed="results/{species_prefix}.92.bed6"
+         output: "results/{species_prefix}.92.reformatted.bed6"
          shell:
              "Rscript {input.script} {input.normal_bed} {output}"
-
-#WARNING: diff has non-standard exit statuses. A non-zero exit status does not mean programme failure
-
-#rule find_bed_differences:
-#       input: 
-#           normal_bed="results/Homo_sapiens.GRCh38.92.reformatted.bed6",
-#           extended_bed="results/{cell_line}.utr.full.bed"
-#       output: "{cell_line}_bed_file_differences.txt"
-#       shell: "diff -y --suppress-common-lines {input.normal_bed} {input.extended_bed} > {output}"
 
 rule get_longest_utr_bed:
 	input: get_bed6_file
@@ -60,3 +51,11 @@ rule split_bed:
         shell:
                 "grep '^{wildcards.chrom}' {input} > {output}"
 
+#WARNING: diff has non-standard exit statuses. A non-zero exit status does not mean programme failure
+
+#rule find_bed_differences:
+#       input: 
+#           normal_bed="results/Homo_sapiens.GRCh38.92.reformatted.bed6",
+#           extended_bed="results/{cell_line}.utr.full.bed"
+#       output: "{cell_line}_bed_file_differences.txt"
+#       shell: "diff -y --suppress-common-lines {input.normal_bed} {input.extended_bed} > {output}"

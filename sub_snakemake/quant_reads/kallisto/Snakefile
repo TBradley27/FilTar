@@ -2,15 +2,15 @@ subworkflow main_workflow:
         workdir: ".."
         snakefile: "../Snakefile"
 
-rule index_cDNA_file_human:
-	input: "data/Homo_sapiens.GRCh38.cdna.all.fa"
-	output: "results/kallisto/GRCh38.idx"
-	conda: "envs/kallisto.yaml"	
-	shell: "kallisto index -i {output} {input}"
+def get_cDNA_file(wildcards):
+	if wildcards.assembly == 'GRCh38':
+		return('data/Homo_sapiens.GRCh38.cdna.all.fa')
+	elif wildcards.assembly == 'GRCm38':
+		return('data/Mus_musculus.GRCm38.cdna.all.fa')
 
-rule index_cDNA_file_mouse:
-	input: "data/Mus_musculus.GRCm38.cdna.all.fa"
-	output: "results/kallisto/GRCm38.idx"
+rule get_index:
+	input: get_cDNA_file
+	output: "results/kallisto/{assembly}.idx"
 	conda: "envs/kallisto.yaml"
 	shell: "kallisto index -i {output} {input}"
 
@@ -18,7 +18,7 @@ rule index_cDNA_file_mouse:
 def get_index_file (wildcards):
 	if wildcards.accession in config['mouse_accessions']:
 		return ('results/GRCm38.idx')
-	else:
+	elif wildcards.accession in config['human_accessions']:
 		return ('results/GRCh38.idx')
 
 def get_input_files (wildcards):

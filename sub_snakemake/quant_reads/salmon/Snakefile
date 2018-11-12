@@ -1,27 +1,8 @@
-rule download_cdna_file:
+rule salmon_index:
         input:
-        output: "data/Homo_sapiens.GRCh38.cdna.all.fa.gz"
-        shell: "wget -nv --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz"
-
-rule decompress_cdna_file:
-        input: "data/Homo_sapiens.GRCh38.cdna.all.fa.gz"
-        output: "data/Homo_sapiens.GRCh38.cdna.all.fa"
-        shell: "gunzip {input}"
-
-rule salmon_index_mouse:
-        input:
-            "data/Mus_musculus.GRCm38.cdna.all.fa"
+            "data/{species_prefix}.cdna.all.fa"
         output:
-            "results/salmon/mmu_GRCm38_index"
-        threads: 8
-        shell:
-            "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
-
-rule salmon_index_humans:
-        input:
-            ancient("data/Homo_sapiens.GRCh38.cdna.all.fa")
-        output:
-               "results/salmon/hsa_GRCh38_index/"
+            "results/salmon/{species_prefix}"
         threads: 8
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
@@ -29,19 +10,25 @@ rule salmon_index_humans:
 def get_input_files (wildcards):
         if wildcards.accession in config['all_paired_end']:
                 input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession),
-                                'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession),
-                                'results/salmon/hsa_GRCh38_index/'
+                                'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession)
                                 ]
                 return(input_files)
         else:
-                input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession),
-                              "results/salmon/hsa_GRCh38_index/"
+                input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
                              ]
                 return(input_file)
 
+def get_index (wildcards):
+		if wildcards.accession in config['mouse_runs']:
+			return("results/salmon/mmu_GRCm38_index/")
+		elif wildcards.accession in config['human_runs']:
+			return('results/salmon/hsa_GRCh38_index/')
+
 rule salmon_quant:
         output: "results/salmon/{accession}/quant.sf", "results/salmon/{accession}/lib_format_counts.json"
-        input: get_input_files
+        input: 
+		reads=get_input_files,
+		index=get_index
         conda:
                 "envs/salmon.yaml"
 	threads: 4
@@ -52,37 +39,3 @@ rule salmon_get_lib_type:
 	input: "results/salmon/{run_accession}/lib_format_counts.json"
 	output: "results/salmon/{run_accession}/lib_type.txt"
         shell: "grep 'expected' {input} | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
-
-#rule salmon_quantmerge:
-#	input:
-#           paired_end = lambda wildcards: expand('results/paired_end_salmon/{accession}/', accession=config['sample_type']['human'][wildcards.tissue]['paired_end']),
-#           single_end = lambda wildcards: expand('results/single_end_salmon/{accession}/', accession=config['sample_type']['human'][wildcards.tissue]['single_end'])
-#	output: "results/{tissue}.sf"
-#	wildcard_constraints:
-#           tissue="[^/]"  
-#	params:
-#           paired_end = lambda wildcards: expand('{accession}', accession=config['sample_type']['human'][wildcards.tissue]['paired_end']),
-#           single_end = lambda wildcards: expand('{accession}', accession=config['sample_type']['human'][wildcards.tissue]['single_end'])
-#	shell: "salmon quantmerge --quants {input.paired_end} {input.single_end} --names {params.paired_end} {params.single_end} -o {output}"
-
-#rule salmon_average_quantmerge:
-#	input: 
-#            quant_file="results/{tissue}.sf",
-#            script = "exe/average_quant_file.R"
-#	output: "results/{tissue}_avg.sf"
-#	shell: "Rscript {input.script} {input.quant_file} {output}"
-
-#rule construct_config_file:
-#	input: "/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/multiqc_data.json"
-#        output: "/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/tmp_config.txt"
-#        shell: "grep 'ISF\|ISR\|IU\|ERR*\|SRR*\|OSF\|OSR\|OU\|MSF\|MSR\|MU' {input} | grep -v lib | sed 's/://g' | sed 's/{{//g' | paste - - > {output}"
-
-#rule construct_config_file2:
-#        input: 
-#            json_file="/gpfs/afm/moxon/thomas2/APAtrap/reports/multiqc_salmon_single_end_data/multiqc_data.json",
-#            config_file="/gpfs/afm/moxon/thomas2/APAtrap/results/paired_end_salmon/multiqc_data/tmp_config.txt"
-#        output: "tmp_config2.txt"
-#        shell: "grep 'SF\|SR\|U\|ERR*\|SRR*' {input.json_file} | grep -v lib | sed 's/://g' | sed 's/{{//g' | paste - - >> {input.config_file} && mv {input.config_file} {output}"
-
-
-

@@ -12,7 +12,6 @@ rule prep_mirna_seeds:
 rule prep_mirna_family_file:
         input:
            mature_mirna_seeds="results/mature_mirna_seed.tsv"
-#           script="exe/get_mirna_family.R"
         output:
            "results/mirna_family.tsv",
         script:
@@ -34,8 +33,6 @@ rule prep_mir_for_context_scores:
            script="exe/get_mirna_context.R"
         output:
            "results/{species}_mir_for_context_scores.tsv"
-        #conda:
-        #   "envs/r.yaml"
         shell:
            "Rscript {input.script} {wildcards.species} {input.mirna_seed} {input.mature_mirnas} {output}"
 
@@ -60,8 +57,8 @@ rule targetscan_sites:
            "{input.script} {input.mirna_families} {input.msa} {output}"
 
 rule aggregate_targetscan_sites:
-	input: expand("results/hsa_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes']['hsa'])
-  	output: "results/hsa_msa.sites.tsv"
+	input: lambda wildcards: expand("results/{species}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species])
+  	output: "results/{species}_msa.sites.tsv"
 	shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
 rule download_targetscan_data2:
@@ -122,8 +119,6 @@ rule targetscan_PCTs:
             "results/{species}_chr{chrom}_msa.PCTs.tsv"
         benchmark:
             "benchmarks/{species}_chr{chrom}_msa.PCTs.log"
-        #conda:
-        #    "envs/targetscan.yaml"
         shell:
             "{input.script} {input.mirna_family} {input.mirna_sites} {input.branch_lengths} > {output}"
 
