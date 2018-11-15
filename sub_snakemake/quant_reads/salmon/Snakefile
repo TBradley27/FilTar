@@ -50,13 +50,13 @@ rule salmon_get_lib_type:
 
 rule salmon_quantmerge_by_run:
 	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}/", run_accession=config['samples'][wildcards.sample]),
-	output: directory("results/salmon/samples/{sample}/")
+	output: "results/salmon/samples/{sample}.quant.tmp.sf"
 	#params: lambda wildcards: expand('results/salmon/runs/{run_accession}/', run_accession=config['samples'][wildcards.sample])
-	shell: "salmon quantmerge --quants {input} --names {input} -o {output}quant.tmp.sf"
+	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 
 rule salmon_average_quantmerge_runs:
-        input: "results/salmon/samples/{sample}/quant.tmp.sf",
-        output: "results/salmon/samples/{sample}/quant.sf"
+        input: "results/salmon/samples/{sample}.quant.tmp.sf",
+        output: directory("results/salmon/samples/{sample}/")
         script: "get_average_quant.R"
 
 rule salmon_quantmerge_by_sample:
@@ -67,4 +67,4 @@ rule salmon_quantmerge_by_sample:
 rule salmon_average_quantmerge_samples:
         input: "results/salmon/{species}_{tissue}.sf.tmp",
         output: "results/salmon/{species}_{tissue}.sf"
-        script: "get_average_quant.R"
+        script: "get_average_quant2.R"
