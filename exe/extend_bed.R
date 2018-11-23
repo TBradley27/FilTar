@@ -1,12 +1,6 @@
 #!/bin/env Rscript
 
-library(readr)
-library(stringr)
-library(tidyr)
-library(plyr)
-library(dplyr)
-library(tibble)
-library(purrr)
+library(tidyverse)
 
 args = commandArgs(trailingOnly=TRUE)
 

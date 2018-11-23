@@ -23,7 +23,7 @@ fi
 
 grep "$tx_region_long" "$gtf_file" |
 grep -P "${tx_region_long}\t"|         # Braces needed for correct search
-grep '^'$chromosome'\s' > tmp"$chromosome"  # CCDS match confounds CDS search
+grep '^chr'$chromosome'\s' > tmp"$chromosome"  # CCDS match confounds CDS search
 
 if [[ "$?" -ne 0 ]] || [[ ! -s tmp"$chromosome"  ]]; then
   echo "Unable to complete initial processing gg" >&2; exit 1

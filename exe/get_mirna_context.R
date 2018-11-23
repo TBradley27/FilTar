@@ -1,7 +1,4 @@
-library(readr)
-library(dplyr)
-library(stringr)
-library(purrr)
+library(tidyverse)
 
 commandline_args = commandArgs(trailingOnly=TRUE) # this is a temporary hack
 

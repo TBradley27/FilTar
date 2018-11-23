@@ -1,10 +1,5 @@
 #!/bin/bash
 
-awk '{print $1}' $1 |
-grep -A 1 'hsa-' |
-sed 's/--//g'    |
-sed '/^$/d'      |
-sed 'N;s/\n/ /'  |
-sed 's/>//g'     |
-awk '{ OFS="\t" }{ print $1,'9606',$1,$2}'  |
-sed 's/hsa-//g'
+. exe/prep_mirna_mature_alt.sh
+
+prep_mirna_alt $1 $2
