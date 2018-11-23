@@ -1,7 +1,7 @@
 tissues:
-        mouse: 
+        mmu: 
                 ESCs: [SRS803351,SRS803352]
-        human:
+        hsa:
                 IMR90: [SRS504045,SRS504046]
                 Huh7: [SRS504039,SRS504020,SRS504041,SRS504042]
                 HEK293: [SRS504033,SRS504034]
