@@ -11,6 +11,12 @@ import re
 from Bio import AlignIO
 from Bio.AlignIO import MafIO
 
+print(snakemake.output[0])
+print(snakemake.input[0])
+print(snakemake.wildcards['species'])
+print(snakemake.wildcards['chrom'])
+
+
 if snakemake.wildcards['species'] == "hsa":
        build = "hg38" 
 elif snakemake.wildcards['species'] == "mmu":
@@ -18,6 +24,6 @@ elif snakemake.wildcards['species'] == "mmu":
 else:
 	build = ''
 
-print(sys.argv)
+print(build)
 
-idx = AlignIO.MafIO.MafIndex(snakemake.output[0],  snakemake.input[1], "{}.chr{}".format(build, snakemake.wildcards['chrom'])  )
+idx = AlignIO.MafIO.MafIndex(snakemake.output[0],  snakemake.input[0], "{}.chr{}".format(build, snakemake.wildcards['chrom'])  )
