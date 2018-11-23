@@ -25,16 +25,16 @@ canon_targets = read_tsv(
 
 mock1 = strsplit(snakemake@input$quant_mock[1], split='/')[[1]][3]
 mock2 = strsplit(snakemake@input$quant_mock[2], split='/')[[1]][3]
-mock3 = strsplit(snakemake@input$quant_mock[3], split='/')[[1]][3]
-mock4 = strsplit(snakemake@input$quant_mock[4], split='/')[[1]][3]
+#mock3 = strsplit(snakemake@input$quant_mock[3], split='/')[[1]][3]
+#mock4 = strsplit(snakemake@input$quant_mock[4], split='/')[[1]][3]
 real1 = strsplit(snakemake@input$quant_real[1], split='/')[[1]][3]
 real2 = strsplit(snakemake@input$quant_real[2], split='/')[[1]][3]
-real3 = strsplit(snakemake@input$quant_real[3], split='/')[[1]][3]
-real4 = strsplit(snakemake@input$quant_real[4], split='/')[[1]][3]
+#real3 = strsplit(snakemake@input$quant_real[3], split='/')[[1]][3]
+#real4 = strsplit(snakemake@input$quant_real[4], split='/')[[1]][3]
 
 samples = data.frame(
-  run=c(mock1,mock2,mock3,mock4,real1,real2,real3,real4),
-  treatment = factor(rep(c('negative_control',"miRNA"),each=4),
+  run=c(mock1,mock2,real1,real2),
+  treatment = factor(rep(c('negative_control',"miRNA"),each=2),
                        ordered=FALSE)
 )
 
@@ -45,12 +45,8 @@ print(samples)
 files = c(
   paste(snakemake@input$quant_mock[1]),
   paste(snakemake@input$quant_mock[2]),
-  paste(snakemake@input$quant_mock[3]),
-  paste(snakemake@input$quant_mock[4]),
   paste(snakemake@input$quant_real[1]),
-  paste(snakemake@input$quant_real[2]),
-  paste(snakemake@input$quant_real[3]),
-  paste(snakemake@input$quant_real[4])
+  paste(snakemake@input$quant_real[2])
 )
 names(files) = samples$run
 
@@ -97,12 +93,17 @@ exp_data = results
 
 non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 
+non_targets_exp = non_targets_exp - median(non_targets_exp)
+
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$target_site_types)
 canon_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
+
+canon_targets_exp = canon_targets_exp - median(non_targets_exp)
 
 filt_results = filter(exp_data, baseMean > snakemake@params$exp_threshold)
 filt_targets_exp = filt_results$log2FoldChange[filt_results$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 
+filt_targets_exp = filt_targets_exp - median(non_targets_exp)
 
 #print(length(exp_data$Name))
 

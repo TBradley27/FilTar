@@ -5,7 +5,7 @@ subworkflow mainworkflow:
 
 rule get_utr_lengths:
 	input:	'results/bed/specific/{species}_{cell_line}.utr.full.bed'
-	output: 'results/utrs/{species}_{cell_line}.utr.lengths.tsv'
+	output: ancient('results/utrs/{species}_{cell_line}.utr.lengths.tsv')
 	script: 'get_utr_lengths.R'
 
 rule get_cell_line_targets:
@@ -32,13 +32,13 @@ rule get_cumulative_plot_expression:
         input:
                 quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
                 quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-                cl_targets= "results/targets/specific/{species}_{cell_line}.sites.tsv",
-                canon_targets = "results/targets/canonical/{species}_msa.sites.tsv"
+                cl_targets= ancient("results/targets/specific/{species}_{cell_line}.sites.tsv"),
+                canon_targets = ancient("results/targets/canonical/{species}_msa.sites.tsv")
         params:
-                nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+                nontarget_site_types= ['8mer-1a'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=5,
-                x_lim=2.5
+                x_lim=5.0
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_exp.png"
         script: "alt_utrs_deseq_exp.R"
 
