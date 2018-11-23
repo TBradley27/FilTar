@@ -92,18 +92,18 @@ rule avg_merged_bedgraph_by_run:
 
 rule merge_bedgraphs_by_sample:
         input:
-             lambda wildcards: expand("results/bam/sample/{sample}.bedgraph", sample=config['tissues'][wildcards.cell_line])
+             lambda wildcards: expand("results/bam/sample/{sample}.bedgraph", sample=config['tissues'][wildcards.species][wildcards.cell_line])
         output:
-             "results/bam/tissue/{cell_line}.bedgraph.tmp"
+             "results/bam/tissue/{species}/{cell_line}.bedgraph.tmp"
         conda:
              "envs/bedtools.yaml"
         shell: "bedtools unionbedg -i {input} > {output}"
 
 rule avg_merged_bedgraph_by_sample:
         input:
-                "results/bam/tissue/{cell_line}.bedgraph.tmp"
+                "results/bam/tissue/{species}/{cell_line}.bedgraph.tmp"
         output:
-                "results/bam/tissue/{cell_line}.bedgraph"
+                "results/bam/tissue/{species}/{cell_line}.bedgraph"
         script:
                 "get_average_bedgraph.R"
 
@@ -111,7 +111,7 @@ rule reannotate_3utrs:
     input:
        script="exe/identifyDistal3UTR.pl",
        bed=get_bed_file,
-       bedgraphs= 'results/bam/tissue/{cell_line}.bedgraph'
+       bedgraphs= 'results/bam/tissue/{species}/{cell_line}.bedgraph'
     benchmark: "benchmarks/APAtrap/{species}_{cell_line}.log"
     output:
        "results/bed/specific/{species}_{cell_line}.utr.bed"

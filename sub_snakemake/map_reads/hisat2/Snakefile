@@ -85,11 +85,13 @@ def get_read_files (wildcards):
                              ]
 		return(input_file)
 
-def get_index_files(widlcards):
-	if wildcards.accession in config['human_runs']:
+def get_index_files(wildcards):
+	if wildcards.accession in config['human']['runs']:
 		return ('data/hsa.1.ht2')
-	elif wildcards.accession in config['mouse_runs']:
+	elif wildcards.accession in config['mouse']['runs']:
 		return ('data/mmu.1.ht2')
+	else:
+		return ('accession not found in config file')
 
 rule map_reads:
 	input: 
@@ -99,22 +101,22 @@ rule map_reads:
 	conda:
 		"envs/hisat2.yaml"
 	params: get_lib_type
-        output: "results/bam/{species}/{accession}.sam"
+        output: "results/bam/run/{accession}.sam"
 	script:
 		"map_reads.py"
 
 rule sam_to_bam:
-	input: "results/bam/{accession}.sam",
-        output: "results/bam/{accession}.bam"
+	input: "results/bam/run/{accession}.sam",
+        output: "results/bam/run/{accession}.bam"
         conda:
 	   "envs/hisat2.yaml"
 	shell: "samtools view -Sb  {input}  >  {output}"
 
 rule samtools_sort:
     input:
-        "results/{accession}.bam"
+        "results/bam/run/{accession}.bam"
     output:
-        "results/{accession}.bam.sorted"
+        "results/bam/run/{accession}.bam.sorted"
     params:
         "-m 2G"
     threads: 1

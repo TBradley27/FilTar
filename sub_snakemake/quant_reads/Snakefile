@@ -1,0 +1,17 @@
+def get_cDNA_file(wildcards):
+	if wildcards.species_prefix == 'Homo_sapiens.GRCh38':
+		return('homo_sapiens')
+	elif wildcards.species_prefix == 'Mus_musculus.GRCm38':
+		return('mus_musculus')
+	else:
+		return("foo")	
+
+rule download_cdna_file:
+        output: "data/{species_prefix}.cdna.all.fa.gz"
+	params: get_cDNA_file
+	shell: "wget -nv --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/{params}/cdna/{wildcards.species_prefix}.cdna.all.fa.gz"
+
+rule decompress_cdna_file:
+        input: "data/{species_prefix}.cdna.all.fa.gz"
+        output: "data/{species_prefix}.cdna.all.fa"
+        shell: "gunzip {input}"

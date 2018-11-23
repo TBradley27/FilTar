@@ -13,4 +13,4 @@ rule mirna_species_fasta:
         output:
            "data/mirbase_mature_{species}.fa"
         shell:
-           "grep -A 1 {wildcards.species} {input} | awk '{{ print $1 }}' | sed 's/--//g' | sed '/^$/d' > {output} "
+           "grep -A 1 {wildcards.species} {input} | awk '{{ print $1 }}' | sed 's/--//g' | sed '/^$/d' > {output}"

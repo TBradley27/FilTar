@@ -64,7 +64,7 @@ rule index_maf_files:
 	   protected("data/{species}_chr{chrom}.mafindex")
 	benchmark:
            "benchmarks/{species}_chr{chrom}.mafindex.log"
-	shell:
+	script:
 	   "biopython_maf_processing.py"
 
 rule gtf_to_bed_biopython:
@@ -79,15 +79,15 @@ rule gtf_to_bed_biopython:
             "{input.script} 3UTR {wildcards.chrom} {wildcards.species} biopython"
 
 rule biopython_get_3UTR_tsv_alignments:
-        input:
+	input:
            maf="data/maf_{species}/chr{chrom}.maf",
            bed="results/{species}_3UTR_biopython.chr{chrom}.bed",
            maf_index="data/{species}_chr{chrom}.mafindex",
-           script="exe/targetscan7/biopython_maf_processing2.py",
            shell_script="exe/targetscan7/convert_fasta_to_tsv.sh"
-        output:
+	output:
            "results/{species}_chr{chrom}_msa.tsv"
-        conda:
+	params: 'nottest'
+	conda:
            "envs/biopython.yaml"
-        shell:
-           "{input.script} {input.maf_index} {input.maf} {wildcards.species} {wildcards.chrom} nottest {input.bed} {output}"
+	script:
+           "biopython_maf_processing2.py"

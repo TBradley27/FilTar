@@ -15,18 +15,16 @@ rule get_bed6_file: #three_prime_utrs only
         shell:
             "{input.script} {input.gtf} {output}"
 
-
 rule get_extended_bed_file:
          input:
-            script="exe/extend_bed.R",
             normal_bed= get_bed6_file,
             extended_bed="results/bed/specific/{species}_{cell_line}.utr.bed"
          output:
             "results/bed/specific/{species}_{cell_line}.utr.full.bed"
          log:
             "{species}_{cell_line}.log"
-         shell:
-             "Rscript {input.script} {input.normal_bed} {input.extended_bed} {output} 2> {log}"
+         script:
+             "extend_bed2.R"
 
 rule reformat_normal_bed_file:
          input:
