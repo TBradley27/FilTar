@@ -114,9 +114,12 @@ call(["rm",snakemake.output[0]])
 target = open(snakemake.output[0], 'w')
 
 for line in iter(f):
-    result = reduce(lambda x, y: x.replace(y, snakemake.config["TaxID"][y]), snakemake.config["TaxID"], line)
-    target.write(result)
-    del result
+	result = reduce(lambda x, y: x.replace(y, snakemake.config["TaxID"][y]), snakemake.config["TaxID"], line)
+	if 'delete' in result: # deletes some species to get an 84-way alingment instead of a 100-way alignment
+		pass
+	else:
+		target.write(result)
+	del result
 f.close()
 
 call(["rm","results/hsa_chr{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'])])
