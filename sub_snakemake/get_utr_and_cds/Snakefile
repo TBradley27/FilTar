@@ -13,48 +13,47 @@ def get_dna_file(wildcards):
 
 ### bedtools route
 
-rule gtf_to_bed_bedtools:
-	input:
-            gtf_file=get_gtf_file,
-            script="exe/pre-processing/gtf_to_bed.sh"
-	output:
-            "results/{species}_CDS_chr{chrom}.bed"
-	conda:
-            "envs/bedtools.yaml"
-	shell:
-            "{input.script} CDS {wildcards.chrom} {species} bedtools"
-
-rule bed_to_fasta:
-        input:
-            dna=get_dna_file,
-            bed="results/{species}_{feature}_chr{chrom}.bed",
-            script="exe/pre-processing/GetFastaFromBed.sh"
-        output:
-            "results/{species}_{feature}_chr{chrom}.fa"
-        conda:
-            "envs/bedtools.yaml"
-        shell:
-            "{input.script} {input.dna} {input.bed} {output} {wildcards.chrom}"
-
-rule merge_fasta:
-        input:
-            "results/{species}_{feature}_chr{chrom}.fa",
-        output:
-            "results/{species}_{feature}_chr{chrom}.fa.merged"
-        shell:
-            "MergeFasta.R"
-
-rule fasta_to_tsv_CDS:
-        input:
-           merged_fasta_CDS="results/{species}_CDS_chr{chrom}.fa.merged",
-           script="exe/targetscan7/convert_fasta_to_tsv2.sh"
-        output:
-           "results/{species}_CDS_chr{chrom}.tsv"
-        params:
-            tax_id = lambda wildcards: expand("{id}", id=config['tax_ids'][wildcards.species])
-        shell:
-           "{input.script} {input.merged_fasta_CDS} {params.tax_id} > {output}"
-
+#rule gtf_to_bed_bedtools:
+#	input:
+#            gtf_file=get_gtf_file,
+#            script="exe/pre-processing/gtf_to_bed.sh"
+#	output:
+#            "results/bed/{species}_CDS_chr{chrom}.bed"
+#	conda:
+#            "envs/bedtools.yaml"
+#	shell:
+#            "{input.script} CDS {wildcards.chrom} {wildcards.species} bedtools"
+#
+#rule bed_to_fasta:
+#        input:
+#            dna=get_dna_file,
+#            bed="results/bed/{species}_{feature}_chr{chrom}.bed"
+#        output:
+#            "results/{species}_{feature}_chr{chrom}.fa"
+#        conda:
+#            "envs/bedtools.yaml"
+#        shell:
+#            "bedtools getfasta -name -s -fi {input.dna} -fo {output} -bed {input.bed}; sed -i 's/(+)//g' {output}; sed -i 's/(-)//g' {output}"
+#
+#rule merge_fasta:
+#        input:
+#            "results/{species}_{feature}_chr{chrom}.fa",
+#        output:
+#            "results/{species}_{feature}_chr{chrom}.fa.merged"
+#        shell:
+#            "MergeFasta.R"
+#
+#rule fasta_to_tsv_CDS:
+#        input:
+#           merged_fasta_CDS="results/{species}_CDS_chr{chrom}.fa.merged",
+#           script="exe/targetscan7/convert_fasta_to_tsv2.sh"
+#        output:
+#           "results/{species}_CDS_chr{chrom}.tsv"
+#        params:
+#            tax_id = lambda wildcards: expand("{id}", id=config['tax_ids'][wildcards.species])
+#        shell:
+#           "{input.script} {input.merged_fasta_CDS} {params.tax_id} > {output}"
+#
 # biopython route - necessary for 3UTR alignments
 
 rule index_maf_files:
@@ -67,25 +66,25 @@ rule index_maf_files:
 	script:
 	   "biopython_maf_processing.py"
 
-rule gtf_to_bed_biopython:
+rule gtf_to_bed:
         input:
             gtf_human=get_gtf_file,
             script="exe/pre-processing/gtf_to_bed.sh"
         output:
-            "results/{species}_3UTR_biopython.chr{chrom}.bed"
+            "results/bed/{species}_{feature}.chr{chrom}.bed"
         conda:
             "envs/biopython.yaml"
         shell:
-            "{input.script} 3UTR {wildcards.chrom} {wildcards.species} biopython"
+            "{input.script} {wildcards.feature} {wildcards.chrom} {wildcards.species}"
 
 rule biopython_get_3UTR_tsv_alignments:
 	input:
            maf="data/maf_{species}/chr{chrom}.maf",
-           bed="results/{species}_3UTR_biopython.chr{chrom}.bed",
+           bed="results/bed/{species}_{feature}.chr{chrom}.bed",
            maf_index="data/{species}_chr{chrom}.mafindex",
            shell_script="exe/targetscan7/convert_fasta_to_tsv.sh"
 	output:
-           "results/{species}_chr{chrom}_msa.tsv"
+           "results/{species}_chr{chrom}_{feature}_msa.tsv"
 	params: 'nottest'
 	conda:
            "envs/biopython.yaml"
