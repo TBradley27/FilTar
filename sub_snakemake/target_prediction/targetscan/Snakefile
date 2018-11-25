@@ -43,9 +43,9 @@ rule targetscan_sites:
 	input:
            msa=ancient("results/{species}_chr{chrom}_msa.tsv"),
            mirna_families=ancient("results/{species}_mirna_family.tsv"),
-           script="exe/targetscan7/targetscan_70.pl"
+           script="exe/targetscan7/targetscan_70.patch.pl"
 	output:
-           "results/{species}_chr{chrom}_msa.sites.tsv"
+           "results/{species}_chr{chrom}_msa.sites.tmp.tsv"
 	benchmark:
            "benchmarks/{species}_chr{chrom}_msa.sites.log"
 	shell:
@@ -116,11 +116,11 @@ rule get_AIR_file:
 rule patch_bin_lengths_script:
         input:
            BL_bins="exe/targetscan7/targetscan_70_BL_bins.pl",
-           patch="exe/targetscan7/patch_branch_lengths.sh"
+           patch_script="exe/targetscan7/patch_branch_lengths.sh"
         output:
           "exe/targetscan7/targetscan_70_BL_bins.patch.pl"
         shell:
-          "{input.patch} {input.BL_bins} > {output}" # force reference species as a parameter
+          "{input.patch_script} {input.BL_bins} > {output}" # force reference species as a parameter
 
 rule patch_PCT_script:
         input:
@@ -133,16 +133,18 @@ rule patch_PCT_script:
 rule patch_contextpp_script:
         input:
            contextpp="exe/targetscan7/targetscan_70_context_scores.pl",
-           patch="exe/targetscan7/patch_context_scores.sh"
+           patch_script="exe/targetscan7/patch_context_scores.sh"
         output:
           "exe/targetscan7/targetscan_70_context_scores.patch.pl"
         shell:
-          "{input.patch} {input.contextpp} > {output}" # force reference species as a parameter
+          "{input.patch_script} {input.contextpp} > {output}" # force reference species as a parameter
 
 rule aggregate_targetscan_sites:
 	input: lambda wildcards: expand("results/{species}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species])
   	output: "results/{species}_msa.sites.tsv"
 	shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
-
-
+rule fix_targetscan_sites_output:
+        input: "results/{species}_chr{chrom}_msa.sites.tmp.tsv"
+        output: "results/{species}_chr{chrom}_msa.sites.tsv"
+        script: "fix_ts_output.R"
