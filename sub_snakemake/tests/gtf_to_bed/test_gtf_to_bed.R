@@ -1,10 +1,10 @@
 library(tidyverse)
 
-output_3UTR = read_tsv('hsa_mock_3UTR.bed', col_names=c('chrom','start','end','strand','id'))
-output_CDS = read_tsv('hsa_mock_CDS.bed', col_names=c('chrom','start','end','strand','id'))
+output_3UTR = read_tsv('hsa_mock_3UTR.bed', col_names=c('chrom','start','end','strand','id'), col_types='ciiic')
+output_CDS = read_tsv('hsa_mock_CDS.bed', col_names=c('chrom','start','end','strand','id'), col_types='ciiic')
 
-output_3UTR_mmu = read_tsv('mmu_mock_3UTR.bed', col_names=c('chrom','start','end','strand','id'))
-output_CDS_mmu = read_tsv('mmu_mock_CDS.bed', col_names=c('chrom','start','end','strand','id'))
+output_3UTR_mmu = read_tsv('mmu_mock_3UTR.bed', col_names=c('chrom','start','end','strand','id'), col_types='ciiic')
+output_CDS_mmu = read_tsv('mmu_mock_CDS.bed', col_names=c('chrom','start','end','strand','id'), col_types='ciiic')
 
 gtf = read_tsv('hsa_mock.gtf', col_names=FALSE, comment='#')
 gtf_mmu = read_tsv('mmu_mock.gtf', col_names=FALSE, comment='chr#')
@@ -50,7 +50,7 @@ test_main_logic = function (tx_id, transcript_feature, bed_table, gtf, species) 
 
 	context('main logic')
 	
-	gtf = filter(gtf, X3 == transcript_feature)
+	gtf = filter(gtf, X3 == transcript_feature) %>% filter(X1 == '1' | X1 == 'chr1')
 	gtf = separate(
 		data=gtf,
 		col=X9, 
@@ -64,6 +64,15 @@ test_main_logic = function (tx_id, transcript_feature, bed_table, gtf, species) 
 	gtf$transcript_id = gsub('[^A-Z0-9]','',gtf$transcript_id)
 	gtf$transcript_version = gsub('[^0-9]','',gtf$transcript_version)
 	gtf$transcript_id_full = paste(gtf$transcript_id, gtf$transcript_version, sep='.')
+
+	print(gtf$transcript_id_full)
+	print(bed_table$id)
+
+	test_that('All relevant GTF transcript ids make their way into the bed file',{
+		expect_match(gtf$transcript_id_full %in% bed_table$id %>% as.character, 'TRUE')
+	})
+
+
 	gtf = filter(gtf, transcript_id_full == tx_id)
 	gtf$X7 = gsub('\\+','1', gtf$X7)
 	gtf$X7 = gsub('\\-','-1', gtf$X7)		
