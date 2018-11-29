@@ -4,13 +4,15 @@ all_tests = function (species, taxonomic_id) {
 
 	context(str_interp('${species}'))	
 
-	alignment = read_tsv( str_interp('../../results/${species}_chrY_msa.tsv'), col_names=c('tx_id','tax_id','seq'))
+	alignment = read_tsv( str_interp('../../results/${species}_chrY_CDS_msa.tsv'), col_names=c('tx_id','tax_id','seq'))
 	canon_tax_ids = read_tsv('../../config/species_basic2.tsv', col_names=c('tax_id'))
-	bed_file = read_tsv( str_interp('../../results/bed/${species}_3UTR_biopython.chrY.bed'), col_names=FALSE)
+	bed_file = read_tsv( str_interp('../../results/bed/${species}_CDS.chrY.bed'), col_names=FALSE)
 
 	tax_ids = alignment$tax_id %>% unique()
 
 	#print(canon_tax_ids)
+	#print(tax_ids[!tax_ids %in% canon_tax_ids$tax_id])
+	#print(tax_ids %in% canon_tax_ids$tax_id)
 
 	test_that("The tabular data has three columns", {
 	  expect_equal(dim(alignment)[2], 3) # test num columns
@@ -44,6 +46,8 @@ all_tests = function (species, taxonomic_id) {
 	  expect_true(alignment$tx_id %>% unique() %>% length() == bed_file$X5 %>% unique() %>% length())
 	})
 
+	#print (  bed_file$X5[!bed_file$X5 %in% alignment$tx_id] )
+
 	tmp =  !alignment %>% filter(tax_id == taxonomic_id) %>% select(tx_id,tax_id) %>% duplicated()
 	#print (tmp)
 
@@ -65,7 +69,7 @@ all_tests = function (species, taxonomic_id) {
 		expect_equal(y$seq_length, y$tx_seq_total)	
 	})
 
-	biomart_data = read_tsv(str_interp('${species}_mart_export2.tsv'), col_names=c('tx_id','seq'))
+	biomart_data = read_tsv(str_interp('${species}_CDS_mart_export.tsv'), col_names=c('tx_id','seq'))
 	alignment_human = alignment %>% filter(tax_id == taxonomic_id) %>% mutate(tx_id=gsub('\\..*','',tx_id)) %>% mutate(seq=gsub('-','',seq)) %>% mutate(seq=toupper(seq))
 
 	merged = merge(biomart_data, alignment_human, by='tx_id') %>% as.tibble()

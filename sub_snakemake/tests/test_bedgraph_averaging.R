@@ -1,6 +1,6 @@
-library(tidyverse)
 library(testthat)
-source('/gpfs/afm/moxon/thomas2/APAtrap/sub_snakemake/APAtrap/average_bedgraph.R')
+library(tidyverse)
+source('../APAtrap/get_average_bedgraph_function.R')
 
 merged_bedgraph = tibble(chromosome=c(1,1,1,2,2,2,2),
 			start=c(50,80,110,30,60,90,150),
@@ -10,7 +10,7 @@ merged_bedgraph = tibble(chromosome=c(1,1,1,2,2,2,2),
 )
 
 avg_bedgraph = AvgBedgraph(merged_bedgraph)
-print(avg_bedgraph)
+#print(avg_bedgraph)
 
 context('test that average values are correct')
 

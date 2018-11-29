@@ -65,8 +65,8 @@ test_main_logic = function (tx_id, transcript_feature, bed_table, gtf, species) 
 	gtf$transcript_version = gsub('[^0-9]','',gtf$transcript_version)
 	gtf$transcript_id_full = paste(gtf$transcript_id, gtf$transcript_version, sep='.')
 
-	print(gtf$transcript_id_full)
-	print(bed_table$id)
+	#print(gtf$transcript_id_full)
+	#print(bed_table$id)
 
 	test_that('All relevant GTF transcript ids make their way into the bed file',{
 		expect_match(gtf$transcript_id_full %in% bed_table$id %>% as.character, 'TRUE')
