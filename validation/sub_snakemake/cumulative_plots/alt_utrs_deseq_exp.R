@@ -120,6 +120,8 @@ filt_targets$legend = stringr::str_interp("filtered seed targets (n=${length(fil
 
 ggplot_df = rbind(nontargets,canon_targets, filt_targets)
 
+p_value = ks.test(filt_targets_exp,canon_targets_exp, alternative='less')
+
 print(ggplot_df)
 
 # begin plotting
@@ -135,10 +137,9 @@ ggplot(
                 .(str_interp("${snakemake@wildcards$miRNA}")) ~ .(substitute(italic(vs.))) ~ 'mock transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
         y="Cumulative Fraction",
-        x=expression('log'[2]*'(mRNA Fold Change)')
-	) +
-#        subtitle=as.expression(bquote(~ p %~~% .(format (p_value, nsmall=3, digits=3) ) ) )
+        x=expression('log'[2]*'(mRNA Fold Change)'), 
+        subtitle=as.expression(bquote(~ p %~~% .(format (p_value, nsmall=3, digits=3) ) ) )) +
   theme(legend.title=element_blank()) +
-  xlim(-snakemake@params$x_lim,snakemake@params$x_lim)
+  coord_cartesian(xlim = c(-snakemake@params$x_lim,snakemake@params$x_lim))
 
 ggsave(snakemake@output[[1]])
