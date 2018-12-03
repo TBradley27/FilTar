@@ -6,7 +6,7 @@ source('/gpfs/afm/moxon/thomas2/APAtrap/sub_snakemake/reannotate_3utrs/extend_be
 
 x = get_full_bed('chr10_hsa.bed6','hsa_HeLa_chr10.utr.bed')
 
-dim(x) %>% print()
+#dim(x) %>% print()
 
 context('single exon forward strand - updated 3UTR annotation')
 

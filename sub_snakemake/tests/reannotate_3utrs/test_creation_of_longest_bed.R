@@ -6,7 +6,7 @@ source('/gpfs/afm/moxon/thomas2/APAtrap/sub_snakemake/reannotate_3utrs/merge_mul
 
 output = merge_multiple_bed_files('mock1.bed','mock_bed')
 
-print(output)
+#print(output)
 
 context('single exon forward strand - variable end codons')
 

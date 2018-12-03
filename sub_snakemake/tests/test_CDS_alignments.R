@@ -82,8 +82,10 @@ all_tests = function (species, taxonomic_id) {
 	#print(merged$seq.x[70])
         #print(merged$seq.y[70])
 
+	biomart_CDS_without_stop_codon = substr(merged$seq.x, 1, nchar(merged$seq.x)-3)
+
 	test_that("alignment reference sequences are the same as those directly downloaded from biomart", {
-		expect_equal(merged$seq.x, merged$seq.y, ignore.case=TRUE)	
+		expect_equal(biomart_CDS_without_stop_codon, merged$seq.y, ignore.case=TRUE)	
 })
 }
 
