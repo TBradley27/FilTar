@@ -17,6 +17,6 @@ function prep_alt_miRNA () {
 	sed 'N;s/\n/ /'  |
 	sed 's/>//g'     |
 	awk -v tax_id="$tax_id" '{ OFS="\t" }{ print $1,tax_id,$1,$2}' |
-	grep -P '.*[ACTGU]{18,24}$' | 
+	grep -P '\t[ACTGU]{18,24}$' | 
 	sed 's/$2-//g'
 }
