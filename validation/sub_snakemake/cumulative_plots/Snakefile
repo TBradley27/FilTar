@@ -5,7 +5,7 @@ subworkflow mainworkflow:
 
 rule get_utr_lengths:
 	input:	'results/bed/specific/{species}_{cell_line}.utr.full.bed'
-	output: ancient('results/utrs/{species}_{cell_line}.utr.lengths.tsv')
+	output: 'results/utrs/{species}_{cell_line}.utr.lengths.tsv'
 	script: 'get_utr_lengths.R'
 
 rule get_cell_line_targets:
@@ -15,9 +15,9 @@ rule get_cell_line_targets:
 	output: 'results/targets/specific/{species}_{cell_line}.sites.tsv'
 	script: 'alt_sites.R'
 
-rule get_canon_targets:
+rule get_canon_targets: # we do it this way, as inheriting from main workflow would trigger execution of targetscan job for ALL miRNAs, instead of a few miRNAs, taking a much longer time
 	input:
-           msa=mainworkflow("results/{species}_chr{chrom}_msa.tsv"),
+           msa=mainworkflow("results/{species}_chr{chrom}_3UTR_msa.tsv"),
            mirna_families="results/{species}_mirna_family.tsv",
            script="exe/targetscan7/targetscan_70.pl"
 	output: "results/targets/canonical/{species}_chr{chrom}_msa.sites.tsv"
@@ -32,10 +32,10 @@ rule get_cumulative_plot_expression:
         input:
                 quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
                 quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-                cl_targets= ancient("results/targets/specific/{species}_{cell_line}.sites.tsv"),
-                canon_targets = ancient("results/targets/canonical/{species}_msa.sites.tsv")
+                cl_targets= "results/targets/specific/{species}_{cell_line}.sites.tsv",
+                canon_targets = "results/targets/canonical/{species}_msa.sites.tsv"
         params:
-                nontarget_site_types= ['8mer-1a'],
+                nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=5,
                 x_lim=5.0
@@ -51,7 +51,7 @@ rule get_cumulative_plot_alt_utrs: # UTR reannotation analysis
         params:
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
-                exp_threshold=0,
-                x_lim=2.5
+                exp_threshold=1.0,
+                x_lim=5.0
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr.png"
         script: "alt_utrs_deseq.R"

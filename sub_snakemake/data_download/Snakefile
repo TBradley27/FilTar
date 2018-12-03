@@ -1,18 +1,46 @@
 #!/bin/bash
 
-def get_latin_name(wildcards):
-	if wildcards.species_prefix == 'Homo_sapiens.GRCh38':
-		return('homo_sapiens')
-	elif wildcards.species_prefix == 'Mus_musculus.GRCm38':
-		return('mus_musculus')
 
-rule download_dna_data:
+def get_species_synonym(wildcards):
+        if wildcards.species_prefix == 'Mus_musculus.GRCm38':
+                return ('mus_musculus')
+        elif wildcards.species_prefix == 'Homo_sapiens.GRCh38':
+                return ('homo_sapiens')
+
+def get_species(wildcards):
+        if wildcards.species_prefix == 'Homo_sapiens.GRCh38':
+                return('homo_sapiens')
+        if wildcards.species_prefix == 'Mus_musculus.GRCm38':
+                return('mus_musculus')
+
+rule download_fetchChromSizes:
+     output: "exe/fetchChromSizes"
+     shell: "wget --directory-prefix=exe/ http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/fetchChromSizes"
+
+rule download_gtfToGenePred:
+     output: "exe/gtfToGenePred"
+     shell: "wget --directory-prefix=exe/ http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/gtfToGenePred"
+
+rule download_genePredToBed:
+     output: "exe/genePredToBed"
+     shell: "wget --directory-prefix=exe/ http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/genePredToBed"
+
+rule get_gtf_file:
+     output: "data/{species_prefix}.94.gtf"
+     params: get_species
+     shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-94/gtf/{params}/{wildcards.species_prefix}.94.gtf.gz && gunzip data/{wildcards.species_prefix}.94.gtf.gz && sed -i 's/^/chr/g' data/{wildcards.species_prefix}.94.gtf"
+
+rule download_fasta:
         input:
-        output:
-           "data/{species_prefix}.dna.chromosome.{chrom}.fa"
-	params: get_latin_name
-        shell:
-           "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/{params}/dna/{wildcards.species}.dna.chromosome.{wildcards.chrom}.fa.gz"
+        output: "data/{species_prefix}.dna.primary_assembly.fa.gz"
+        params: get_species_synonym
+        shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/{params}/dna/{wildcards.species_prefix}.dna.primary_assembly.fa.gz"
+
+rule decompress_dna_file:
+        input: "data/{species_prefix}.dna.primary_assembly.fa.gz"
+        output: "data/{species_prefix}.dna.primary_assembly.fa"
+        threads: 8
+        shell: "pigz -p {threads} -d {input}"
 
 rule download_maf_files_human:
         input:

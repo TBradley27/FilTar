@@ -45,15 +45,7 @@ rule split_bed:
         input:
                 "results/bed/longest/{species}_longest.utr.bed"
         output:
-                "results/bed/longest/{species}_3UTR_chr{chrom}.bed"
+                "results/bed/longest/{species}_3UTR.chr{chrom}.bed"
         shell:
                 "grep '^{wildcards.chrom}' {input} > {output}"
 
-#WARNING: diff has non-standard exit statuses. A non-zero exit status does not mean programme failure
-
-#rule find_bed_differences:
-#       input: 
-#           normal_bed="results/Homo_sapiens.GRCh38.92.reformatted.bed6",
-#           extended_bed="results/{cell_line}.utr.full.bed"
-#       output: "{cell_line}_bed_file_differences.txt"
-#       shell: "diff -y --suppress-common-lines {input.normal_bed} {input.extended_bed} > {output}"

@@ -16,9 +16,9 @@ rule get_index:
 
 
 def get_index_file (wildcards):
-	if wildcards.accession in config['mouse_accessions']:
+	if wildcards.accession in config['mouse']['runs']:
 		return ('results/GRCm38.idx')
-	elif wildcards.accession in config['human_accessions']:
+	elif wildcards.accession in config['human']['runs']:
 		return ('results/GRCh38.idx')
 
 def get_input_files (wildcards):
