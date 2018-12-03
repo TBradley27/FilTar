@@ -97,7 +97,12 @@ target = open(snakemake.output[0], 'w')
 
 for line in iter(f):
 	result = reduce(lambda x, y: x.replace(y, snakemake.config["TaxID"][y]), snakemake.config["TaxID"], line)
+	pattern = re.compile('\.[0-9][0-9]?\sN+')
 	if 'delete' in result: # deletes some species to get an 84-way alingment instead of a 100-way alignment
+		pass
+	elif 'unknown' in result:
+		pass
+	elif pattern.search(result): # deletes malprocessed lines in which repeat Ns comprise the second column
 		pass
 	else:
 		target.write(result)
