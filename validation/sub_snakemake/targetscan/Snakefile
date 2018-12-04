@@ -4,6 +4,8 @@ subworkflow main_workflow:
         workdir: ".."
         snakefile: "../Snakefile"
 
+# I think I my be able to get rid of this as well
+
 rule prep_mirna_seeds:
         input:                      
            data="data/mature.fa",
@@ -31,13 +33,11 @@ rule download_targetscan_data1:
 
 rule targetscan_sites:
 	input:
-           msa="results/utrs/longest/{species}_chr{chrom}_msa.tsv",
+           msa="results/utrs/longest/{species}_chr{chrom}_3UTR_msa.tsv",
            mirna_families=ancient("results/{species}_mirna_family.tsv"),
            script="exe/targetscan7/targetscan_70.pl"
 	output:
            "results/targets/longest_utrs/{species}_chr{chrom}_msa.sites.tsv"
-	benchmark:
-           "benchmarks/{species}_chr{chrom}_msa.sites.log"
 	shell:
            "{input.script} {input.mirna_families} {input.msa} {output}"
 
@@ -46,3 +46,11 @@ rule cat_sites:
 	output: "results/{species}_msa_sites.tsv"
 	shell: "cat {input} | sed '1b;/Gene/d'  > {output}" # cat and delete all headers except for the first one
 
+#rule targetscan_branch_lengths:
+#        input:
+#           msa=main_workflow("results/utrs/longest/{species}_chr{chrom}_3UTR_msa.tsv"),
+#           script="exe/targetscan7/targetscan_70_BL_bins.patch.pl"
+#        output:
+#             "results/targets/longest_utrs/{species}_chr{chrom}_msa.branch_lengths.tsv"
+#        shell:
+#            "{input.script} {input.msa_3UTR} {wildcards.species}  > {output}"

@@ -6,6 +6,12 @@ def get_gtf_file(wildcards):
 	elif wildcards.species == 'mmu':
 		return ('data/Mus_musculus.GRCm38.94.gtf')
 
+def get_bed6_file(wildcards):
+        if wildcards.species == 'hsa':
+                return('results/Homo_sapiens.GRCh38.92.bed6')
+        elif wildcards.species == 'mmu':
+                return('results/Mus_musculus.GRCm38.92.bed6')
+
 rule index_maf_files:
 	input:
 	   maf="data/maf_{species}/chr{chrom}.maf",
@@ -16,25 +22,44 @@ rule index_maf_files:
 	script:
 	   "biopython_maf_processing.py"
 
-rule gtf_to_bed:
+#rule gtf_to_bed:
+#        input:
+#            gtf=get_gtf_file,
+#            script="exe/pre-processing/gtf_to_bed.sh"
+#        output:
+#            "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bed"
+#        conda:
+#            "envs/biopython.yaml"
+#        shell:
+#            "{input.script} {input.gtf} {wildcards.feature} {wildcards.chrom} {output}"
+
+rule get_extended_bed_file:
+         input:
+            normal_bed= get_bed6_file,
+            extended_bed="results/bed/{species}_{tissue}.utr.bed"
+         output:
+            "results/bed/{species}_{tissue}.utr.full.bed"
+         log:
+            "{species}_{tissue}.log"
+         script:
+             "extend_bed2.R"
+
+rule split_bed:
         input:
-            gtf=get_gtf_file,
-            script="exe/pre-processing/gtf_to_bed.sh"
+                "results/bed/{species}_{tissue}.utr.full.bed"
         output:
-            "results/bed/{species}_{feature}.chr{chrom}.bed"
-        conda:
-            "envs/biopython.yaml"
+                "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"
         shell:
-            "{input.script} {input.gtf} {wildcards.feature} {wildcards.chrom} {output}"
+                'grep -P "^{wildcards.chrom}\t" {input} > {output}'
 
 rule biopython_get_msa:
 	input:
            maf="data/maf_{species}/chr{chrom}.maf",
-           bed="results/bed/{species}_{feature}.chr{chrom}.bed",
+           bed="results/bed/{species}_{tissue}_{feature}.chr{chrom}.bed",
            maf_index="data/{species}_chr{chrom}.mafindex",
            shell_script="exe/targetscan7/convert_fasta_to_tsv.sh"
 	output:
-           "results/{species}_chr{chrom}_{feature}_msa.tsv"
+           "results/msa/{species}_{tissue}_chr{chrom}_{feature}_msa.tsv"
 	conda:
            "envs/biopython.yaml"
 	script:

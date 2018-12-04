@@ -15,16 +15,16 @@ rule get_bed6_file: #three_prime_utrs only
         shell:
             "{input.script} {input.gtf} {output}"
 
-rule get_extended_bed_file:
-         input:
-            normal_bed= get_bed6_file,
-            extended_bed="results/bed/specific/{species}_{cell_line}.utr.bed"
-         output:
-            "results/bed/specific/{species}_{cell_line}.utr.full.bed"
-         log:
-            "{species}_{cell_line}.log"
-         script:
-             "extend_bed2.R"
+#rule get_extended_bed_file:
+#         input:
+#            normal_bed= get_bed6_file,
+#            extended_bed="results/bed/specific/{species}_{cell_line}.utr.bed"
+#         output:
+#            "results/bed/specific/{species}_{cell_line}.utr.full.bed"
+#         log:
+#            "{species}_{cell_line}.log"
+#         script:
+#             "extend_bed2.R"
 
 rule reformat_normal_bed_file:
          input:
@@ -41,11 +41,11 @@ rule get_longest_utr_bed:
 		bed_dir='results/bed/specific/'
 	script: 'merge_multiple_bed_files.R'  
 
-rule split_bed:
-        input:
-                "results/bed/longest/{species}_longest.utr.bed"
-        output:
-                "results/bed/longest/{species}_3UTR.chr{chrom}.bed"
-        shell:
-                "grep '^{wildcards.chrom}' {input} > {output}"
+#rule split_bed:
+#        input:
+#                "results/bed/longest/{species}_longest.utr.bed"
+#        output:
+#                "results/bed/longest/{species}_3UTR.chr{chrom}.bed"
+#        shell:
+#                "grep '^{wildcards.chrom}' {input} > {output}"
 
