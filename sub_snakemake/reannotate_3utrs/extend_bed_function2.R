@@ -1,6 +1,6 @@
 #!/bin/env Rscript
 
-get_full_bed = function (normal_bed_file, extended_bed_file) {
+get_full_bed = function (normal_bed_file, extended_bed_file, all_transcripts_file) {
 
 # read in the data
 normal_bed = read_tsv(normal_bed_file, col_names=c('chromosome','start','stop','strand','id'), col_types=list('c','i','i','c','c'))
@@ -135,7 +135,24 @@ reorder_bed_files = function (tx_ID) { # ordering of exons within a transcript
 full_set_sorted = map(tx_IDs, reorder_bed_files)
 print(full_set_sorted[1:30])
 full_set_sorted = ldply(full_set_sorted, data.frame) %>% as.tibble()
-print(full_set_sorted[1:30,], n=Inf)
+print(full_set_sorted[1:200,], n=Inf)
+
+# Add version number back in
+
+all_transcripts = read_tsv(file=all_transcripts_file, col_names=c('id'))
+all_transcripts = separate(all_transcripts, id, into=c('id','version'))
+all_transcripts = all_transcripts %>% distinct # remove duplicate entries
+
+print(all_transcripts)
+
+x = merge(full_set_sorted, all_transcripts, by.x='id', by.y='id')
+x = unite(x, id, c('id','version'), sep = ".", remove = TRUE)
+
+x = x[,c('chromosome','start','stop','strand','id')]
+print(x)
+
+full_set_sorted = x
+
 return(full_set_sorted)
 
 }

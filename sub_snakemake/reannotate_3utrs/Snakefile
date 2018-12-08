@@ -26,6 +26,18 @@ rule get_bed6_file: #three_prime_utrs only
 #         script:
 #             "extend_bed2.R"
 
+rule get_extended_bed_file:
+         input:
+            normal_bed= get_bed6_file,
+            extended_bed="results/bed/{species}_{tissue}.utr.bed",
+            all_transcripts="results/bed/{species}_all_transcripts.txt"
+         output:
+            "results/bed/{species}_{tissue}.utr.full.bed"
+         log:
+            "{species}_{tissue}.log"
+         script:
+             "extend_bed2.R"
+
 rule reformat_normal_bed_file:
          input:
            script="exe/reformat_normal_bed.R",

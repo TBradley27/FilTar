@@ -4,127 +4,127 @@ library(testthat)
 
 source('/gpfs/afm/moxon/thomas2/APAtrap/sub_snakemake/reannotate_3utrs/extend_bed_function2.R')
 
-x = get_full_bed('chr10_hsa.bed6','hsa_HeLa_chr10.utr.bed')
+x = get_full_bed('chr10_hsa.bed6','hsa_HeLa_chr10.utr.bed','hsa_all_transcripts.txt')
 
 #dim(x) %>% print()
 
 context('single exon forward strand - updated 3UTR annotation')
 
-y = x %>% filter(id=='ENST00000224237')
+y = x %>% filter(id=='ENST00000224237.9')
 
-test_that("ENST00000224237 has the correct start codon annotation", {
+test_that("ENST00000224237.9 has the correct start codon annotation", {
                 expect_equal(17237230, y$start[1], )
 })
 
-test_that("ENST00000224237 has the correct end codon annotation", {
+test_that("ENST00000224237.9 has the correct end codon annotation", {
                 expect_equal(17237588, y$stop[1], )
 })
 
 context('multi exon positive strand - conflicting 3UTR annotations - keep canonical, discard APAtrap annotation')
 
-y = x %>% filter(id=='ENST00000464969')
+y = x %>% filter(id=='ENST00000464969.6')
 
-test_that("ENST00000464969 has the correct start codon annotation", {
+test_that("ENST00000464969.6 has the correct start codon annotation", {
                 expect_equal(102157494, y$start[1], )
 })
 
-test_that("ENST00000464969 has the correct end codon annotation", {
+test_that("ENST00000464969.6 has the correct end codon annotation", {
                 expect_equal(102162599, y$stop[10], )
 })
 
 context('single exon negative strand - updated 3UTR annotation')
 
-y = x %>% filter(id=='ENST00000298510')
+y = x %>% filter(id=='ENST00000298510.3')
 
-test_that("ENST00000298510 has the correct start codon annotation", {
+test_that("ENST00000298510.3 has the correct start codon annotation", {
                 expect_equal(119167702, y$start[1], )
 })
 
-test_that("ENST00000298510 has the correct end codon annotation", {
+test_that("ENST00000298510.3 has the correct end codon annotation", {
                 expect_equal(119168533, y$stop[1], )
 })
 
 context('multi exon negative strand - conflicting 3UTR annotations - keep canonical, discard APAtrap annotation')
 
-y = x %>% filter(id=='ENST00000463743')
+y = x %>% filter(id=='ENST00000463743.5')
 
-test_that("ENST00000463743 has the correct start codon annotation", {
+test_that("ENST00000463743.5 has the correct start codon annotation", {
                 expect_equal(93323077, y$start[1], )
 })
 
-test_that("ENST00000463743 has the correct end codon annotation", {
+test_that("ENST00000463743.5 has the correct end codon annotation", {
                 expect_equal(93307001, y$stop[7], )
 })
 
 context('single exon positive strand - tx previously without a 3UTR annotation')
 
-y = x %>% filter(id=='ENST00000363306')
+y = x %>% filter(id=='ENST00000363306.1')
 
-test_that("ENST00000363306 has the correct start codon annotation", {
+test_that("ENST00000363306.1 has the correct start codon annotation", {
                 expect_equal(86889569, y$start[1], )
 })
 
-test_that("ENST00000363306 has the correct end codon annotation", {
+test_that("ENST00000363306.1 has the correct end codon annotation", {
                 expect_equal(86889682, y$stop[1], )
 })
 
 context('single exon negative strand - tx previously without a 3UTR annotation')
 
-y = x %>% filter(id=='ENST00000378952')
+y = x %>% filter(id=='ENST00000378952.7')
 
-test_that("ENST00000378952 has the correct start codon annotation", {
+test_that("ENST00000378952.7 has the correct start codon annotation", {
                 expect_equal(12167673, y$start[1], )
 })
 
-test_that("ENST00000378952 has the correct end codon annotation", {
+test_that("ENST00000378952.7 has the correct end codon annotation", {
                 expect_equal(12167811, y$stop[1], )
 })
 
 context('single exon positive strand - unchanged 3UTR annotation')
 
-y = x %>% filter(id=='ENST00000381604')
+y = x %>% filter(id=='ENST00000381604.8')
 
-test_that("ENST00000378952 has the correct start codon annotation", {
+test_that("ENST00000378952.8 has the correct start codon annotation", {
                 expect_equal(252470, y$start[1], )
 })
 
-test_that("ENST00000378952 has the correct end codon annotation", {
+test_that("ENST00000378952.8 has the correct end codon annotation", {
                 expect_equal(254626, y$stop[1], )
 })
 
 context('multi exon positive strand - unchanged 3UTR annotation')
 
-y = x %>% filter(id=='ENST00000474119')
+y = x %>% filter(id=='ENST00000474119.5')
 
-test_that("ENST00000474119 has the correct start codon annotation", {
+test_that("ENST00000474119.5 has the correct start codon annotation", {
                 expect_equal(4847234, y$start[1], )
 })
 
-test_that("ENST00000474119 has the correct end codon annotation", {
+test_that("ENST00000474119.5 has the correct end codon annotation", {
                 expect_equal(4848062, y$stop[2], )
 })
 
 context('single exon negative strand - unchanged 3UTR annotation')
 
-y = x %>% filter(id=='ENST00000564130')
+y = x %>% filter(id=='ENST00000564130.2')
 
-test_that("ENST00000564130 has the correct start codon annotation", {
+test_that("ENST00000564130.2 has the correct start codon annotation", {
                 expect_equal(46891, y$start[1], )
 })
 
-test_that("ENST00000564130 has the correct end codon annotation", {
+test_that("ENST00000564130.2 has the correct end codon annotation", {
                 expect_equal(47056, y$stop[1], )
 })
 
 context('multi exon negative strand - unchanged 3UTR annotation')
 
-y = x %>% filter(id=='ENST00000567466')
+y = x %>% filter(id=='ENST00000567466.1')
 
-test_that("ENST00000567466 has the correct start codon annotation", {
+test_that("ENST00000567466.1 has the correct start codon annotation", {
                 expect_equal(48424, y$start[1], )
 })
 
-test_that("ENST00000567466 has the correct end codon annotation", {
+test_that("ENST00000567466.1 has the correct end codon annotation", {
                 expect_equal(48114, y$stop[2], )
 })
 
