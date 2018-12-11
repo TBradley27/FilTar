@@ -1,6 +1,7 @@
 tissues:
         mmu: 
                 ESCs: [SRS803351,SRS803352]
+                liver: [SRS387309,ERS026XXX] # sample accession manually changed
         hsa:
                 IMR90: [SRS504045,SRS504046]
                 Huh7: [SRS504039,SRS504020,SRS504041,SRS504042]
@@ -49,6 +50,8 @@ tissues:
                 zone_of_skin: [ERS326932, ERS326943, ERS327007]
 
 samples:
+         ERS026XXX: [ERR032203,ERR032204,ERR032205,ERR032206,ERR032207,ERR032208] # sample accession manually changed
+         SRS387309: [SRR652248,SRR652249,SRR652250,SRR652251]
          SRS803351: [SRR1734389,SRR1734390]
          SRS803352: [SRR1734391,SRR1734392]
          SRS504045: SRR1032895        
