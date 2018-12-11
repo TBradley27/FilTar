@@ -6,15 +6,20 @@ get_full_bed = function (normal_bed_file, extended_bed_file, all_transcripts_fil
 normal_bed = read_tsv(normal_bed_file, col_names=c('chromosome','start','stop','strand','id'), col_types=list('c','i','i','c','c'))
 extended_utrs = read_tsv(extended_bed_file, col_names=c('chromosome','start','stop','id','dummy','strand'))
 
+print('bar')
+
 # tidy the data
 normal_bed = separate(normal_bed, id, into=c('id','version'))
+print(extended_utrs)
 extended_utrs = separate(extended_utrs, id, into=c('id','dummy2','chrom_dup','strand_dup'))
-
+print('bar')
 normal_bed$version = NULL
-
+print('bar')
 extended_utrs = extended_utrs[,c('chromosome','start','stop','strand','id')]
 extended_utrs$chromosome = stringr::str_replace_all(extended_utrs$chromosome, 'chr','')
 normal_bed$chromosome = stringr::str_replace_all(normal_bed$chromosome, 'chr','')
+
+print('bar')
 
 ##
 
@@ -94,24 +99,41 @@ full_set = rbind(old_records_changed, new_records, old_records_unchanged)
 full_set = full_set[order(full_set$id, decreasing=FALSE),]
 #full_set = full_set[order(full_set$start, decreasing=FALSE),]
 
-desired_order = c('1','2','3','4','5','6','7','X','8','9','11','10','12','13','14','15','16','17','18','20','19','Y','22','21','KI270728.1',
-'KI270727.1',
-'GL000009.2',
-'GL000194.1',
-'GL000205.2',
-'GL000195.1',
-'KI270734.1',
-'GL000213.1',
-'GL000218.1',
-'KI270731.1',
-'KI270721.1',
-'KI270711.1',
-'KI270713.1')
+#desired_order = c('1','2','3','4','5','6','7','X','8','9','11','10','12','13','14','15','16','17','18','20','19','Y','22','21','KI270728.1',
+#'KI270727.1',
+#'GL000009.2',
+#'GL000194.1',
+#'GL000205.2',
+#'GL000195.1',
+#'KI270734.1',
+#'GL000213.1', # Is it really necessary to order by chromosome if we are going to split by chromosome anyway?
+#'GL000218.1',
+#'KI270731.1',
+#'KI270721.1',
+#'KI270711.1',
+#'KI270713.1',
+#'MT')
 
-full_set$chromosome <- factor( as.character(full_set$chromosome), levels=desired_order )
+#full_set$chromosome <- factor( as.character(full_set$chromosome), levels=desired_order )
 
-full_set = full_set[order(full_set$chromosome, decreasing=FALSE),] # ordering of chromosomes within the BED file
+#full_set = full_set[order(full_set$chromosome, decreasing=FALSE),] # ordering of chromosomes within the BED file
 full_set$chromosome = as.character(full_set$chromosome)
+
+# add version number back in
+
+all_transcripts = read_tsv(file=all_transcripts_file, col_names=c('id'))
+all_transcripts = separate(all_transcripts, id, into=c('id','version'))
+all_transcripts = all_transcripts %>% distinct # remove duplicate entries
+
+print(all_transcripts)
+
+x = merge(full_set, all_transcripts, by.x='id', by.y='id')
+x = unite(x, id, c('id','version'), sep = ".", remove = TRUE)
+
+x = x[,c('chromosome','start','stop','strand','id')]
+print(x)
+
+full_set = x
 
 full_set = full_set[order(full_set$start, decreasing=FALSE),]
 
@@ -136,22 +158,6 @@ full_set_sorted = map(tx_IDs, reorder_bed_files)
 print(full_set_sorted[1:30])
 full_set_sorted = ldply(full_set_sorted, data.frame) %>% as.tibble()
 print(full_set_sorted[1:200,], n=Inf)
-
-# Add version number back in
-
-all_transcripts = read_tsv(file=all_transcripts_file, col_names=c('id'))
-all_transcripts = separate(all_transcripts, id, into=c('id','version'))
-all_transcripts = all_transcripts %>% distinct # remove duplicate entries
-
-print(all_transcripts)
-
-x = merge(full_set_sorted, all_transcripts, by.x='id', by.y='id')
-x = unite(x, id, c('id','version'), sep = ".", remove = TRUE)
-
-x = x[,c('chromosome','start','stop','strand','id')]
-print(x)
-
-full_set_sorted = x
 
 return(full_set_sorted)
 

@@ -3,9 +3,11 @@
 library(plyr)
 library(tidyverse)
 
-source('../sub_snakemake/reannotate_3utrs/extend_bed_function2.R')
+source('sub_snakemake/reannotate_3utrs/extend_bed_function2.R')
 
 print(snakemake@input)
+
+print('foo')
 
 full_set_sorted = get_full_bed (snakemake@input$normal_bed, snakemake@input$extended_bed, snakemake@input$all_transcripts)
 
