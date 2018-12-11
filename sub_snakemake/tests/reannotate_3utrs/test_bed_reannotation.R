@@ -1,8 +1,7 @@
-library(tidyverse)
-library(plyr)
 library(testthat)
-
-source('/gpfs/afm/moxon/thomas2/APAtrap/sub_snakemake/reannotate_3utrs/extend_bed_function2.R')
+library(plyr)
+library(tidyverse)
+library(filtar)
 
 x = get_full_bed('chr10_hsa.bed6','hsa_HeLa_chr10.utr.bed','hsa_all_transcripts.txt')
 

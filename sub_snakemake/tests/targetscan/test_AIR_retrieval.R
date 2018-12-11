@@ -1,8 +1,6 @@
 library(plyr)
 library(tidyverse)
-
-source("../../target_prediction/targetscan/get_tissue_specific_APA_file_function.R")
-
+library(filtar)
 print('foo')
 
 output = get_AIR_file("../../../validation/results/targets/hsa_HeLa.APA.txt")

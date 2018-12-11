@@ -1,8 +1,6 @@
-#!/bin/env Rscript
-
 library(plyr)
 library(tidyverse)
-source('sub_snakemake/target_prediction/targetscan/get_mirna_family_function.R')
+library(filtar)
 
 print(snakemake@wildcards)
 

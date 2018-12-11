@@ -1,6 +1,7 @@
+library(testthat)
 library(plyr)
 library(tidyverse)
-source('../../../sub_snakemake/target_prediction/targetscan/get_mirna_family_function.R')
+library(filtar)
 
 #input = read_tsv('../../../results/mature_mirna_seed.tsv', col_names=c('identifier','seq'))
 

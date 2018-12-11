@@ -1,7 +1,7 @@
+library(testthat)
 library(plyr)
 library(tidyverse)
-
-source('../../../validation/sub_snakemake/cumulative_plots/get_utr_lengths_function.R')
+library(filtar)
 
 output = get_utr_lengths('mock.bed')
 output$tx_id = as.character(output$tx_id)

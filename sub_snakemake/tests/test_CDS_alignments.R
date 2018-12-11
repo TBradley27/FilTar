@@ -45,6 +45,8 @@ all_tests = function (species, taxonomic_id) {
 	test_that("There is an output for every single transcript", {
 	  expect_true(alignment$tx_id %>% unique() %>% length() == bed_file$X5 %>% unique() %>% length())
 	})
+	print(alignment$tx_id %>% unique() %>% length()) #289 - I think all N alignments are deleted
+	print(bed_file$X5 %>% unique() %>% length()) #293
 
 	#print (  bed_file$X5[!bed_file$X5 %in% alignment$tx_id] )
 

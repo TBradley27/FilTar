@@ -1,6 +1,6 @@
 library(plyr)
 library(tidyverse)
-source('../sub_snakemake/target_prediction/targetscan/fix_ts_output_function.R')
+library(filtar)
 
 ts_sites = fix_ts_output(snakemake@input[[1]])
 

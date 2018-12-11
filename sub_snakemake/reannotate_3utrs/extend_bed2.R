@@ -2,8 +2,7 @@
 
 library(plyr)
 library(tidyverse)
-
-source('sub_snakemake/reannotate_3utrs/extend_bed_function2.R')
+library(filtar)
 
 print(snakemake@input)
 

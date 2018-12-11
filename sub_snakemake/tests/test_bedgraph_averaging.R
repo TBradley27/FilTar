@@ -1,6 +1,7 @@
 library(testthat)
+library(plyr)
 library(tidyverse)
-source('../APAtrap/get_average_bedgraph_function.R')
+library(filtar)
 
 merged_bedgraph = tibble(chromosome=c(1,1,1,2,2,2,2),
 			start=c(50,80,110,30,60,90,150),

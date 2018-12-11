@@ -1,6 +1,6 @@
 library(plyr)
 library(tidyverse)
-source('../../../target_prediction/targetscan/fix_ts_output_function.R')
+library(filtar)
 
 #output = fix_ts_output('hsa_chrY_msa.sites.new_method.tsv') #%>% as.data.frame()
 output_canonical=read_tsv('hsa_chrY_msa.sites.tsv') # this is output from the unpatched script

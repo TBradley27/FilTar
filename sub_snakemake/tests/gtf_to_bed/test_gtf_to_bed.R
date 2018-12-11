@@ -1,3 +1,4 @@
+library(testthat)
 library(tidyverse)
 
 output_3UTR = read_tsv('hsa_mock_3UTR.bed', col_names=c('chrom','start','end','strand','id'), col_types='ciiic')

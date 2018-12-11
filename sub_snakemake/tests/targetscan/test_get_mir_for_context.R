@@ -1,7 +1,7 @@
 library(testthat)
+library(plyr)
 library(tidyverse)
-source('../../target_prediction/targetscan/get_mirna_context_function.R')
-
+library(filtar)
 
 run_tests = function(mock3,mock2,species) {
 	output = get_mirna_context(mock3,mock2,species)
