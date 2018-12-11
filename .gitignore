@@ -16,3 +16,7 @@ reports/fastqc/
 *APA*
 *AIRs.txt
 *.snakemake.*
+*lunp
+*.txt
+*.tsv
+*.ps
