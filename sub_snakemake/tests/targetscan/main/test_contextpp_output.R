@@ -1,4 +1,5 @@
 library(tidyverse)
+library(testthat)
 
 # Athough I did not write the targetscan code myself, this test is nonetheless a test for the correctness of the environment (i.e. targetscan dependencies) and the wrapper around targetscan for it to be executed correctly
 
@@ -11,4 +12,16 @@ test_that('ENST00000393577.3 has the correct context++ score', {
 
 test_that('ENST00000354636.3 has the correct context++ score', {
         expect_equal(output$`context++ score`[output$`Gene ID` == 'ENST00000354636.3'],-0.1760,0.0176) # 10% tolerance
+})
+
+output_mmu = read_tsv('mmu_chrY_msa.contextpp.tsv')
+
+print(output_mmu)
+
+output_mmu = filter(output_mmu, `Mirbase ID` == 'mmu-miR-342-3p')
+
+print(output_mmu)
+
+test_that('ENSMUST00000189888 has the correct context++ score', {
+        expect_equal(output_mmu$`context++ score`[output_mmu$`Gene ID` == 'ENSMUST00000189888'],-0.534,0.0534) # 10% tolerance
 })
