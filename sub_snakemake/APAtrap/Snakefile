@@ -2,41 +2,38 @@
 
 def get_bed_file(wildcards):
 	if wildcards.species == 'hsa':
-		return('results/Homo_sapiens.GRCh38.92.bed')
+		return('results/Homo_sapiens.GRCh38.94.bed')
 	elif wildcards.species == 'mmu':
-		return('results/Mus_musculus.GRCm38.92.bed6')
+		return('results/Mus_musculus.GRCm38.94.bed')
 
 # derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
 
-rule convert_gtf_to_genepred: # need GLIBC_2.14 and GLIBC_2.17 I think
+#rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
+#	input: "data/{species_prefix}.94.gtf"
+#	output: "data/{species_prefix}.94.mod.gtf"
+#	shell: "sed 's/^chr//g' | sed '^[A-Za-z][A-Za-z]/d' |  {input} > {output}"
+
+rule convert_gtf_to_genepred:
      input:
-         script="exe/gtfToGenePred",
-         gtf="data/Homo_sapiens.GRCh38.92.gtf"
+         gtf="data/{species_prefix}.94.gtf"
      output:
-         "results/Homo_sapiens.GRCh38.92.genePred"
+         "results/{species_prefix}.94.genePred"
+     conda: "envs/ucsc.yaml"
      shell:
-         "{input.script} {input.gtf} {output}"
+         "gtfToGenePred {input.gtf} {output}"
 
 rule convert_genepred_to_bed12:
      input:
-         script="exe/genePredToBed",
-         genepred="results/{species_prefix}.92.genePred"
+         genepred="results/{species_prefix}.94.genePred"
      output:
-         "results/{species_prefix}.92.bed"
+         "results/{species_prefix}.94.bed"
+     conda: "envs/ucsc.yaml"
      shell:
-         "{input.script} {input.genepred} {output}"
-
-rule get_chrom_sizes:
-     input:
-         "exe/fetchChromSizes"
-     output:
-         "results/{assembly}.chrom.sizes"
-     shell:
-         "{input} {wildcards.assembly} > results/{wildcards.assembly}.chrom.sizes"
+         "genePredToBed {input.genepred} {output}"
 
 rule get_bedgraph:
     input:
-        sorted_bam="results/bam/{accession}.bam.sorted",
+        sorted_bam="results/bam/run/{accession}.bam.sorted",
     output:
         "results/bam/run/{accession}.bedgraph"
     conda:
@@ -63,7 +60,7 @@ rule avg_merged_bedgraph_by_run:
         output:
                 "results/bam/sample/{sample}.bedgraph"
         wildcard_constraints:
-             sample="[E|D|S]RS.*[0-9]"
+             sample="[E|D|S]RS[0-9X]+"
         script:
                 "get_average_bedgraph.R"
 
@@ -91,7 +88,19 @@ rule reannotate_3utrs:
        bedgraphs= 'results/bam/tissue/{species}/{cell_line}.bedgraph'
     benchmark: "benchmarks/APAtrap/{species}_{cell_line}.log"
     output:
-       "results/bed/specific/{species}_{cell_line}.utr.bed"
+       "results/bed/{species}_{cell_line}.utr.bed"
     shell:
        "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+
+rule identify_APA_sites:
+     input:
+        script="exe/predictAPA.pl",
+        bedgraphs= "results/bam/tissue/{species}/{tissue}.bedgraph",
+        bed="results/bed/{species}_{tissue}.utr.bed"
+     output:
+        "results/targets/{species}_{tissue}.APA.txt"
+     shell:
+        "{input.script} -i {input.bedgraphs} -g 1 -n 1 -u {input.bed}  -o {output}"
+
+
 
