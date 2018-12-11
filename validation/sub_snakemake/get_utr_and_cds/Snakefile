@@ -10,6 +10,7 @@ def get_gtf_file(wildcards):
 		return ('data/Mus_musculus.GRCm38.94.gtf')
 
 def get_bed6_file(wildcards):
+        print(wildcards)
         if wildcards.species == 'hsa':
                 return('results/Homo_sapiens.GRCh38.92.bed6')
         elif wildcards.species == 'mmu':
@@ -24,6 +25,12 @@ rule index_maf_files:
            "benchmarks/{species}_chr{chrom}.mafindex.log"
 	script:
 	   "biopython_maf_processing.py"
+
+rule get_all_transcript_ids:
+	input:
+		gtf=get_gtf_file
+	output: "results/bed/{species}_all_transcripts.txt"
+	shell: "exe/get_all_transcripts.sh {input} > {output}"
 
 rule gtf_to_bed_CDS:
         input:
@@ -46,17 +53,6 @@ rule gtf_to_bed_canonical:
             "envs/biopython.yaml"
         shell:
             "{input.script} {input.gtf} {wildcards.feature} {wildcards.chrom} {output}"
-
-rule get_extended_bed_file:
-         input:
-            normal_bed= get_bed6_file,
-            extended_bed="results/bed/{species}_{tissue}.utr.bed"
-         output:
-            "results/bed/{species}_{tissue}.utr.full.bed"
-         log:
-            "{species}_{tissue}.log"
-         script:
-             "extend_bed2.R"
 
 rule split_bed:
         input:
