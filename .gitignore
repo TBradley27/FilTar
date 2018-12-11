@@ -20,3 +20,5 @@ reports/fastqc/
 *.txt
 *.tsv
 *.ps
+*.gtf
+*.bed
