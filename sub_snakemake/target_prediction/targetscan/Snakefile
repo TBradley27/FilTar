@@ -31,86 +31,96 @@ rule prep_mirna_mature_alt:
 rule prep_mir_for_context_scores:
         input:
            mature_mirnas="results/{species}_mature_mirna.tsv",
-           mirna_seed="results/mature_mirna_seed.tsv",
+           mirna_seed="results/{species}_mirna_family.tsv",
         output:
            "results/{species}_mir_for_context_scores.tsv"
-        shell:
+        script:
            "get_mirna_context.R"
 
 ### main ###
 
 rule targetscan_sites:
 	input:
-           msa=ancient("results/{species}_chr{chrom}_msa.tsv"),
-           mirna_families=ancient("results/{species}_mirna_family.tsv"),
+           msa="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
+           mirna_families="results/{species}_mirna_family.tsv",
            script="exe/targetscan7/targetscan_70.patch.pl"
 	output:
-           "results/{species}_chr{chrom}_msa.sites.tmp.tsv"
+           "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"
 	benchmark:
-           "benchmarks/{species}_chr{chrom}_msa.sites.log"
+           "benchmarks/{species}_{tissue}_chr{chrom}_msa.sites.log"
 	shell:
            "{input.script} {input.mirna_families} {input.msa} {output}"
 
 rule targetscan_branch_lengths:
         input:
-           msa_3UTR=ancient("results/{species}_chr{chrom}_msa.tsv"),
+           msa_3UTR="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
            script="exe/targetscan7/targetscan_70_BL_bins.patch.pl"
         output:
-             "results/{species}_chr{chrom}_msa.branch_lengths.tsv"
+             "results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv"
         benchmark:
-             "benchmarks/branch_lengths_{species}_chr{chrom}.log"
+             "benchmarks/branch_lengths_{species}_{tissue}_chr{chrom}.log"
         shell:
             "{input.script} {input.msa_3UTR} {wildcards.species}  > {output}"
 
 rule targetscan_PCTs:
         input:
-            mirna_family="results/mirna_family.tsv",
-            mirna_sites="results/{species}_chr{chrom}_msa.sites.tsv",
-            branch_lengths="results/{species}_chr{chrom}_msa.branch_lengths.tsv",
+            mirna_family="results/{species}_mirna_family.tsv",
+            mirna_sites="results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv",
+            branch_lengths="results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv",
             script="exe/targetscan7/targetscan_70_BL_PCT.patch.pl",
             PCT_param="exe/targetscan7/PCT_parameters"
         output:
-            "results/{species}_chr{chrom}_msa.PCTs.tsv"
+            "results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv"
         benchmark:
-            "benchmarks/{species}_chr{chrom}_msa.PCTs.log"
+            "benchmarks/{species}_{tissue}_chr{chrom}_msa.PCTs.log"
         shell:
             "{input.script} {input.mirna_family} {input.mirna_sites} {input.branch_lengths} > {output}"
 
 rule targetscan_eightmers:
         input:
-            mirna_seeds="results/mirna_family.tsv",
-            CDS_3UTRs="results/{species}_CDS_chr{chrom}.tsv",
+            mirna_seeds="results/{species}_mirna_family.tsv",
+            CDS="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv",
             script="exe/targetscan7/targetscan_count_8mers.pl"
         output:
-            eightmer_counts="results/{species}_chr{chrom}_msa.eightmers.tsv",
-            CDS_lengths="results/{species}_CDS_chr{chrom}.tsv.lengths.txt"
+            eightmer_counts="results/targets/{species}_{tissue}_chr{chrom}_msa.eightmers.tsv",
+            CDS_lengths="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv.lengths.txt"
         shell:
-            "{input.script} {input.mirna_seeds} {input.CDS_3UTRs} > {output.eightmer_counts}"
+            "{input.script} {input.mirna_seeds} {input.CDS} > {output.eightmer_counts}"
 
 rule targetscan_context_scores:
         input:
             mirnas="results/{species}_mir_for_context_scores.tsv",
-            msa="results/{species}_chr{chrom}_msa.tsv",
-            PCTs="results/{species}_chr{chrom}_msa.PCTs.tsv",
-            CDS_lengths="results/{species}_CDS_chr{chrom}.tsv.lengths.txt",
-            eightmer_counts="results/{species}_chr{chrom}_msa.eightmers.tsv",
+            msa="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
+            PCTs="results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
+            CDS_lengths="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv.lengths.txt",
+            eightmer_counts="results/targets/{species}_{tissue}_chr{chrom}_msa.eightmers.tsv",
             contextpp_script="exe/targetscan7/targetscan_70_context_scores.patch.pl",
             agarwal_param="exe/targetscan7/Agarwal_2015_parameters.txt",
-            AIRs="exe/targetscan7/All_cell_lines.AIRs.txt",
+            AIRs="results/targets/{species}_{tissue}.AIRs.txt", #exe/targetscan7/All_cell_lines.AIRs.txt",
             TA_SPS_param="exe/targetscan7/TA_SPS_by_seed_region.txt",
             script="exe/targetscan7/targetscan_70_context_scores.patch.pl"
         output:
-            "results/{species}_chr{chrom}_msa.contextpp.tsv"
+            "results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv"
         benchmark:
-            "benchmarks/{species}_chr{chrom}_msa.contextpp.log"
+            "benchmarks/{species}_{tissue}_chr{chrom}_msa.contextpp.log"
         shell:
-            "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} species['{wildcards.species}']"
+            "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} species['{wildcards.species}'] {input.AIRs}"
+
+rule aggregate_contextpp_scores:
+       input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv", chrom=config['chromosomes'][wildcards.species])
+       output: "results/targets/{species}_{tissue}_msa.contextpp.tsv"
+       shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
 ### other ###
 
+rule get_all_transcripts:
+	input: "results/bed/{species}_{tissue}.utr.full.bed"
+	output: "results/bed/{species}_{tissue}_all_transcripts.txt"
+	shell: "awk '{{ print $5}}' {input} | sort | uniq > {output}"
+
 rule get_AIR_file:
-        input: "{tissue}.APA.txt" #output from APA usage file
-        output: "exe/targetscan7/{tissue}.AIRs.txt"
+        input: "results/targets/{species}_{tissue}.APA.txt", "results/utrs/{species}_{tissue}.utr.lengths.tsv" #output from APA usage file
+        output: "results/targets/{species}_{tissue}.AIRs.txt"
         script: "get_tissue_specific_APA_file.R"
 
 rule patch_bin_lengths_script:
@@ -139,12 +149,12 @@ rule patch_contextpp_script:
         shell:
           "{input.patch_script} {input.contextpp} > {output}" # force reference species as a parameter
 
-rule aggregate_targetscan_sites:
-	input: lambda wildcards: expand("results/{species}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species])
-  	output: "results/{species}_msa.sites.tsv"
-	shell: "cat {input} | sed '1b;/Gene/d' > {output}"
+#rule aggregate_targetscan_sites:
+#	input: lambda wildcards: expand("results/{species}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species])
+#  	output: "results/{species}_msa.sites.tsv"
+#	shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
 rule fix_targetscan_sites_output:
-        input: "results/{species}_chr{chrom}_msa.sites.tmp.tsv"
-        output: "results/{species}_chr{chrom}_msa.sites.tsv"
+        input: "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"
+        output: "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv"
         script: "fix_ts_output.R"
