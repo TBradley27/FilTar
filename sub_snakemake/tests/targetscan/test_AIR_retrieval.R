@@ -11,7 +11,7 @@ print(output, n=15)
 context('pattern matching')
 
 test_that('first column is valid', {
-	expect_match(output$id, 'ENS(MUS)?T[0-9]+')
+	expect_match(output$id, 'ENS(MUS)?T[0-9]+.[0-9][0-9]?')
 })
 
 test_that('second column is valid', {
