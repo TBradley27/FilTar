@@ -8,14 +8,14 @@ def get_bed_file(wildcards):
 
 # derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
 
-#rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
-#	input: "data/{species_prefix}.94.gtf"
-#	output: "data/{species_prefix}.94.mod.gtf"
-#	shell: "sed 's/^chr//g' | sed '^[A-Za-z][A-Za-z]/d' |  {input} > {output}"
+rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
+	input: "data/{species_prefix}.94.gtf"
+	output: "data/{species_prefix}.94.mod.gtf"
+	shell: "sed 's/^chr//g' {input} | sed '/^[A-Za-z][A-Za-z]/d'  > {output}"
 
 rule convert_gtf_to_genepred:
      input:
-         gtf="data/{species_prefix}.94.gtf"
+         gtf="data/{species_prefix}.94.mod.gtf"
      output:
          "results/{species_prefix}.94.genePred"
      conda: "envs/ucsc.yaml"
