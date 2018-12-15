@@ -14,8 +14,9 @@ include: "../sub_snakemake/APAtrap/Snakefile"
 include: "../sub_snakemake/reannotate_3utrs/Snakefile"
 include: "../sub_snakemake/quant_reads/salmon/Snakefile"
 include: "../sub_snakemake/quant_reads/kallisto/Snakefile"
-include: "sub_snakemake/get_utr_and_cds/Snakefile"
-include: "sub_snakemake/targetscan/Snakefile"
+include: "../sub_snakemake/get_utr_and_cds/Snakefile" # A duplicated snakemake otherwise we would need to copy very large maf files in the root and validation directories
+include: "../sub_snakemake/target_prediction/targetscan/Snakefile"
+include: "../sub_snakemake/canonical_targets/Snakefile"
 include: "sub_snakemake/cumulative_plots/Snakefile"
 
 rule all:
@@ -50,14 +51,16 @@ rule all:
             #expand("results/kallisto/{accession}/abundance.tsv", accession=config['PRJNA270999']['all_runs'])
             # "results/targets/specific/hsa_U343.sites.tsv", "results/targets/specific/hsa_16HBE14o.sites.tsv",
             # "results/targets/specific/hsa_A549.sites.tsv", "results/targets/specific/hsa_Du145.sites.tsv",
-            # "results/plots/PRJNA231155_miR-137-3p_U343_exp.png", "results/plots/PRJNA231155_miR-137-3p_U343_alt_utr.png",
-            # "results/plots/PRJNA292016_miR-141-3p_Du145_exp.png", "results/plots/PRJNA292016_miR-141-3p_Du145_alt_utr.png",
-            # "results/plots/PRJNA304643_miR-1343-3p_A549_exp.png", "results/plots/PRJNA304643_miR-1343-3p_A549_alt_utr.png",
-            # "results/plots/PRJNA304643_miR-1343-3p_16HBE14o_exp.png", "results/plots/PRJNA304643_miR-1343-3p_16HBE14o_alt_utr.png",
-            # "results/plots/PRJNA229375_miR-124-3p_HeLa_exp.png", "results/plots/PRJNA229375_miR-124-3p_HeLa_alt_utr.png",
-            # "results/plots/PRJNA229375_miR-155-5p_HeLa_exp.png", "results/plots/PRJNA229375_miR-155-5p_HeLa_alt_utr.png",
-            # "results/plots/PRJNA229375_miR-124-3p_HEK293_exp.png", "results/plots/PRJNA229375_miR-124-3p_HEK293_alt_utr.png",
-            # "results/plots/PRJNA229375_miR-155-5p_HEK293_exp.png", "results/plots/PRJNA229375_miR-155-5p_HEK293_alt_utr.png",
-            # "results/plots/PRJNA229375_miR-124-3p_Huh7_exp.png", "results/plots/PRJNA229375_miR-124-3p_Huh7_alt_utr.png",
-            # "results/plots/PRJNA229375_miR-155-5p_Huh7_exp.png", "results/plots/PRJNA229375_miR-155-5p_Huh7_alt_utr.png",
-            "results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_exp.png", "results/plots/PRJNA229375_miR-124-3p_IMR90_alt_utr.png"
+             "results/plots/hsa_PRJNA231155_miR-137-3p_U343_exp.png", "results/plots/hsa_PRJNA231155_miR-137-3p_U343_alt_utr.png",
+             "results/plots/hsa_PRJNA292016_miR-141-3p_Du145_exp.png", "results/plots/hsa_PRJNA292016_miR-141-3p_Du145_alt_utr.png",
+             "results/plots/hsa_PRJNA304643_miR-1343-3p_A549_exp.png", "results/plots/hsa_PRJNA304643_miR-1343-3p_A549_alt_utr.png",
+             "results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_exp.png", "results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_alt_utr.png",
+              expand("results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv", species='hsa', tissue='HeLa', chrom=config['chromosomes']['hsa']),
+              #expand("results/targets/canonical/{species}_chr{chrom}_msa.contextpp.tsv", species='hsa', chrom=config['chromosomes']['hsa'])

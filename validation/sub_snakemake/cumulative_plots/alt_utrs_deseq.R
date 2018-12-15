@@ -104,29 +104,29 @@ print(exp_data)
 
 # subset the expression data
 
-non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
+non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% cl_targets$a_Gene_ID]
 
-non_targets_exp = non_targets_exp - median(non_targets_exp)
+#non_targets_exp = non_targets_exp - median(non_targets_exp)
 
 cl_targets = filter(cl_targets, Site_type %in%  snakemake@params$target_site_types)  
 cl_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% cl_targets$a_Gene_ID]
 
-cl_targets_exp = cl_targets_exp - median(non_targets_exp)
+#cl_targets_exp = cl_targets_exp - median(non_targets_exp)
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$target_site_types)
 canon_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 
-canon_targets_exp = canon_targets_exp - median(non_targets_exp)
+#canon_targets_exp = canon_targets_exp - median(non_targets_exp)
 
 new_targets_names = cl_targets[!cl_targets$a_Gene_ID %in% canon_targets$a_Gene_ID,]
 new_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% new_targets_names$a_Gene_ID]
 
-new_targets_exp = new_targets_exp - median(non_targets_exp)
+#new_targets_exp = new_targets_exp - median(non_targets_exp)
 
 old_targets_names = canon_targets[!canon_targets$a_Gene_ID %in% cl_targets$a_Gene_ID,]
 old_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% old_targets_names$a_Gene_ID]
 
-old_targets_exp = old_targets_exp - median(non_targets_exp)
+#old_targets_exp = old_targets_exp - median(non_targets_exp)
 
 #print(length(exp_data$Name))
 
