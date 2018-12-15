@@ -17,4 +17,4 @@ include: "sub_snakemake/get_utr_and_cds/Snakefile"
 include: "sub_snakemake/canonical_targets/Snakefile"
 
 rule all:
-     input: expand("results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv", species='hsa', tissue='adipose', chrom=config['chromosomes']['hsa'])
+     input: expand("results/targets/canonical/{species}_chr{chrom}_msa.contextpp.tsv", species='hsa', chrom='Y')
