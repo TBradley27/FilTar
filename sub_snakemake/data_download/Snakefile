@@ -25,6 +25,12 @@ def get_gtf_file(wildcards):
 
 ### GTF
 
+def get_species_synonym(wildcards):
+        if wildcards.species_prefix == 'Mus_musculus.GRCm38':
+                return ('mus_musculus')
+        elif wildcards.species_prefix == 'Homo_sapiens.GRCh38':
+                return ('homo_sapiens')
+
 rule get_gtf_file:
      output: "data/{genus_species}.{build}.{ensembl_release}.chr.gtf"
      params: get_species
@@ -63,6 +69,18 @@ rule decompress_dna_file:
         input: "data/{species_prefix}.dna.{assembly_level}.fa.gz"
         output: "data/{species_prefix}.dna.{assembly_level}.fa"
         conda: "envs/pigz.yaml"
+        threads: 8
+        shell: "pigz -p {threads} -d {input}"
+
+rule download_fasta:
+        input:
+        output: "data/{species_prefix}.dna.primary_assembly.fa.gz"
+        params: get_species_synonym
+        shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-94/fasta/{params}/dna/{wildcards.species_prefix}.dna.primary_assembly.fa.gz"
+
+rule decompress_dna_file:
+        input: "data/{species_prefix}.dna.primary_assembly.fa.gz"
+        output: "data/{species_prefix}.dna.primary_assembly.fa"
         threads: 8
         shell: "pigz -p {threads} -d {input}"
 

@@ -1,0 +1,98 @@
+#!/bin/bash
+
+### main ###
+
+def get_AIR_file(wildcards):
+	if wildcards.species == 'hsa':
+		return('exe/targetscan7/All_cell_lines.AIRs.no_versions.txt')
+	elif wildcards.species == 'mmu':
+		return('results/targets/canonical/{}.AIRs.txt'.format(wildcards.species))
+
+rule get_canonical_air_file:
+	input: "results/targets/canonical/{species}.utr.lengths.tsv"
+	output: 'results/targets/canonical/{species}.AIRs.txt'
+	script: 'get_canonical_AIR.R'
+
+#rule get_utr_lengths_canonical:
+#        input:  'results/bed/canonical/{species}_3UTR.chr{chrom}.bed'
+#        output: 'results/targets/canonical/{species}_chr{chrom}.utr.lengths.tsv'
+#        script: 'get_utr_lengths.R'
+
+#rule aggregate_utr_lengths:
+#       input: lambda wildcards: expand("results/targets/canonical/{species}_chr{chrom}.utr.lengths.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
+#       output: "results/targets/canonical/{species}.utr.lengths.tsv"
+#       shell: "cat {input} | sed '1b;/tx/d' > {output}"
+
+
+rule get_canon_targets: # we do it this way, as inheriting from main workflow would trigger execution of targetscan job for ALL miRNAs, instead of a few miRNAs, taking a much longer time
+       input:          # Maybe it is just easier to create the canonical target set by creating a dummy tissue called 'canonical'? in which case we will not need extra rules
+           msa="results/msa/canonical/{species}_chr{chrom}_3UTR_msa.tsv",
+           mirna_families="results/{species}_mirna_family.tsv",
+           script="exe/targetscan7/targetscan_70.pl"
+       output: "results/targets/canonical/{species}_chr{chrom}_msa.sites.tsv"
+       shell: '{input.script} {input.mirna_families} {input.msa} {output}'
+
+rule targetscan_branch_lengths_canon:
+        input:
+           msa_3UTR="results/msa/canonical/{species}_chr{chrom}_3UTR_msa.tsv",
+           script="exe/targetscan7/targetscan_70_BL_bins.patch.pl"
+        output:
+             "results/targets/canonical/{species}_chr{chrom}_msa.branch_lengths.tsv"
+        shell:
+            "{input.script} {input.msa_3UTR} {wildcards.species}  > {output}"
+
+rule targetscan_PCTs_canon:
+        input:
+            mirna_family="results/{species}_mirna_family.tsv",
+            mirna_sites="results/targets/canonical/{species}_chr{chrom}_msa.sites.tsv",
+            branch_lengths="results/targets/canonical/{species}_chr{chrom}_msa.branch_lengths.tsv",
+            script="exe/targetscan7/targetscan_70_BL_PCT.patch.pl",
+            PCT_param="exe/targetscan7/PCT_parameters"
+        output:
+            "results/targets/canonical/{species}_chr{chrom}_msa.PCTs.tsv"
+        shell:
+            "{input.script} {input.mirna_family} {input.mirna_sites} {input.branch_lengths} > {output}"
+
+rule targetscan_eightmers_canon:
+        input:
+            mirna_seeds="results/{species}_mirna_family.tsv",
+            CDS="results/msa/canonical/{species}_chr{chrom}_CDS_msa.tsv",
+            script="exe/targetscan7/targetscan_count_8mers.pl"
+        output:
+            eightmer_counts="results/targets/canonical/{species}_chr{chrom}_msa.eightmers.tsv",
+            CDS_lengths="results/msa/canonical/{species}_chr{chrom}_CDS_msa.tsv.lengths.txt"
+        shell:
+            "{input.script} {input.mirna_seeds} {input.CDS} > {output.eightmer_counts}"
+
+rule targetscan_context_scores_canon:
+        input:
+            mirnas="results/{species}_mir_for_context_scores.tsv",
+            msa="results/msa/canonical/{species}_chr{chrom}_3UTR_msa.tsv",
+            PCTs="results/targets/canonical/{species}_chr{chrom}_msa.PCTs.tsv",
+            CDS_lengths="results/msa/canonical/{species}_chr{chrom}_CDS_msa.tsv.lengths.txt",
+            eightmer_counts="results/targets/canonical/{species}_chr{chrom}_msa.eightmers.tsv",
+            contextpp_script="exe/targetscan7/targetscan_70_context_scores.patch.pl",
+            agarwal_param="exe/targetscan7/Agarwal_2015_parameters.txt",
+            AIRs=get_AIR_file,
+            TA_SPS_param="exe/targetscan7/TA_SPS_by_seed_region.txt",
+            script="exe/targetscan7/targetscan_70_context_scores.patch.pl"
+        output:
+            "results/targets/canonical/{species}_chr{chrom}_msa.contextpp.tsv"
+        shell:
+            "perl {input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} species['{wildcards.species}'] {input.AIRs}"
+### other ###
+
+rule remove_AIR_version_info:
+	input: "exe/targetscan7/All_cell_lines.AIRs.txt"
+	output: "exe/targetscan7/All_cell_lines.AIRs.no_versions.txt"
+	shell: 'sed -E "s;\.[0-9][0-9]?;;1" {input} > {output}'
+
+rule remove_msa_version_info:
+	input: "results/msa/canonical/{species}_chr{chrom}_{feature}_msa_tmp.tsv"
+	output:  "results/msa/canonical/{species}_chr{chrom}_{feature}_msa.tsv"
+	shell: 'sed -E "s;\.[0-9][0-9]?;;1" {input} > {output}'
+
+rule fix_targetscan_sites_canonical_output:
+        input: "results/targets/canonical/{species}_chr{chrom}_msa.sites.tmp.tsv"
+        output: "results/targets/canoncal/{species}_chr{chrom}_msa.sites.tsv"
+        script: "fix_ts_output.R"

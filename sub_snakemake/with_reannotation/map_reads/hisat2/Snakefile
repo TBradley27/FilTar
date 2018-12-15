@@ -1,8 +1,10 @@
 import os
 
 def get_gtf_file(wildcards):
-        sci_species_name = config['sci_species_name'][wildcards.species]
-        genome_build = config['genome_build'][wildcards.species]
+	if wildcards.species == 'mmu':
+                return('data/Mus_musculus.GRCm38.94.gtf')
+	elif wildcards.species == 'hsa':
+		return('data/Homo_sapiens.GRCh38.94.gtf')
 
         return ( 'data/' + sci_species_name + '.' + genome_build + '.94.chr.gtf'  )
 
