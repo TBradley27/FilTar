@@ -28,7 +28,7 @@ rule get_canon_targets: # we do it this way, as inheriting from main workflow wo
        input:          # Maybe it is just easier to create the canonical target set by creating a dummy tissue called 'canonical'? in which case we will not need extra rules
            msa="results/msa/canonical/{species}_chr{chrom}_3UTR_msa.tsv",
            mirna_families="results/{species}_mirna_family.tsv",
-           script="exe/targetscan7/targetscan_70.pl"
+           script="exe/targetscan7/targetscan_70.patch.pl"
        output: "results/targets/canonical/{species}_chr{chrom}_msa.sites.tsv"
        shell: '{input.script} {input.mirna_families} {input.msa} {output}'
 

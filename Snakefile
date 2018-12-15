@@ -60,8 +60,4 @@ wildcard_constraints:
     genus_species="[A-Z][a-z]+_[a-z]+"
 
 rule all:
-     input: #"results/targets/mmu/liver.contextpp.tsv" 
-
-rule testing:
-	output: 'foo.txt'
-	shell: 'touch {output}'
+     input: expand("results/targets/canonical/{species}_chr{chrom}_msa.contextpp.tsv", species='hsa', chrom='Y')
