@@ -15,6 +15,7 @@ setwd('../targetscan')
 test_file('test_convert_fasta_to_ts.R')
 test_file('test_get_miRNA_families.R')
 test_file('test_prep_alt_mir.R')
+test_file('targetscan/test_AIR_retrieval.R')
 test_file('test_get_mir_for_context.R')
 
 setwd('./main')
