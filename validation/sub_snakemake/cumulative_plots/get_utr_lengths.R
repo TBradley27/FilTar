@@ -1,6 +1,6 @@
 library(plyr)
 library(tidyverse)
-source('sub_snakemake/cumulative_plots/get_utr_lengths_function.R')
+library(filtar)
 
 utr_lengths = get_utr_lengths(snakemake@input[[1]]) 
 
