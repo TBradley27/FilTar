@@ -11,7 +11,7 @@ print (snakemake.params['columns'])
 conn = sqlite3.connect('filtar.db')
 c = conn.cursor()
 
-c.execute("DELETE FROM {};".format(snakemake.params['table']))
+#c.execute("DELETE FROM {};".format(snakemake.params['table']))
 conn.commit()
 c.execute("PRAGMA foreign_keys = ON")
 conn.commit()
@@ -35,7 +35,7 @@ data['Tissue'] = snakemake.wildcards['tissue'] # add tissues column
 #call("sqlite3 filtar.db -separator '\t' '.import {} {}'".format(sys.argv[1], sys.argv[2]), shell=True)
 
 print(data)
-
+c.execute("PRAGMA synchronous=OFF")
 data.to_sql('{}'.format(snakemake.params['table']), con=conn, if_exists='append')
 
 conn.commit()

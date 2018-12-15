@@ -107,11 +107,10 @@ rule upload_mirna_data:
 
 rule upload_to_contextpp_table:
         input:
-            data="results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv",
-            dependency="results/targetscan_table_created.txt",
-            script="sub_snakemake/upload_to_tables/SQLite/upload_to_table.py"
+            data=ancient("results/targets/{species}_{tissue}_msa.contextpp.tsv"),
+            dependency=ancient("results/targetscan_table_created.txt")
         output:
-            "results/table_uploads/contextpp_{species}_{tissue}_chr{chrom}_loaded.txt"
+            "results/table_uploads/contextpp_{species}_{tissue}_loaded.txt"
         params:
                 table="contextpp",
                 columns = ['mirna_id','mrna_id','Species','UTR_START','UTR_END','Site_Type','score','weighted_score']
