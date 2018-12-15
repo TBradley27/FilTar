@@ -2,9 +2,9 @@ import os
 
 def get_gtf_file(wildcards):
 	if wildcards.species == 'mmu':
-                return('data/Mus_musculus.GRCm38.92.gtf')
+                return('data/Mus_musculus.GRCm38.94.gtf')
 	elif wildcards.species == 'hsa':
-		return('data/Homo_sapiens.GRCh38.92.gtf')
+		return('data/Homo_sapiens.GRCh38.94.gtf')
 
 def get_assembly(wildcards):
 	if wildcards.species == 'mmu':
