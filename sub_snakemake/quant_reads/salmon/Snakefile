@@ -49,9 +49,8 @@ rule salmon_get_lib_type:
 	shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
 
 rule salmon_quantmerge_by_run:
-	input:	lambda wildcards: expand("results/salmon/runs/{species}/{run_accession}", run_accession=config['samples'][wildcards.sample], species=wildcards.species)
-	output: temp("results/salmon/samples/{species}/{sample}.quant.tmp.sf")
-        conda: "envs/salmon.yaml"
+	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}/", run_accession=config['samples'][wildcards.sample]),
+	output: "results/salmon/samples/{sample}.quant.tmp.sf"
 	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 
 rule salmon_average_quantmerge_runs:
