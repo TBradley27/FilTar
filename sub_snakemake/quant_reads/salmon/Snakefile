@@ -42,16 +42,9 @@ rule salmon_get_lib_type:
 	output: "results/salmon/{run_accession}/lib_type.txt"
         shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
 
-#def mod_input(wildcards):
-#	new_name = lambda wildcards: expand('results/salmon/runs/{run_accession}/', run_accession=config['samples'][wildcards.sample])
-#	print(new_name)
-#	return(new_name)
-
-
 rule salmon_quantmerge_by_run:
 	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}/", run_accession=config['samples'][wildcards.sample]),
 	output: "results/salmon/samples/{sample}.quant.tmp.sf"
-	#params: lambda wildcards: expand('results/salmon/runs/{run_accession}/', run_accession=config['samples'][wildcards.sample])
 	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 
 rule salmon_average_quantmerge_runs:
