@@ -77,3 +77,11 @@ rule biopython_get_canonical_msa:
            "envs/biopython.yaml"
         script:
            "biopython_maf_processing2.py"
+
+rule get_utr_lengths:
+        input:  'results/bed/{species}_{cell_line}.utr.full.bed'
+        output: 'results/utrs/{species}_{cell_line}.utr.lengths.tsv'
+        script: 'get_utr_lengths.R'
+
+
+
