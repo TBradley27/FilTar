@@ -1,0 +1,106 @@
+#!/bin/bash
+
+def get_bed_file(wildcards):
+	if wildcards.species == 'hsa':
+		return('results/Homo_sapiens.GRCh38.94.bed')
+	elif wildcards.species == 'mmu':
+		return('results/Mus_musculus.GRCm38.94.bed')
+
+# derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
+
+rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
+	input: "data/{species_prefix}.94.gtf"
+	output: "data/{species_prefix}.94.mod.gtf"
+	shell: "sed 's/^chr//g' {input} | sed '/^[A-Za-z][A-Za-z]/d'  > {output}"
+
+rule convert_gtf_to_genepred:
+     input:
+         gtf="data/{species_prefix}.94.mod.gtf"
+     output:
+         "results/{species_prefix}.94.genePred"
+     conda: "envs/ucsc.yaml"
+     shell:
+         "gtfToGenePred {input.gtf} {output}"
+
+rule convert_genepred_to_bed12:
+     input:
+         genepred="results/{species_prefix}.94.genePred"
+     output:
+         "results/{species_prefix}.94.bed"
+     conda: "envs/ucsc.yaml"
+     shell:
+         "genePredToBed {input.genepred} {output}"
+
+rule get_bedgraph:
+    input:
+        sorted_bam="results/bam/run/{accession}.bam.sorted",
+    output:
+        "results/bam/run/{accession}.bedgraph"
+    conda:
+        "envs/bedtools.yaml"
+    benchmark:
+        "benchmarks/genomeCoverageBed/{accession}.txt"
+    shell:
+        "genomeCoverageBed -bg -ibam {input.sorted_bam} -split > {output}"
+
+rule merge_bedgraphs_by_run:
+        input:
+             lambda wildcards: expand("results/bam/run/{accession}.bedgraph", accession=config['samples'][wildcards.sample])
+        output:
+             "results/bam/sample/{sample}_tmp.bedgraph"
+        wildcard_constraints:
+             sample="[E|D|S]RS.*"
+        conda:
+             "envs/bedtools.yaml"
+        script: "merge_bedgraphs_by_sample.py"
+
+rule avg_merged_bedgraph_by_run:
+        input:
+                "results/bam/sample/{sample}_tmp.bedgraph"
+        output:
+                "results/bam/sample/{sample}.bedgraph"
+        wildcard_constraints:
+             sample="[E|D|S]RS[0-9X]+"
+        script:
+                "get_average_bedgraph.R"
+
+rule merge_bedgraphs_by_sample:
+        input:
+             lambda wildcards: expand("results/bam/sample/{sample}.bedgraph", sample=config['tissues'][wildcards.species][wildcards.cell_line])
+        output:
+             "results/bam/tissue/{species}/{cell_line}.bedgraph.tmp"
+        conda:
+             "envs/bedtools.yaml"
+        shell: "bedtools unionbedg -i {input} > {output}"
+
+rule avg_merged_bedgraph_by_sample:
+        input:
+                "results/bam/tissue/{species}/{cell_line}.bedgraph.tmp"
+        output:
+                "results/bam/tissue/{species}/{cell_line}.bedgraph"
+        script:
+                "get_average_bedgraph.R"
+
+rule reannotate_3utrs:
+    input:
+       script="exe/identifyDistal3UTR.pl",
+       bed=get_bed_file,
+       bedgraphs= 'results/bam/tissue/{species}/{cell_line}.bedgraph'
+    benchmark: "benchmarks/APAtrap/{species}_{cell_line}.log"
+    output:
+       "results/bed/{species}_{cell_line}.utr.bed"
+    shell:
+       "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+
+rule identify_APA_sites:
+     input:
+        script="exe/predictAPA.pl",
+        bedgraphs= "results/bam/tissue/{species}/{tissue}.bedgraph",
+        bed="results/bed/{species}_{tissue}.utr.bed"
+     output:
+        "results/targets/{species}_{tissue}.APA.txt"
+     shell:
+        "{input.script} -i {input.bedgraphs} -g 1 -n 1 -u {input.bed}  -o {output}"
+
+
+
