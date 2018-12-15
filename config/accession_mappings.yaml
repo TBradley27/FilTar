@@ -2,9 +2,9 @@ tissues:
         mmu: 
                 name_of_tissue: [] # insert relevant sample accessions here
         hsa:
-                name_of_tissue: [] # insert relevant sample accessions here
+                adipose: [ERS025098] # insert relevant sample accessions here
 samples:
-         name_of_sample: [] # insert relevant run accessions here per sample
+         ERS025098: [ERR030880, ERR030888] # insert relevant run accessions here per sample
 
 # e.g.
 #

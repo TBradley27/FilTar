@@ -2,6 +2,4 @@ mouse:
         runs: []
 
 human:
-        runs: []
-        samples: []
-        tissues: []
+        runs: [ERR030880, ERR030888]

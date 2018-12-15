@@ -8,7 +8,7 @@ rule salmon_index:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
 
 def get_input_files (wildcards):
-        if wildcards.accession in config['all_paired_end']:
+        if wildcards.accession in config['paired_end']:
                 input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession),
                                 'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession)
                                 ]

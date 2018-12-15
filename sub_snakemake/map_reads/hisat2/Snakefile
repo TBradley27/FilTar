@@ -57,7 +57,7 @@ def get_lib_type(wildcards):
 		return ("")
 
 def get_read_files (wildcards):
-	if wildcards.accession in config['all_paired_end']:
+	if wildcards.accession in config['paired_end']:
 		input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession), 
 			       'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession),
 				] 
