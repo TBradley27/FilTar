@@ -121,6 +121,8 @@ rule get_all_transcripts:
 rule get_AIR_file:
         input: "results/targets/{species}_{tissue}.APA.txt", "results/utrs/{species}_{tissue}.utr.lengths.tsv" #output from APA usage file
         output: "results/targets/{species}_{tissue}.AIRs.txt"
+        wildcard_constraints:
+               species="^canon" # needed to prevent conflict with no reannotation pipeline
         script: "get_tissue_specific_APA_file.R"
 
 rule fix_targetscan_sites_output:
