@@ -13,7 +13,7 @@ gtf_to_bed () {
 	fi
 
 	grep "${tx_feature_long}" "$input" |
-	grep -E "\s${tx_feature_long}\s" |         # Braces needed for correct search - test for white space either side of the pattern
+	grep -E "\s${tx_feature_long}\s"|         # Braces needed for correct search - test for white space either side of the pattern
 	sed 's/^chr//g' |
 	grep '^'$chromosome'\s' > tmp"$chromosome"  # CCDS match confounds CDS search - warning: mmu and hsa have different prefixes for this
 
