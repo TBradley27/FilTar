@@ -1,8 +1,4 @@
-library(plyr)
-library(tidyverse)
-library(filtar)
-
-utr_lengths = get_utr_lengths(snakemake@input[[1]])
+utr_lengths = filtar::get_utr_lengths(snakemake@input[[1]])
 
 write.table(
         x=utr_lengths,
