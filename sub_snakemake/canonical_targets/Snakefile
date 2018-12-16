@@ -2,21 +2,15 @@
 
 ### main ###
 
-def get_AIR_file(wildcards):
-	if wildcards.species == 'hsa':
-		return('exe/targetscan7/All_cell_lines.AIRs.no_versions.txt')
-	elif wildcards.species == 'mmu':
-		return('results/targets/canonical/{}.AIRs.txt'.format(wildcards.species))
+rule get_utr_lengths_canonical:
+        input:  'results/bed/canonical/{species}_3UTR.chr{chrom}.bed'
+        output: 'results/targets/canonical/{species}_chr{chrom}.utr.lengths.tsv'
+        script: 'get_utr_lengths.R'
 
 rule get_canonical_air_file:
-	input: "results/targets/canonical/{species}.utr.lengths.tsv"
-	output: 'results/targets/canonical/{species}.AIRs.txt'
+	input: "results/targets/canonical/{species}_chr{chrom}.utr.lengths.tsv"
+	output: 'results/targets/canonical/{species}_chr{chrom}.AIRs.txt'
 	script: 'get_canonical_AIR.R'
-
-#rule get_utr_lengths_canonical:
-#        input:  'results/bed/canonical/{species}_3UTR.chr{chrom}.bed'
-#        output: 'results/targets/canonical/{species}_chr{chrom}.utr.lengths.tsv'
-#        script: 'get_utr_lengths.R'
 
 #rule aggregate_utr_lengths:
 #       input: lambda wildcards: expand("results/targets/canonical/{species}_chr{chrom}.utr.lengths.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
@@ -73,7 +67,7 @@ rule targetscan_context_scores_canon:
             eightmer_counts="results/targets/canonical/{species}_chr{chrom}_msa.eightmers.tsv",
             contextpp_script="exe/targetscan7/targetscan_70_context_scores.patch.pl",
             agarwal_param="exe/targetscan7/Agarwal_2015_parameters.txt",
-            AIRs=get_AIR_file,
+            AIRs='results/targets/canonical/{species}_chr{chrom}.AIRs.txt',
             TA_SPS_param="exe/targetscan7/TA_SPS_by_seed_region.txt",
             script="exe/targetscan7/targetscan_70_context_scores.patch.pl"
         output:
