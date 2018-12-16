@@ -36,18 +36,6 @@ rule decompress_dna_file:
         threads: 8
         shell: "pigz -p {threads} -d {input}"
 
-rule download_fasta:
-        input:
-        output: "data/{species_prefix}.dna.primary_assembly.fa.gz"
-        params: get_species_synonym
-        shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-94/fasta/{params}/dna/{wildcards.species_prefix}.dna.primary_assembly.fa.gz"
-
-rule decompress_dna_file:
-        input: "data/{species_prefix}.dna.primary_assembly.fa.gz"
-        output: "data/{species_prefix}.dna.primary_assembly.fa"
-        threads: 8
-        shell: "pigz -p {threads} -d {input}"
-
 rule download_maf_files_human:
         input:
         output:
