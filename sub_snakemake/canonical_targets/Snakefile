@@ -73,18 +73,8 @@ rule targetscan_context_scores_canon:
         output:
             "results/targets/canonical/{species}_chr{chrom}_msa.contextpp.tsv"
         shell:
-            "perl {input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} species['{wildcards.species}'] {input.AIRs}"
+            "perl {input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} '{wildcards.species}' {input.AIRs}"
 ### other ###
-
-rule remove_AIR_version_info:
-	input: "exe/targetscan7/All_cell_lines.AIRs.txt"
-	output: "exe/targetscan7/All_cell_lines.AIRs.no_versions.txt"
-	shell: 'sed -E "s;\.[0-9][0-9]?;;1" {input} > {output}'
-
-rule remove_msa_version_info:
-	input: "results/msa/canonical/{species}_chr{chrom}_{feature}_msa_tmp.tsv"
-	output:  "results/msa/canonical/{species}_chr{chrom}_{feature}_msa.tsv"
-	shell: 'sed -E "s;\.[0-9][0-9]?;;1" {input} > {output}'
 
 rule fix_targetscan_sites_canonical_output:
         input: "results/targets/canonical/{species}_chr{chrom}_msa.sites.tmp.tsv"
