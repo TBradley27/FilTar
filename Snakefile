@@ -1,12 +1,11 @@
 configfile: "config/accession_mappings.yaml"
-configfile: "config/lib_types.yaml"
 configfile: "config/matedness.yaml"
-configfile: "config/projects.yaml"
 configfile: "config/species_basic.yaml"
 configfile: "config/species_sequencing.yaml"
 
 include: "sub_snakemake/data_download/ENA/Snakefile"
 #include: "sub_snakemake/qc/Snakefile"
+include: "sub_snakemake/data_download/Snakefile"
 include: "sub_snakemake/quant_reads/Snakefile"
 include: "sub_snakemake/trim_reads/trim_galore/Snakefile"
 include: "sub_snakemake/map_reads/hisat2/Snakefile"
@@ -21,6 +20,7 @@ include: "sub_snakemake/create_tables/SQLite/Snakefile"
 include: "sub_snakemake/upload_to_tables/SQLite/Snakefile"
 include: "sub_snakemake/upload_to_tables/Snakefile"
 include: "sub_snakemake/profiling/Snakefile"
+include: "sub_snakemake/canonical_targets/Snakefile"
 
 rule all:
      input: #expand("results/{accession}.bam.sorted", accession=config['all_brain_runs']), 

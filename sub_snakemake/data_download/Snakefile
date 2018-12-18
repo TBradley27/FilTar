@@ -16,13 +16,13 @@ def get_species(wildcards):
 rule get_gtf_file:
      output: "data/{species_prefix}.94.gtf"
      params: get_species
-     shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-94/gtf/{params}/{wildcards.species_prefix}.94.gtf.gz && gunzip data/{wildcards.species_prefix}.94.gtf.gz && sed -i 's/^/chr/g' data/{wildcards.species_prefix}.94.gtf"
+     shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-94/gtf/{params}/{wildcards.species_prefix}.94.gtf.gz && gunzip data/{wildcards.species_prefix}.94.gtf.gz && sed 's/^chr//g' data/{wildcards.species_prefix}.94.gtf > tmp && mv tmp data/{wildcards.species_prefix}.94.gtf"
 
 rule download_fasta:
         input:
         output: "data/{species_prefix}.dna.primary_assembly.fa.gz"
         params: get_species_synonym
-        shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/{params}/dna/{wildcards.species_prefix}.dna.primary_assembly.fa.gz"
+        shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-94/fasta/{params}/dna/{wildcards.species_prefix}.dna.primary_assembly.fa.gz"
 
 rule decompress_dna_file:
         input: "data/{species_prefix}.dna.primary_assembly.fa.gz"
@@ -33,14 +33,14 @@ rule decompress_dna_file:
 rule download_maf_files_human:
         input:
         output:
-           "data/maf_hsa/chr{chrom}.maf"
+           protected("data/maf_hsa/chr{chrom}.maf")
         shell:
            "wget --directory-prefix=data/maf_hsa/ -nv http://hgdownload.soe.ucsc.edu/goldenPath/hg38/multiz100way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"
 
 rule download_maf_files_mouse:
         input:
         output:
-           "data/maf_mmu/chr{chrom}.maf"
+           protected("data/maf_mmu/chr{chrom}.maf")
         shell:
            "wget --directory-prefix=data/maf_mmu/ -nv http://hgdownload.cse.ucsc.edu/goldenPath/mm10/multiz60way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"
 

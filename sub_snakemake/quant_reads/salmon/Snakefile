@@ -8,7 +8,7 @@ rule salmon_index:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
 
 def get_input_files (wildcards):
-        if wildcards.accession in config['all_paired_end']:
+        if wildcards.accession in config['paired_end']:
                 input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession),
                                 'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession)
                                 ]
@@ -41,12 +41,6 @@ rule salmon_get_lib_type:
 	input: "results/salmon/runs/{run_accession}/" 
 	output: "results/salmon/{run_accession}/lib_type.txt"
         shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
-
-#def mod_input(wildcards):
-#	new_name = lambda wildcards: expand('results/salmon/runs/{run_accession}/', run_accession=config['samples'][wildcards.sample])
-#	print(new_name)
-#	return(new_name)
-
 
 rule salmon_quantmerge_by_run:
 	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}/", run_accession=config['samples'][wildcards.sample]),

@@ -2,20 +2,20 @@
 
 def get_bed_file(wildcards):
 	if wildcards.species == 'hsa':
-		return('results/Homo_sapiens.GRCh38.94.bed')
+		return('results/Homo_sapiens.GRCh38_chr{}.94.bed'.format(wildcards.chrom))
 	elif wildcards.species == 'mmu':
-		return('results/Mus_musculus.GRCm38.94.bed')
+		return('results/Mus_musculus.GRCm38_chr{}.94.bed'.format(wildcards.chrom))
 
 # derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
 
-#rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
-#	input: "data/{species_prefix}.94.gtf"
-#	output: "data/{species_prefix}.94.mod.gtf"
-#	shell: "sed 's/^chr//g' | sed '^[A-Za-z][A-Za-z]/d' |  {input} > {output}"
+rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
+	input: "data/{species_prefix}.94.gtf"
+	output: "data/{species_prefix}.94.mod.gtf"
+	shell: "sed 's/^chr//g' {input} | sed '^[A-Za-z][A-Za-z]/d' > {output}"
 
 rule convert_gtf_to_genepred:
      input:
-         gtf="data/{species_prefix}.94.gtf"
+         gtf="data/{species_prefix}.94.mod.gtf"
      output:
          "results/{species_prefix}.94.genePred"
      conda: "envs/ucsc.yaml"
@@ -27,6 +27,8 @@ rule convert_genepred_to_bed12:
          genepred="results/{species_prefix}.94.genePred"
      output:
          "results/{species_prefix}.94.bed"
+     wildcard_constraints:
+               species_prefix="((?!chr).)*" # anything not containing chr
      conda: "envs/ucsc.yaml"
      shell:
          "genePredToBed {input.genepred} {output}"
@@ -52,7 +54,7 @@ rule merge_bedgraphs_by_run:
              sample="[E|D|S]RS.*"
         conda:
              "envs/bedtools.yaml"
-        script: "merge_bedgraphs_by_sample.py"
+        script: "merge_bedgraphs.py"
 
 rule avg_merged_bedgraph_by_run:
         input:
@@ -69,38 +71,56 @@ rule merge_bedgraphs_by_sample:
              lambda wildcards: expand("results/bam/sample/{sample}.bedgraph", sample=config['tissues'][wildcards.species][wildcards.cell_line])
         output:
              "results/bam/tissue/{species}/{cell_line}.bedgraph.tmp"
+        wildcard_constraints:
+               cell_line="((?!chr).)*" # anything not containing chr
         conda:
              "envs/bedtools.yaml"
-        shell: "bedtools unionbedg -i {input} > {output}"
+        shell: "merge_bedgraphs.py"
 
 rule avg_merged_bedgraph_by_sample:
         input:
                 "results/bam/tissue/{species}/{cell_line}.bedgraph.tmp"
         output:
                 "results/bam/tissue/{species}/{cell_line}.bedgraph"
+        wildcard_constraints:
+               cell_line="((?!chr).)*" # anything not containing chr
         script:
                 "get_average_bedgraph.R"
+
++rule split_bedgraph:
+        input: 'results/bam/tissue/{species}/{cell_line}.bedgraph'
+        output: 'results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph'
+        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
+
+rule split_bed12:
+        input: 'results/{species_prefix}.94.bed'
+        output:'results/{species_prefix}_chr{chrom}.94.bed'
+        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
 
 rule reannotate_3utrs:
     input:
        script="exe/identifyDistal3UTR.pl",
        bed=get_bed_file,
-       bedgraphs= 'results/bam/tissue/{species}/{cell_line}.bedgraph'
-    benchmark: "benchmarks/APAtrap/{species}_{cell_line}.log"
+       bedgraphs= 'results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph'
+    benchmark: "benchmarks/APAtrap/{species}_{cell_line}_chr{chrom}.log"
     output:
-       "results/bed/{species}_{cell_line}.utr.bed"
+       "results/bed/{species}_{cell_line}_chr{chrom}.utr.bed"
     shell:
        "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
 
 rule identify_APA_sites:
      input:
         script="exe/predictAPA.pl",
-        bedgraphs= "results/bam/tissue/{species}/{tissue}.bedgraph",
-        bed="results/bed/{species}_{tissue}.utr.bed"
+        bedgraphs= "results/bam/tissue/{species}/{tissue}_chr{chrom}.bedgraph",
+        bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed"
      output:
-        "results/targets/{species}_{tissue}.APA.txt"
+        "results/targets/{species}_{tissue}_chr{chrom}.APA.txt"
      shell:
         "{input.script} -i {input.bedgraphs} -g 1 -n 1 -u {input.bed}  -o {output}"
 
+rule aggregate_APA_sites:
+        input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}.APA.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
+        output: "results/targets/{species}_{tissue}.APA.txt"
+        shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
 
