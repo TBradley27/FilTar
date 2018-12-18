@@ -9,8 +9,6 @@ from Bio import AlignIO
 from Bio.AlignIO import MafIO
 from subprocess import call
 
-print(snakemake.config["TaxID"]['hg38'])
-
 if snakemake.wildcards['species'] == "hsa":    #Identify the species identifier passed through the command line
        build = "hg38"
 elif snakemake.wildcards['species'] == "mmu":
@@ -50,10 +48,10 @@ with open(snakemake.input['bed'] ) as f:
            else:
                pass
 
-           print (accession)
-           print (start_pos)
-           print (end_pos)
-           print (strand)             
+#           print (accession)
+#           print (start_pos)
+#           print (end_pos)
+#           print (strand)             
 
            new_multiple_alignment = idx.get_spliced(start_pos, end_pos, strand) # splice through the index
            AlignIO.write(new_multiple_alignment, "results/{}.fa".format(accession), "fasta")
@@ -77,9 +75,9 @@ with open(snakemake.input['bed'] ) as f:
        else:        
                pass
 
-       print (accession)
-       print (start_pos)
-       print (end_pos)
+#       print (accession)
+#       print (start_pos)
+#       print (end_pos)
        new_multiple_alignment = idx.get_spliced(start_pos, end_pos, strand)
        AlignIO.write(new_multiple_alignment, "results/{}.fa".format(accession), "fasta")
 
