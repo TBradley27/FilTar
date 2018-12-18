@@ -151,7 +151,7 @@ rule get_AIR_file:
         input: "results/targets/{species}_{tissue}.APA.txt", "results/utrs/{species}_{tissue}.utr.lengths.tsv" #output from APA usage file
         output: "results/targets/{species}_{tissue}.AIRs.txt"
         wildcard_constraints:
-               species="^canon" # needed to prevent conflict with no reannotation pipeline
+               species="((?!chr).)*" # anything not containing the string canon
         script: "get_tissue_specific_APA_file.R"
 
 rule patch_bin_lengths_script:
