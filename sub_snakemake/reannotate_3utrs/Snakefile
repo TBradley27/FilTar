@@ -31,3 +31,11 @@ rule get_extended_bed_file:
             "{species}_{tissue}_chr{chrom}.log"
          script:
              "extend_bed2.R"
+
+#rule reformat_normal_bed_file:
+#         input:
+#           script="exe/reformat_normal_bed.R",
+#           normal_bed="results/{species_prefix}.94.bed6"
+#         output: "results/{species_prefix}.94.reformatted.bed6"
+#         shell:
+#             "Rscript {input.script} {input.normal_bed} {output}"
