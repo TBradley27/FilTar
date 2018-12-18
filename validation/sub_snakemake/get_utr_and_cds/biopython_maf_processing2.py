@@ -50,10 +50,10 @@ with open(snakemake.input['bed'] ) as f:
            else:
                pass
 
-           print (accession)
-           print (start_pos)
-           print (end_pos)
-           print (strand)             
+#           print (accession)
+#           print (start_pos)
+#           print (end_pos)
+#           print (strand)             
 
            new_multiple_alignment = idx.get_spliced(start_pos, end_pos, strand) # splice through the index
            AlignIO.write(new_multiple_alignment, "results/{}_{}.fa".format(accession, snakemake.wildcards['feature']), "fasta")
@@ -77,9 +77,9 @@ with open(snakemake.input['bed'] ) as f:
        else:        
                pass
 
-       print (accession)
-       print (start_pos)
-       print (end_pos)
+ #      print (accession)
+ #      print (start_pos)
+ #      print (end_pos)
        new_multiple_alignment = idx.get_spliced(start_pos, end_pos, strand)
        AlignIO.write(new_multiple_alignment, "results/{}_{}.fa".format(accession, snakemake.wildcards['feature']), "fasta")
 
