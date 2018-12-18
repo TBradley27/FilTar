@@ -3,7 +3,7 @@
 united_bedgraph = readr::read_tsv(
 	file=snakemake@input[[1]],
 	col_names=FALSE,
-	col_types=cols(.default = 'd', X1 = 'c', X2 = 'i', X3 = 'i')
+	col_types=readr::cols(.default = 'd', X1 = 'c', X2 = 'i', X3 = 'i')
 )
 
 united_bedgraph = filtar::AvgBedgraph(united_bedgraph)
