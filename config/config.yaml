@@ -1,0 +1,28 @@
+tissues:
+        mmu: 
+                liver: [SRS387309,ERS026XXX] # insert relevant sample accessions here
+        hsa:
+samples:
+         SRS387309: [SRR652248,SRR652249,SRR652250,SRR652251]
+         ERS026XXX: [ERR032203,ERR032204,ERR032205,ERR032206,ERR032207,ERR032208]
+
+single_end: [SRR652248,SRR652249,SRR652250,SRR652251]
+paired_end: [ERR032203,ERR032204,ERR032205,ERR032206,ERR032207,ERR032208]
+
+mouse:
+        runs: [SRR652248,SRR652249,SRR652250,SRR652251,ERR032203,ERR032204,ERR032205,ERR032206,ERR032207,ERR032208]
+
+human:
+        runs: []
+
+mirnas: [mmu-miR-29b-3p,mmu-miR-132-3p] #if this configuration is left blank - processing is performed for all species miRNAs as default
+
+# e.g.
+#
+#
+# tissues:
+#       hsa:
+#               kidney: [SRS00001]
+#
+# samples:
+#               SRS00001: [SRR000001, SRR0000002]
