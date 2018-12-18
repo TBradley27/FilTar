@@ -2,5 +2,5 @@ channels:
  - conda-forge
  - anaconda
 dependencies:
- - biopython=1.71
+ - biopython=1.72
  - sed

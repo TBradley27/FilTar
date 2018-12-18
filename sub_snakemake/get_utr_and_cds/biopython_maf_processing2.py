@@ -56,7 +56,26 @@ with open(snakemake.input['bed'] ) as f:
             strand = (int(parts[3]))
 
         else:
-           add_alignment()
+           # write process - triggered once script hits a record != accession
+
+           if strand == -1:
+               start_pos = start_pos[::-1] # Reverse Order
+               end_pos = end_pos[::-1]
+           else:
+               pass
+
+#           print (accession)
+#           print (start_pos)
+#           print (end_pos)
+#           print (strand)             
+
+           new_multiple_alignment = idx.get_spliced(start_pos, end_pos, strand) # splice through the index
+           AlignIO.write(new_multiple_alignment, "results/{}.fa".format(accession), "fasta")
+           
+           call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}.fa {} > tmp{}.tsv".format(accession, accession, snakemake.wildcards['chrom']), shell=True) #Execute a shell command
+           call(["rm", "results/{}.fa".format(accession)])
+           call("cat tmp{}.tsv >> results/hsa_chr{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['chrom']), shell=True)
+           call(["rm","tmp{}.tsv".format(snakemake.wildcards['chrom'])])
            
            start_pos = [] # initialise a new transcript record
            end_pos = []
@@ -66,7 +85,22 @@ with open(snakemake.input['bed'] ) as f:
            accession = parts[4]
     else: #Not sure, but I think this is for transcripts with only one 'exon', which are not the first transcript in the bed record.
 
-      add_alignment()     
+       if strand == -1:
+               start_pos = start_pos[::-1] # Reverse Order
+               end_pos = end_pos[::-1]
+       else:        
+               pass
+
+ #      print (accession)
+ #      print (start_pos)
+ #      print (end_pos)
+       new_multiple_alignment = idx.get_spliced(start_pos, end_pos, strand)
+       AlignIO.write(new_multiple_alignment, "results/{}.fa".format(accession), "fasta")
+
+       call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}.fa {} > tmp{}.tsv".format(accession, accession, snakemake.wildcards['chrom']), shell=True) #Execute a shell command
+       call(["rm", "results/{}.fa".format(accession)])
+       call("cat tmp{}.tsv >> results/hsa_chr{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['chrom']), shell=True)
+       call(["rm","tmp{}.tsv".format(snakemake.wildcards['chrom'])])
 
 result = reduce(lambda x, y: x.replace(y, snakemake.config["TaxID"][y]), snakemake.config["TaxID"], big_alignment) # get NCBI taxonomic IDs
 result = result.replace('\n','') # convert from fasta to tsv
