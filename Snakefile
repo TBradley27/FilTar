@@ -1,7 +1,5 @@
-configfile: "config/accession_mappings.yaml"
-configfile: "config/matedness.yaml"
+configfile: "config/config.yaml"
 configfile: "config/species_basic.yaml"
-configfile: "config/species_sequencing.yaml"
 
 include: "sub_snakemake/data_download/ENA/Snakefile"
 include: "sub_snakemake/data_download/Snakefile"
