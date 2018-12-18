@@ -15,7 +15,7 @@ rule prep_mirna_family_file:
         input:
            mature_mirna_seeds="results/mature_mirna_seed.tsv"
         output:
-           "results/{species}_mirna_family.tsv",
+           "results/{species}_mirna_family_tmp.tsv",
         script:
            "get_mirna_family.R"
 
@@ -33,9 +33,21 @@ rule prep_mir_for_context_scores:
            mature_mirnas="results/{species}_mature_mirna.tsv",
            mirna_seed="results/{species}_mirna_family.tsv",
         output:
-           "results/{species}_mir_for_context_scores.tsv"
+           "results/{species}_mir_for_context_scores_tmp.tsv"
         script:
            "get_mirna_context.R"
+
+rule filter_mir_for_context_scores:
+       input: "results/{species}_mir_for_context_scores_tmp.tsv"
+       output: "results/{species}_mir_for_context_scores.tsv"
+       script: "filter_mir_for_context_scores.R"
+
+rule filter_mir_families:
+       input: 
+               mirna_families="results/{species}_mirna_family_tmp.tsv",
+               mature_mirnas="results/{species}_mir_for_context_scores.tsv"
+       output: "results/{species}_mirna_family.tsv"
+       script: "filter_mir_families.R"
 
 ### main ###
 
@@ -107,7 +119,7 @@ rule targetscan_context_scores:
             "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} species['{wildcards.species}'] {input.AIRs}"
 
 rule aggregate_contextpp_scores:
-       input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv", chrom=config['chromosomes'][wildcards.species])
+       input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
        output: "results/targets/{species}_{tissue}_msa.contextpp.tsv"
        shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
@@ -121,6 +133,8 @@ rule get_all_transcripts:
 rule get_AIR_file:
         input: "results/targets/{species}_{tissue}.APA.txt", "results/utrs/{species}_{tissue}.utr.lengths.tsv" #output from APA usage file
         output: "results/targets/{species}_{tissue}.AIRs.txt"
+        wildcard_constraints:
+               species="((?!chr).)*" # anything not containing the string canon
         script: "get_tissue_specific_APA_file.R"
 
 rule patch_bin_lengths_script:
@@ -149,10 +163,10 @@ rule patch_contextpp_script:
         shell:
           "{input.patch_script} {input.contextpp} > {output}" # force reference species as a parameter
 
-#rule aggregate_targetscan_sites:
-#	input: lambda wildcards: expand("results/{species}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species])
-#  	output: "results/{species}_msa.sites.tsv"
-#	shell: "cat {input} | sed '1b;/Gene/d' > {output}"
+rule aggregate_targetscan_sites:
+	input: lambda wildcards: expand("results/{species}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
+  	output: "results/{species}_msa.sites.tsv"
+	shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
 rule fix_targetscan_sites_output:
         input: "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"
