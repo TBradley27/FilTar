@@ -1,6 +1,7 @@
 import sys
 import os
 
+print(snakemake.threads)
 print(snakemake.params[0])
 print(snakemake.input[0])
 

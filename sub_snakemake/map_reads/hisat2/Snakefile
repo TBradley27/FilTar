@@ -12,6 +12,32 @@ def get_assembly(wildcards):
 	if wildcards.species == 'hsa':
 		return("data/Homo_sapiens.GRCh38.dna.primary_assembly.fa")
 
+rule get_splice_sites_for_hisat2:
+        input:
+          gtf=get_gtf_file,
+          py_script='exe/hisat2_extract_splice_sites.py'
+        output: ancient("results/{species}_hisat2_splice_sites.txt")
+        shell: "python {input.py_script} {input.gtf} > {output}"
+
+rule get_exons_for_hisat2:
+        input:
+          gtf=get_gtf_file,
+          py_script='exe/hisat2_extract_exons.py'
+        output: ancient("results/{species}_hisat2_exons.txt")
+        shell: "python {input.py_script} {input.gtf} > {output}"
+
+rule create_index:
+        input:
+           assembly=get_assembly,
+           splice_sites="results/{species}_hisat2_splice_sites.txt",
+           exons="results/{species}_hisat2_exons.txt"
+        conda:
+           "envs/hisat2.yaml"
+        output: "data/{species}.1.ht2"
+        benchmark: "benchmarks/hisat2/{species}_index.log"
+        threads: 16
+        shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} data/{wildcards.species}"
+
 def get_lib_type(wildcards):
 	hisat2_dict = {'IU':'','ISF':'FR','ISR':'RF', 'U':'','SF':'F','SR':'R'}	
 	if not os.path.exists('results/salmon/{}/lib_type.txt'.format(wildcards.accession)): return '' # stmps an error being generated when this file is missing
