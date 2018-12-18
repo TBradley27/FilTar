@@ -15,7 +15,7 @@ rule prep_mirna_family_file:
         input:
            mature_mirna_seeds="results/mature_mirna_seed.tsv"
         output:
-           "results/{species}_mirna_family.tsv",
+           "results/{species}_mirna_family_tmp.tsv",
         script:
            "get_mirna_family.R"
 
@@ -33,9 +33,21 @@ rule prep_mir_for_context_scores:
            mature_mirnas="results/{species}_mature_mirna.tsv",
            mirna_seed="results/{species}_mirna_family.tsv",
         output:
-           "results/{species}_mir_for_context_scores.tsv"
+           "results/{species}_mir_for_context_scores_tmp.tsv"
         script:
            "get_mirna_context.R"
+
+rule filter_mir_for_context_scores:
+	input: "results/{species}_mir_for_context_scores_tmp.tsv"
+	output: "results/{species}_mir_for_context_scores.tsv"
+	script: "filter_mir_for_context_scores.R"
+
+rule filter_mir_families:
+	input: 
+		mirna_families="results/{species}_mirna_family_tmp.tsv",
+		mature_mirnas="results/{species}_mir_for_context_scores.tsv"
+	output: "results/{species}_mirna_family.tsv"
+	script: "filter_mir_families.R"
 
 ### main ###
 

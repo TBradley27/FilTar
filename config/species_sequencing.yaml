@@ -1,5 +1,0 @@
-mouse:
-        runs: []
-
-human:
-        runs: [ERR030880, ERR030888]
