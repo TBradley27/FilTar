@@ -16,14 +16,14 @@ rule get_splice_sites_for_hisat2:
         input:
           gtf=get_gtf_file,
           py_script='exe/hisat2_extract_splice_sites.py'
-        output: "results/{species}_hisat2_splice_sites.txt"
+        output: ancient("results/{species}_hisat2_splice_sites.txt")
         shell: "python {input.py_script} {input.gtf} > {output}"
 
 rule get_exons_for_hisat2:
         input:
           gtf=get_gtf_file,
           py_script='exe/hisat2_extract_exons.py'
-        output: "results/{species}_hisat2_exons.txt"
+        output: ancient("results/{species}_hisat2_exons.txt")
         shell: "python {input.py_script} {input.gtf} > {output}"
 
 rule create_index:
@@ -34,7 +34,8 @@ rule create_index:
         conda:
            "envs/hisat2.yaml"
         output: "data/{species}.1.ht2"
-        threads: 8
+        benchmark: "benchmarks/hisat2/{species}_index.log"
+        threads: 16
         shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} data/{wildcards.species}"
 
 def get_lib_type(wildcards):
@@ -83,6 +84,7 @@ rule map_reads:
 	conda:
 		"envs/hisat2.yaml"
 	params: get_lib_type
+        threads: 8
         output: "results/bam/run/{accession}.sam"
 	script:
 		"map_reads.py"
@@ -90,9 +92,10 @@ rule map_reads:
 rule sam_to_bam:
 	input: "results/bam/run/{accession}.sam",
         output: "results/bam/run/{accession}.bam"
+        threads: 8
         conda:
 	   "envs/hisat2.yaml"
-	shell: "samtools view -Sb  {input}  >  {output}"
+	shell: "samtools view -@ {threads} -Sb  {input}  >  {output}"
 
 rule samtools_sort:
     input:
@@ -101,7 +104,7 @@ rule samtools_sort:
         "results/bam/run/{accession}.bam.sorted"
     params:
         "-m 2G"
-    threads: 1
+    threads: 8
     benchmark: "benchmarks/samtools_sort/{accession}.log"
     wrapper:
         "0.27.0/bio/samtools/sort"
