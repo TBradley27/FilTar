@@ -75,7 +75,7 @@ rule merge_bedgraphs_by_sample:
         input:
              lambda wildcards: expand("results/bam/sample/{sample}_chr{chrom}.bedgraph", sample=config['tissues'][wildcards.species][wildcards.cell_line], chrom=wildcards.chrom)
         output:
-             "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp"
+             "results/bam/tissue/{species}/{cell_line}.bedgraph.tmp"
         wildcard_constraints:
                cell_line="((?!chr).)*" # anything not containing chr
         conda:
@@ -86,11 +86,16 @@ rule avg_merged_bedgraph_by_sample:
         input:
                 "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp"
         output:
-                "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph"
+                ancient("results/bam/tissue/{species}/{cell_line}.bedgraph")
         wildcard_constraints:
                cell_line="((?!chr).)*" # anything not containing chr
         script:
                 "get_average_bedgraph.R"
+
+rule split_bedgraph:
+        input: 'results/bam/tissue/{species}/{cell_line}.bedgraph'
+        output: 'results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph'
+        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
 
 rule split_bed12:
         input: 'results/{species_prefix}.94.bed'
@@ -102,16 +107,16 @@ rule reannotate_3utrs:
        script="exe/identifyDistal3UTR.pl",
        bed=get_bed_file,
        bedgraphs= 'results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph'
-    benchmark: "benchmarks/APAtrap/{species}_{cell_line}_chr{chrom}.log"
+    benchmark: "benchmarks/APAtrap/{species}_{cell_line}_chrom{chrom}.log"
     output:
        "results/bed/{species}_{cell_line}_chr{chrom}.utr.bed"
     shell:
        "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
 
-#rule aggregate_reannotated_utrs:
-#	input: lambda wildcards: expand("results/bed/{species}_{tissue}_chr{chrom}.utr.bed", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
-#	output: protected("results/bed/{species}_{tissue}.utr.bed")
-#        shell: "cat {input} > {output}"
+rule aggregate_reannotated_utrs:
+	input: lambda wildcards: expand("results/bed/{species}_{tissue}_chr{chrom}.utr.bed", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
+	output: "results/bed/{species}_{tissue}.utr.bed"
+        shell: "cat {input} > {output}"
 
 rule identify_APA_sites:
      input:
@@ -127,5 +132,3 @@ rule aggregate_APA_sites:
         input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}.APA.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
         output: "results/targets/{species}_{tissue}.APA.txt"
         shell: "cat {input} | sed '1b;/Gene/d' > {output}"
-
-
