@@ -45,6 +45,7 @@ rule salmon_get_lib_type:
 rule salmon_quantmerge_by_run:
 	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}/", run_accession=config['samples'][wildcards.sample]),
 	output: "results/salmon/samples/{sample}.quant.tmp.sf"
+        conda: "envs/salmon.yaml"
 	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 
 rule salmon_average_quantmerge_runs:
@@ -55,6 +56,7 @@ rule salmon_average_quantmerge_runs:
 rule salmon_quantmerge_by_sample:
         input:  lambda wildcards: expand('results/salmon/samples/{sample}/', sample=config['tissues'][wildcards.species][wildcards.tissue]),
         output: "results/salmon/{species}_{tissue}.sf.tmp"
+        conda: "envs/salmon.yaml"
         shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 
 rule salmon_average_quantmerge_samples:
