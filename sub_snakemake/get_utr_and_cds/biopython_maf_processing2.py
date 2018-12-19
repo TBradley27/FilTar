@@ -9,7 +9,6 @@ from Bio import AlignIO
 from Bio.AlignIO import MafIO
 from subprocess import call
 
-print(snakemake.config["TaxID"]['hg38'])
 
 if snakemake.wildcards['species'] == "hsa":    #Identify the species identifier passed through the command line
        build = "hg38"
@@ -18,8 +17,8 @@ elif snakemake.wildcards['species'] == "mmu":
 else:
         build = ''
 
-print (snakemake)
-print (build)
+#print (snakemake)
+#print (build)
 
 idx = AlignIO.MafIO.MafIndex(snakemake.input['maf_index'], snakemake.input['maf'], "{}.chr{}".format(build, snakemake.wildcards['chrom'])  )
 
@@ -56,12 +55,12 @@ with open(snakemake.input['bed'] ) as f:
 #           print (strand)             
 
            new_multiple_alignment = idx.get_spliced(start_pos, end_pos, strand) # splice through the index
-           AlignIO.write(new_multiple_alignment, "results/{}.fa".format(accession), "fasta")
+           AlignIO.write(new_multiple_alignment, "results/{}_{}.fa".format(accession, snakemake.wildcards['feature']), "fasta")
            
-           call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}.fa {} > tmp{}.tsv".format(accession, accession, snakemake.wildcards['chrom']), shell=True) #Execute a shell command
-           call(["rm", "results/{}.fa".format(accession)])
-           call("cat tmp{}.tsv >> results/hsa_chr{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['chrom']), shell=True)
-           call(["rm","tmp{}.tsv".format(snakemake.wildcards['chrom'])])
+           call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}_{}.fa {} > tmp{}_{}.tsv".format(accession, snakemake.wildcards['feature'], accession, snakemake.wildcards['chrom'], snakemake.wildcards['feature']), shell=True) #Execute a shell command
+           call(["rm", "results/{}_{}.fa".format(accession, snakemake.wildcards['feature'])])
+           call("cat tmp{}_{}.tsv >> results/hsa_chr{}_{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'], snakemake.wildcards['chrom'], snakemake.wildcards['feature']), shell=True)
+           call(["rm","tmp{}_{}.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'])])
            
            start_pos = [] # initialise a new transcript record
            end_pos = []
@@ -81,14 +80,14 @@ with open(snakemake.input['bed'] ) as f:
  #      print (start_pos)
  #      print (end_pos)
        new_multiple_alignment = idx.get_spliced(start_pos, end_pos, strand)
-       AlignIO.write(new_multiple_alignment, "results/{}.fa".format(accession), "fasta")
+       AlignIO.write(new_multiple_alignment, "results/{}_{}.fa".format(accession, snakemake.wildcards['feature']), "fasta")
 
-       call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}.fa {} > tmp{}.tsv".format(accession, accession, snakemake.wildcards['chrom']), shell=True) #Execute a shell command
-       call(["rm", "results/{}.fa".format(accession)])
-       call("cat tmp{}.tsv >> results/hsa_chr{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['chrom']), shell=True)
-       call(["rm","tmp{}.tsv".format(snakemake.wildcards['chrom'])])
+       call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}_{}.fa {} > tmp{}_{}.tsv".format(accession, snakemake.wildcards['feature'], accession, snakemake.wildcards['chrom'], snakemake.wildcards['feature']), shell=True) #Execute a shell command
+       call(["rm", "results/{}_{}.fa".format(accession, snakemake.wildcards['feature'])])
+       call("cat tmp{}_{}.tsv >> results/hsa_chr{}_{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'], snakemake.wildcards['chrom'], snakemake.wildcards['feature']), shell=True)
+       call(["rm","tmp{}_{}.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'])])
 
-f = open("results/hsa_chr{}_msa_tmp.tsv".format(snakemake.wildcards['chrom']), 'r')
+f = open("results/hsa_chr{}_{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature']), 'r')
 
 # prevents writing to an already existing file
 call(["rm",snakemake.output[0]])
@@ -112,4 +111,4 @@ for line in iter(f):
 	del result
 f.close()
 
-call(["rm","results/hsa_chr{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'])])
+call(["rm","results/hsa_chr{}_{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'])])
