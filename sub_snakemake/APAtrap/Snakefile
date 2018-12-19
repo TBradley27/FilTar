@@ -75,7 +75,7 @@ rule merge_bedgraphs_by_sample:
                cell_line="((?!chr).)*" # anything not containing chr
         conda:
              "envs/bedtools.yaml"
-        shell: "merge_bedgraphs.py"
+        script: "merge_bedgraphs.py"
 
 rule avg_merged_bedgraph_by_sample:
         input:
@@ -107,6 +107,11 @@ rule reannotate_3utrs:
        "results/bed/{species}_{cell_line}_chr{chrom}.utr.bed"
     shell:
        "{input.script} -i {input.bedgraphs} -m {input.bed} -o {output}"
+
+rule aggregate_reannotated_utrs:
+       input: lambda wildcards: expand("results/bed/{species}_{tissue}_chr{chrom}.utr.bed", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
+       output: "results/bed/{species}_{tissue}.utr.bed"
+        shell: "cat {input} > {output}"
 
 rule identify_APA_sites:
      input:
