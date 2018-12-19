@@ -1,0 +1,84 @@
+#!/bin/bash
+
+### main ###
+
+# NB: nr is short for no reannotation of 3'UTRs
+
+rule get_utr_lengths_no_reannotation:
+        input:  'results/bed/no_reannotation/{species}_3UTR.chr{chrom}.bed'
+        output: 'results/targets/no_reannotation/{species}_chr{chrom}.utr.lengths.tsv'
+        script: 'get_utr_lengths.R'
+
+rule get_air_file_no_reannotation:
+	input: "results/targets/no_reannotation/{species}_chr{chrom}.utr.lengths.tsv"
+	output: 'results/targets/no_reannotation/{species}_chr{chrom}.AIRs.txt'
+	script: 'get_canonical_AIR.R'
+
+rule get_targets_no_reannotation: # we do it this way, as inheriting from main workflow would trigger execution of targetscan job for ALL miRNAs, instead of a few miRNAs, taking a much longer time
+       input:          
+           msa="results/msa/no_reannotation/{species}_chr{chrom}_3UTR_msa.tsv",
+           mirna_families="results/{species}_mirna_family.tsv",
+           script="exe/targetscan7/targetscan_70.patch.pl"
+       output: "results/targets/no_reannotation/{species}_chr{chrom}_msa.sites.tmp.tsv"
+       shell: '{input.script} {input.mirna_families} {input.msa} {output}'
+
+rule targetscan_branch_lengths_no_reannotation:
+        input:
+           msa_3UTR="results/msa/no_reannotation/{species}_chr{chrom}_3UTR_msa.tsv",
+           script="exe/targetscan7/targetscan_70_BL_bins.patch.pl"
+        output:
+             "results/targets/no_reannotation/{species}_chr{chrom}_msa.branch_lengths.tsv"
+        shell:
+            "{input.script} {input.msa_3UTR} {wildcards.species}  > {output}"
+
+rule targetscan_PCTs_no_reannotation:
+        input:
+            mirna_family="results/{species}_mirna_family.tsv",
+            mirna_sites="results/targets/no_reannotation/{species}_chr{chrom}_msa.sites.tsv",
+            branch_lengths="results/targets/no_reannotation/{species}_chr{chrom}_msa.branch_lengths.tsv",
+            script="exe/targetscan7/targetscan_70_BL_PCT.patch.pl",
+            PCT_param="exe/targetscan7/PCT_parameters"
+        output:
+            "results/targets/no_reannotation/{species}_chr{chrom}_msa.PCTs.tsv"
+        shell:
+            "{input.script} {input.mirna_family} {input.mirna_sites} {input.branch_lengths} > {output}"
+
+rule targetscan_eightmers_no_reannotation:
+        input:
+            mirna_seeds="results/{species}_mirna_family.tsv",
+            CDS="results/msa/no_reannotation/{species}_chr{chrom}_CDS_msa.tsv",
+            script="exe/targetscan7/targetscan_count_8mers.pl"
+        output:
+            eightmer_counts="results/targets/no_reannotation/{species}_chr{chrom}_msa.eightmers.tsv",
+            CDS_lengths="results/msa/no_reannotation/{species}_chr{chrom}_CDS_msa.tsv.lengths.txt"
+        shell:
+            "{input.script} {input.mirna_seeds} {input.CDS} > {output.eightmer_counts}"
+
+rule targetscan_context_scores_no_reannotation:
+        input:
+            mirnas="results/{species}_mir_for_context_scores.tsv",
+            msa="results/msa/no_reannotation/{species}_chr{chrom}_3UTR_msa.tsv",
+            PCTs="results/targets/no_reannotation/{species}_chr{chrom}_msa.PCTs.tsv",
+            CDS_lengths="results/msa/no_reannotation/{species}_chr{chrom}_CDS_msa.tsv.lengths.txt",
+            eightmer_counts="results/targets/no_reannotation/{species}_chr{chrom}_msa.eightmers.tsv",
+            contextpp_script="exe/targetscan7/targetscan_70_context_scores.patch.pl",
+            agarwal_param="exe/targetscan7/Agarwal_2015_parameters.txt",
+            AIRs='results/targets/no_reannotation/{species}_chr{chrom}.AIRs.txt',
+            TA_SPS_param="exe/targetscan7/TA_SPS_by_seed_region.txt",
+            script="exe/targetscan7/targetscan_70_context_scores.patch.pl"
+        output:
+            "results/targets/no_reannotation/{species}_chr{chrom}_msa.contextpp.tsv"
+        shell:
+            "perl {input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {wildcards.species} {input.AIRs}"
+
+rule aggregate_contextpp_scores_no_reannotation:
+       input: lambda wildcards: expand("results/targets/no_reannotation/{species}_chr{chrom}_msa.contextpp.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
+       output: "results/targets/no_reannotation/{species}_msa.contextpp.tsv"
+       shell: "cat {input} | sed '1b;/Gene/d' > {output}"
+
+### other ###
+
+rule fix_targetscan_sites_output_no_reannotation:
+        input: "results/targets/no_reannotation/{species}_chr{chrom}_msa.sites.tmp.tsv"
+        output: "results/targets/no_reannotation/{species}_chr{chrom}_msa.sites.tsv"
+        script: "fix_ts_output.R"
