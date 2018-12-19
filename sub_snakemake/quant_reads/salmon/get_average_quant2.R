@@ -2,7 +2,7 @@
 
 united_quant = readr::read_tsv(
         file=snakemake@input[[1]],
-        col_types=cols(.default = 'd', Name = 'c')
+        col_types=readr::cols(.default = 'd', Name = 'c')
 )
 
 united_quant2 = filtar::AvgSalmonQuant(united_quant)
