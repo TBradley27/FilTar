@@ -70,11 +70,15 @@ snakemake results/targets/hsa_liver_msa.contextpp.tsv
 
 If the user does not want to reannotate 3'UTR, but still wishes to produce target predictions, then they can run the following command:
 
-snakemake results/targets/canonical/{species}_msa.contextpp.tsv
+snakemake results/targets/no_reannotation/{species}_msa.contextpp.tsv
 
 For targetscan, if the user wishes to identify miRNA target sites, without computing a context++ score (Agarwal et al. 2015 - 10.7554/eLife.05005) for each target site, then the substring 'contextpp' in the target file name should be substituted for 'sites' like so:
 
-snakemake results/targets/canonical/{species}_msa.sites.tsv
+snakemake results/targets/no_reannotation/{species}_msa.sites.tsv
+
+If the user wishes to filter computed contextpp scores, then they should add the suffix 'filtered.tsv' to the ususal file name like so:
+
+snakemake results/targets/no_reannotation/{species}_msa.sites.filtered.tsv
 
 Many options can be passed to the snakemake command in order modulate behaviour, reference should be made to the official Snakemake documentation as an exhaustive reference (https://snakemake.readthedocs.io/en/stable/)
 
@@ -87,8 +91,10 @@ The primary configuration which must take place is the following:
 
 a) A mapping between tissue or cell line identifiers, their respective sample accession (e.g. https://www.ncbi.nlm.nih.gov/biosample/), and the mapping of sample accessions to sequencing run accessions
 b) A labelling of each run accession to determine if that library corresponds to single-end or paired-end sequencing
+c) A selection of which miRNAs (using canonical miRNA names found in miRBase with the three letter species prefix) to use for target prediction. If this configuration is left blank, target prediction is performed for all miRBase annotated miRNAs of that species
+d) The expression threshold on which context++ scores are filtered. To manage this, users should edit the 'params' directive of the results/no_reannotation or results/target_predication/targetscan Snakefiles for 'reannotation' and 'no reannotation' analyses respectively
 
-These details can be manually configured using the config/accession_mappings.yaml and config/matedness.yaml config files respectively. 
+These details can be manually configured using the config/accession_mappings.yaml and config/config.yaml config files respectively. 
 
 For run accessions, users can provide their own data, or aim to download raw data from public repositiories. If the former option is used, then users must manually place their data in either the data/single-end
 or the data/paired-end directories depending on which is appropriate. Accessions used do not necessarily need to be of external significance (i.e. universally recognised and understood by other scientists), however if the aim is to download raw sequencing data from public repositories, then run accessions must correspond to the accessions of the run sequence data which is aimed to be downloaded. If user data is used, files names must be in the form {accession}.fastq.gz for single-end data and {accession}_1.fastq.gz and {accession}_2.fastq.gz containing the first and second mate pair reads, respectively.
