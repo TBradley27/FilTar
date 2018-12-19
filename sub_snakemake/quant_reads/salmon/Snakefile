@@ -45,7 +45,6 @@ rule salmon_get_lib_type:
 rule salmon_quantmerge_by_run:
 	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}/", run_accession=config['samples'][wildcards.sample]),
 	output: "results/salmon/samples/{sample}.quant.tmp.sf"
-	#params: lambda wildcards: expand('results/salmon/runs/{run_accession}/', run_accession=config['samples'][wildcards.sample])
         conda: "envs/salmon.yaml"
 	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 
