@@ -39,12 +39,8 @@ rule targetscan_PCTs_no_reannotation:
             script="exe/targetscan7/targetscan_70_BL_PCT.patch.pl",
             PCT_param="exe/targetscan7/PCT_parameters"
         output:
-<<<<<<< HEAD
             "results/targets/no_reannotation/{species}_chr{chrom}_msa.PCTs.tsv",
              temp("results/targets/no_reannotation/{species}_chr{chrom}_msa.sites.tsv.sort.txt") # it is important that this is deleted
-=======
-            "results/targets/no_reannotation/{species}_chr{chrom}_msa.PCTs.tsv"
->>>>>>> 74484ca... change name of no reannotation analysis pathway
         shell:
             "{input.script} {input.mirna_family} {input.mirna_sites} {input.branch_lengths} > {output}"
 
