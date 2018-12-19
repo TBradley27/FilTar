@@ -1,6 +1,7 @@
 library(plyr)
 library(tidyverse)
 library(filtar)
+library(testthat)
 print('foo')
 
 output = get_AIR_file("../../../validation/results/targets/hsa_HeLa.APA.txt")

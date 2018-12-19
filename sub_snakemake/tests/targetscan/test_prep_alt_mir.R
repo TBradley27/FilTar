@@ -1,3 +1,4 @@
+library(testthat)
 library(tidyverse)
 
 run_tests = function(input, species) {
