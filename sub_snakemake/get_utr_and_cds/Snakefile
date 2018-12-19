@@ -4,6 +4,8 @@ def get_gtf_file(wildcards):
 		return ('data/Homo_sapiens.GRCh38.94.mod.gtf')
 	elif wildcards.species == 'mmu':
 		return ('data/Mus_musculus.GRCm38.94.gtf')
+	else:
+		return('NULL')
 
 rule index_maf_files:
 	input:
@@ -32,7 +34,7 @@ rule gtf_to_bed_CDS:
         shell:
             "{input.script} {input.gtf} CDS {wildcards.chrom} {output}"
 
-rule gtf_to_bed_canonical:
+rule gtf_to_bed_no_reannotation:
         input:
             gtf=get_gtf_file,
             script="exe/pre-processing/gtf_to_bed.sh"
@@ -43,13 +45,15 @@ rule gtf_to_bed_canonical:
         shell:
             "{input.script} {input.gtf} {wildcards.feature} {wildcards.chrom} {output}"
 
-#rule split_bed:
-#        input:
-#                "results/bed/{species}_{tissue}.utr.full.bed"
-#        output:
-#                "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"
-#        shell:
-#                'grep -P "^{wildcards.chrom}\t" {input} > {output}'
+rule split_bed:
+        input:
+                "results/bed/{species}_{tissue}.utr.full.bed"
+        output:
+                "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"
+        wildcard_constraints:
+                species="[a-z][a-z][a-z]"
+        shell:
+                'grep -P "^{wildcards.chrom}\t" {input} > {output}'
 
 rule biopython_get_msa:
 	input:
@@ -59,6 +63,8 @@ rule biopython_get_msa:
            shell_script="exe/targetscan7/convert_fasta_to_tsv.sh"
 	output:
            "results/msa/{species}_{tissue}_chr{chrom}_{feature}_msa.tsv"
+	wildcard_constraints:
+               species="[a-z][a-z][a-z]"
 	conda:
            "envs/biopython.yaml"
 	script:
@@ -71,7 +77,7 @@ rule biopython_get_no_reannotation_msa:
            maf_index="data/{species}_chr{chrom}.mafindex",
            shell_script="exe/targetscan7/convert_fasta_to_tsv.sh"
         output:
-           "results/msa/canonical/{species}_chr{chrom}_{feature}_msa.tsv"
+           "results/msa/no_reannotation/{species}_chr{chrom}_{feature}_msa.tsv"
         conda:
            "envs/biopython.yaml"
         script:
