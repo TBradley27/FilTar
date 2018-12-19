@@ -81,7 +81,7 @@ rule aggregate_contextpp_scores_no_reannotation:
        output: "results/targets/no_reannotation/{species}_msa.contextpp.tsv"
        shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
-rule expression_filter_contextpp_scores:
+rule expression_filter_contextpp_scores_no_reannotation:
         input:
             contextpp_scores="results/targets/no_reannotation/{species}_msa.contextpp.tsv",
             expression_values="results/salmon/{species}_{tissue}.sf"
@@ -89,7 +89,6 @@ rule expression_filter_contextpp_scores:
             tpm_expression_threshold=2
         output: "results/targets/no_reannotation/{species}_{tissue}_msa.contextpp.filtered.tsv"
         script: 'filter_contextpp_scores.R'
-
 
 ### other ###
 
