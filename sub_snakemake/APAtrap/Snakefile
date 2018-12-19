@@ -11,7 +11,11 @@ def get_bed_file(wildcards):
 rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
 	input: "data/{species_prefix}.94.gtf"
 	output: "data/{species_prefix}.94.mod.gtf"
+<<<<<<< HEAD
 	shell: "sed 's/^chr//g' {input} | sed '^[A-Za-z][A-Za-z]/d' > {output}"
+=======
+	shell: "sed 's/^chr//g' {input} | sed '^[A-Za-z][A-Za-z]/d'  > {output}"
+>>>>>>> b3f3b6e... remove ancient tag, and correct (I think) regular expression
 
 rule convert_gtf_to_genepred:
      input:
