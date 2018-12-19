@@ -86,7 +86,8 @@ rule targetscan_PCTs:
             script="exe/targetscan7/targetscan_70_BL_PCT.patch.pl",
             PCT_param="exe/targetscan7/PCT_parameters"
         output:
-            "results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv"
+            "results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
+             temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv.sort.txt") # it is important that this is deleted
         wildcard_constraints:
             species="[a-z][a-z][a-z]"
         benchmark:
