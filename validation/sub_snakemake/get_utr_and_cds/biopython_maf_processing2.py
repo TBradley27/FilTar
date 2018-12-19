@@ -9,7 +9,6 @@ from Bio import AlignIO
 from Bio.AlignIO import MafIO
 from subprocess import call
 
-print(snakemake.config["TaxID"]['hg38'])
 
 if snakemake.wildcards['species'] == "hsa":    #Identify the species identifier passed through the command line
        build = "hg38"
@@ -18,8 +17,8 @@ elif snakemake.wildcards['species'] == "mmu":
 else:
         build = ''
 
-print (snakemake)
-print (build)
+#print (snakemake)
+#print (build)
 
 idx = AlignIO.MafIO.MafIndex(snakemake.input['maf_index'], snakemake.input['maf'], "{}.chr{}".format(build, snakemake.wildcards['chrom'])  )
 
