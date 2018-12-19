@@ -11,7 +11,7 @@ def get_bed_file(wildcards):
 rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
 	input: "data/{species_prefix}.94.gtf"
 	output: "data/{species_prefix}.94.mod.gtf"
-	shell: "sed 's/^chr//g' {input} | sed '/^[A-Za-z][A-Za-z]/d' > {output}"
+	shell: "sed 's/^chr//g' {input} | sed '^[A-Za-z][A-Za-z]/d'  > {output}"
 
 rule convert_gtf_to_genepred:
      input:
@@ -86,7 +86,7 @@ rule avg_merged_bedgraph_by_sample:
         input:
                 "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp"
         output:
-                ancient("results/bam/tissue/{species}/{cell_line}.bedgraph")
+                "results/bam/tissue/{species}/{cell_line}.bedgraph"
         wildcard_constraints:
                cell_line="((?!chr).)*" # anything not containing chr
         script:
