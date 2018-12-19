@@ -61,6 +61,8 @@ rule targetscan_sites:
            script="exe/targetscan7/targetscan_70.patch.pl"
 	output:
            "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"
+	wildcard_constraints:
+            species="[a-z][a-z][a-z]"
 	benchmark:
            "benchmarks/{species}_{tissue}_chr{chrom}_msa.sites.log"
 	shell:
@@ -76,6 +78,8 @@ rule targetscan_branch_lengths:
               tax_id=get_tax_id
         benchmark:
              "benchmarks/branch_lengths_{species}_{tissue}_chr{chrom}.log"
+        wildcard_constraints:
+              species="[a-z][a-z][a-z]"
         shell:
             "{input.script} {input.msa_3UTR} {params.tax_id}  > {output}"
 
@@ -89,6 +93,8 @@ rule targetscan_PCTs:
         output:
             "results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
              temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv.sort.txt") # it is important that this file is deleted
+        wildcard_constraints:
+            species="[a-z][a-z][a-z]"
         benchmark:
             "benchmarks/{species}_{tissue}_chr{chrom}_msa.PCTs.log"
         shell:
@@ -102,6 +108,8 @@ rule targetscan_eightmers:
         output:
             eightmer_counts="results/targets/{species}_{tissue}_chr{chrom}_msa.eightmers.tsv",
             CDS_lengths="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv.lengths.txt"
+        wildcard_constraints:
+             species="[a-z][a-z][a-z]"
         shell:
             "{input.script} {input.mirna_seeds} {input.CDS} > {output.eightmer_counts}"
 
@@ -127,11 +135,22 @@ rule targetscan_context_scores:
             "benchmarks/{species}_{tissue}_chr{chrom}_msa.contextpp.log"
         shell:
             "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {params.tax_id} {input.AIRs} {params.RNAplfold_dir}"
+        wildcard_constraints:
+             species="[a-z][a-z][a-z]"
 
 rule aggregate_contextpp_scores:
        input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
        output: protected("results/targets/{species}/{tissue}.contextpp.tsv")
        shell: "cat {input} | sed '1b;/Gene/d' > {output}"
+
+rule expression_filter_contextpp_scores:
+        input:
+            contextpp_scores="results/targets/{species}_{tissue}_msa.contextpp.tsv",
+            expression_values="results/salmon/{species}_{tissue}.sf"
+        params:
+            tpm_expression_threshold=2
+        output: "results/targets/{species}_{tissue}_msa.contextpp.filtered.tsv"
+        script: 'filter_contextpp_scores.R'
 
 ### other ###
 
@@ -149,7 +168,7 @@ rule get_AIR_file:
         input: "results/targets/{species}_{tissue}.APA.txt", "results/utrs/{species}_{tissue}.utr.lengths.tsv" #output from APA usage file
         output: "results/targets/{species}_{tissue}.AIRs.txt"
         wildcard_constraints:
-               species="^canon" # needed to prevent conflict with no reannotation pipeline
+               species="[a-z][a-z][a-z]"                               #"((?!chr).)*" # anything not containing the string canon
         script: "get_tissue_specific_APA_file.R"
 
 rule patch_bin_lengths_script:
@@ -185,5 +204,7 @@ rule aggregate_targetscan_sites:
 
 rule fix_targetscan_sites_output:
         input: "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"
-        output: protected("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv")
+        output: "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv"
+        wildcard_constraints:
+           species="[a-z][a-z][a-z]"
         script: "fix_ts_output.R"
