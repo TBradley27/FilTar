@@ -12,7 +12,7 @@ include: "sub_snakemake/quant_reads/salmon/Snakefile"
 include: "sub_snakemake/mirna/Snakefile"
 include: "sub_snakemake/target_prediction/targetscan/Snakefile"
 include: "sub_snakemake/get_utr_and_cds/Snakefile"
-include: "sub_snakemake/canonical_targets/Snakefile"
+include: "sub_snakemake/no_reannotation/Snakefile"
 
 rule all:
-     input: expand("results/targets/canonical/{species}_chr{chrom}_msa.contextpp.tsv", species='hsa', chrom='Y')
+     input: "results/targets/mmu_liver_msa.contextpp.tsv"
