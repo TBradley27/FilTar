@@ -111,13 +111,13 @@ rule map_reads:
 		"envs/hisat2.yaml"
 	params: get_lib_type
         threads: 8
-        output: "results/bam/run/{accession}.sam"
+        output: protected("results/bam/run/{accession}.sam")
 	script:
 		"map_reads.py"
 
 rule sam_to_bam:
 	input: "results/bam/run/{accession}.sam",
-        output: "results/bam/run/{accession}.bam"
+        output: protected("results/bam/run/{accession}.bam")
         threads: 8
         conda:
 	   "envs/hisat2.yaml"
@@ -127,7 +127,7 @@ rule samtools_sort:
     input:
         "results/bam/run/{accession}.bam"
     output:
-        "results/bam/run/{accession}.bam.sorted"
+        protected("results/bam/run/{accession}.bam.sorted")
     params:
         "-m 2G"
     threads: 8
