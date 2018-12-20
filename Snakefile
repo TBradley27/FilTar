@@ -22,6 +22,10 @@ include: "sub_snakemake/upload_to_tables/Snakefile"
 include: "sub_snakemake/profiling/Snakefile"
 include: "sub_snakemake/canonical_targets/Snakefile"
 
+wildcard_constraints:
+    species="[a-z]{3,4}",
+    tissue="((?!chr([A-Z]|\d)).)*" # pattern to ensure tissue wildcard does not contain the following pattern: chr[0-9] or chr[A-Z]
+
 rule all:
      input: #expand("results/{accession}.bam.sorted", accession=config['all_brain_runs']), 
             #expand("data/{accession}.fastq.gz", accession=config['projects']['human']['PRJEB4337']),
