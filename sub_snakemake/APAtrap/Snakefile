@@ -56,7 +56,7 @@ rule merge_bedgraphs_by_run:
         output:
              "results/bam/sample/{sample}_chr{chrom}_tmp.bedgraph"
         wildcard_constraints:
-             sample="[E|D|S]RS.*"
+             sample="((?!tmp).)*"
         conda:
              "envs/bedtools.yaml"
         script: "merge_bedgraphs.py"
@@ -67,7 +67,7 @@ rule avg_merged_bedgraph_by_run:
         output:
                 "results/bam/sample/{sample}_chr{chrom}.bedgraph"
         wildcard_constraints:
-             sample="[E|D|S]RS[0-9X]+"
+             sample="((?!tmp).)*"
         script:
                 "get_average_bedgraph.R"
 
