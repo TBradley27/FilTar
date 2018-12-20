@@ -14,5 +14,9 @@ include: "sub_snakemake/target_prediction/targetscan/Snakefile"
 include: "sub_snakemake/get_utr_and_cds/Snakefile"
 include: "sub_snakemake/no_reannotation/Snakefile"
 
+wildcard_constraints:
+    species="[a-z]{3,4}",
+    tissue="((?!chr([A-Z]|\d)).)*" # pattern to ensure tissue wildcard does not contain the following pattern: chr[0-9] or chr[A-Z]
+
 rule all:
      input: "results/targets/mmu_liver_msa.contextpp.tsv"
