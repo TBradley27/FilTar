@@ -61,8 +61,6 @@ rule targetscan_sites:
            script="exe/targetscan7/targetscan_70.patch.pl"
 	output:
            "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"
-	wildcard_constraints:
-            species="[a-z][a-z][a-z]"
 	benchmark:
            "benchmarks/{species}_{tissue}_chr{chrom}_msa.sites.log"
 	shell:
@@ -78,8 +76,6 @@ rule targetscan_branch_lengths:
               tax_id=get_tax_id
         benchmark:
              "benchmarks/branch_lengths_{species}_{tissue}_chr{chrom}.log"
-        wildcard_constraints:
-              species="[a-z][a-z][a-z]"
         shell:
             "{input.script} {input.msa_3UTR} {params.tax_id}  > {output}"
 
@@ -93,8 +89,6 @@ rule targetscan_PCTs:
         output:
             "results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
              temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv.sort.txt") # it is important that this is deleted
-        wildcard_constraints:
-            species="[a-z][a-z][a-z]"
         benchmark:
             "benchmarks/{species}_{tissue}_chr{chrom}_msa.PCTs.log"
         shell:
@@ -108,8 +102,6 @@ rule targetscan_eightmers:
         output:
             eightmer_counts="results/targets/{species}_{tissue}_chr{chrom}_msa.eightmers.tsv",
             CDS_lengths="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv.lengths.txt"
-        wildcard_constraints:
-             species="[a-z][a-z][a-z]"
         shell:
             "{input.script} {input.mirna_seeds} {input.CDS} > {output.eightmer_counts}"
 
@@ -167,8 +159,6 @@ rule get_all_transcripts:
 rule get_AIR_file:
         input: "results/targets/{species}_{tissue}.APA.txt", "results/utrs/{species}_{tissue}.utr.lengths.tsv" #output from APA usage file
         output: "results/targets/{species}_{tissue}.AIRs.txt"
-        wildcard_constraints:
-               species="[a-z][a-z][a-z]"                               #"((?!chr).)*" # anything not containing the string canon
         script: "get_tissue_specific_APA_file.R"
 
 rule patch_bin_lengths_script:
@@ -205,6 +195,4 @@ rule aggregate_targetscan_sites:
 rule fix_targetscan_sites_output:
         input: "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"
         output: "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv"
-        wildcard_constraints:
-           species="[a-z][a-z][a-z]"
         script: "fix_ts_output.R"

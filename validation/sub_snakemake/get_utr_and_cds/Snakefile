@@ -60,8 +60,6 @@ rule split_bed:
                 "results/bed/{species}_{tissue}.utr.full.bed"
         output:
                 "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"
-        wildcard_constraints:
-                species="[a-z][a-z][a-z]"
         shell:
                 "grep '^{wildcards.chrom}\t' {input} > {output}"
 
@@ -73,8 +71,6 @@ rule biopython_get_msa:
            shell_script="../exe/targetscan7/convert_fasta_to_tsv.sh"
 	output:
            "results/msa/{species}_{tissue}_chr{chrom}_{feature}_msa.tsv"
-	wildcard_constraints:
-               species="[a-z][a-z][a-z]"
 	conda:
            "envs/biopython.yaml"
 	script:
