@@ -1,16 +1,16 @@
 tissues:
         mmu: 
-                liver: [SRS387309,bar] # insert relevant sample accessions here
+                liver: [SRS387309,foo] # insert relevant sample accessions here
         hsa:
 samples:
          SRS387309: [SRR652248,SRR652249]
-         bar: [ERR032203, foo]    #ERR032204]
+         foo: [ERR032203, ERR032204]
 
 single_end: [SRR652248,SRR652249]
-paired_end: [ERR032203,foo]
+paired_end: [ERR032203,ERR032204]
 
 mouse:
-        runs: [SRR652248,SRR652249,ERR032203,foo]
+        runs: [SRR652248,SRR652249,ERR032203,ERR032204]
 
 human:
         runs: []
