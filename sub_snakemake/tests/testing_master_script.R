@@ -17,5 +17,4 @@ test_file('test_prep_alt_mir.R')
 
 setwd('./main')
 
-test_file('test_fix_ts_output.R')
 test_file('test_contextpp_output.R')
