@@ -101,8 +101,13 @@ or the data/paired-end directories depending on which is appropriate. Accessions
 
 For the most part, external tools are executed using default parameters which are documented in their respective snakefiles (found within subdirectories of the sub_snakemake directory). Values of parameters can be altered by directly editing the 'param' key-value pairs contained within the rules of these snakefiles.
 
+# WARNING
 
-
+The script generating the context++ scores uses RNAplfold as a dependency which itself generates ~100KB of data per transcript per species per tissue.
+Therefore, generating context++ score for a large number of tissues will consume a lot of disk space. RNAplfold can de deleted after each analysis run
+to help mitigate against this issue. ALso, be cautious to delete files if running the same analysis (e.g. same species and tissue) using different 
+3'UTR annotations, as targetscan7 will use RNAplfold generated from a previous analysis automatically. Again, manually deleting RNAplfold output will
+protect against this issue.
 
 
 
