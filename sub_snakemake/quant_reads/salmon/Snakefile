@@ -45,11 +45,8 @@ rule salmon_get_lib_type:
 rule salmon_quantmerge_by_run:
 	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}/", run_accession=config['samples'][wildcards.sample]),
 	output: "results/salmon/samples/{sample}.quant.tmp.sf"
-<<<<<<< HEAD
 	#params: lambda wildcards: expand('results/salmon/runs/{run_accession}/', run_accession=config['samples'][wildcards.sample])
-=======
         conda: "envs/salmon.yaml"
->>>>>>> 8c3a6b6... add conda directives to quant merge rules
 	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 
 rule salmon_average_quantmerge_runs:

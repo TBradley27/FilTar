@@ -11,11 +11,7 @@ def get_bed_file(wildcards):
 rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
 	input: "data/{species_prefix}.94.gtf"
 	output: "data/{species_prefix}.94.mod.gtf"
-<<<<<<< HEAD
-	shell: "sed 's/^chr//g' {input} | sed '^[A-Za-z][A-Za-z]/d' > {output}"
-=======
-	shell: "sed 's/^chr//g' {input} | sed '^[A-Za-z][A-Za-z]/d'  > {output}"
->>>>>>> b3f3b6e... remove ancient tag, and correct (I think) regular expression
+	shell: "sed 's/^chr//g' {input} | sed '/^[A-Za-z][A-Za-z]/d' > {output}"
 
 rule convert_gtf_to_genepred:
      input:
@@ -91,7 +87,7 @@ rule avg_merged_bedgraph_by_sample:
         script:
                 "get_average_bedgraph.R"
 
-+rule split_bedgraph:
+rule split_bedgraph:
         input: 'results/bam/tissue/{species}/{cell_line}.bedgraph'
         output: 'results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph'
         shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
@@ -115,7 +111,7 @@ rule reannotate_3utrs:
 rule aggregate_reannotated_utrs:
        input: lambda wildcards: expand("results/bed/{species}_{tissue}_chr{chrom}.utr.bed", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
        output: "results/bed/{species}_{tissue}.utr.bed"
-        shell: "cat {input} > {output}"
+       shell: "cat {input} > {output}"
 
 rule identify_APA_sites:
      input:

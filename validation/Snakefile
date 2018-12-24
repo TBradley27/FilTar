@@ -1,7 +1,5 @@
 configfile: "../config/accession_mappings.yaml"
-configfile: "../config/lib_types.yaml"
 configfile: "../config/matedness.yaml"
-configfile: "../config/projects.yaml"
 configfile: "../config/species_basic.yaml"
 configfile: "../config/species_sequencing.yaml"
 configfile: "config/validation.yaml"
@@ -16,8 +14,8 @@ include: "../sub_snakemake/quant_reads/salmon/Snakefile"
 include: "../sub_snakemake/quant_reads/kallisto/Snakefile"
 include: "../sub_snakemake/get_utr_and_cds/Snakefile" # A duplicated snakemake otherwise we would need to copy very large maf files in the root and validation directories
 include: "../sub_snakemake/target_prediction/targetscan/Snakefile"
-include: "../sub_snakemake/canonical_targets/Snakefile"
-include: "sub_snakemake/cumulative_plots/Snakefile"
+include: "../sub_snakemake/no_reannotation/Snakefile"
+#include: "sub_snakemake/cumulative_plots/Snakefile"
 
 rule all:
      input: #expand("results/single_end_salmon/{accession}/", accession=config['PRJNA229375']['HeLa']['mock']),

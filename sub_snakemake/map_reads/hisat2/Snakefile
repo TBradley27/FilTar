@@ -75,6 +75,7 @@ rule create_index:
         benchmark: "benchmarks/hisat2/{species}_index.log"
         threads: 16
         shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} data/{wildcards.species}"
+
 rule map_reads:
 	input: 
 		reads=get_read_files,
