@@ -1,9 +1,9 @@
 
 def get_gtf_file(wildcards):
 	if wildcards.species == 'hsa':
-		return ('data/Homo_sapiens.GRCh38.94.gtf')
+		return ('data/Homo_sapiens.GRCh38.94.mod.gtf')
 	elif wildcards.species == 'mmu':
-		return ('data/Mus_musculus.GRCm38.94.gtf')
+		return ('data/Mus_musculus.GRCm38.94.mod.gtf')
 	else:
 		return('NULL')
 
@@ -17,11 +17,11 @@ rule index_maf_files:
 	script:
 	   "biopython_maf_processing.py"
 
-rule get_all_transcript_ids:
+rule get_transcript_ids:
         input:
                 gtf=get_gtf_file
-        output: "results/bed/{species}_all_transcripts.txt"
-        shell: "exe/get_all_transcripts.sh {input} > {output}"
+        output: "results/bed/{species}_chr{chrom}_all_transcripts.txt"
+        shell: "exe/get_all_transcripts.sh {input} {wildcards.chrom} > {output}"
 
 rule gtf_to_bed_CDS:
         input:
@@ -45,13 +45,13 @@ rule gtf_to_bed_no_reannotation:
         shell:
             "{input.script} {input.gtf} {wildcards.feature} {wildcards.chrom} {output}"
 
-rule split_bed:
-        input:
-                "results/bed/{species}_{tissue}.utr.full.bed"
-        output:
-                "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"
-        shell:
-                'grep -P "^{wildcards.chrom}\t" {input} > {output}'
+#rule split_bed:
+#        input:
+#                "results/bed/{species}_{tissue}.utr.full.bed"
+#        output:
+#                "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"
+#        shell:
+#                'grep -P "^{wildcards.chrom}\t" {input} > {output}'
 
 rule biopython_get_msa:
 	input:

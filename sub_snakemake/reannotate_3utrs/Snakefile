@@ -2,9 +2,9 @@
 
 def get_bed6_file(wildcards):
         if wildcards.species == 'hsa':
-                return('results/Homo_sapiens.GRCh38.94.bed6')
+                return('results/Homo_sapiens.GRCh38.94.chr{}.bed6'.format(wildcards.chrom))
         elif wildcards.species == 'mmu':
-                return('results/Mus_musculus.GRCm38.94.bed6')
+                return('results/Mus_musculus.GRCm38.94.chr{}.bed6'.format(wildcards.chrom))
 
 rule get_bed6_file: #three_prime_utrs only
         input:
@@ -15,14 +15,19 @@ rule get_bed6_file: #three_prime_utrs only
         shell:
             "{input.script} {input.gtf} {output}"
 
+rule split_bed6_file:
+        input: 'results/{prefix}.bed6'
+        output: 'results/{prefix}.chr{chrom}.bed6'
+        shell: 'grep -E "^{wildcards.chrom}" {input} > {output}'
+
 rule get_extended_bed_file:
          input:
             normal_bed= get_bed6_file,
-            extended_bed="results/bed/{species}_{tissue}.utr.bed",
-            all_transcripts="results/bed/{species}_all_transcripts.txt"
+            extended_bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed",
+            all_transcripts="results/bed/{species}_chr{chrom}_all_transcripts.txt"
          output:
-            "results/bed/{species}_{tissue}.utr.full.bed"
+            "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"
          log:
-            "{species}_{tissue}.log"
+            "{species}_{tissue}_chr{chrom}.log"
          script:
              "extend_bed2.R"
