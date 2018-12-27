@@ -45,11 +45,16 @@ rule get_bedgraph:
     shell:
         "genomeCoverageBed -bg -ibam {input.sorted_bam} -split > {output}"
 
+rule split_bedgraph:
+        input: 'results/bam/run/{accession}.bedgraph'
+        output: 'results/bam/run/{accession}_chr{chrom}.bedgraph'
+        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
+
 rule merge_bedgraphs_by_run:
         input:
-             lambda wildcards: expand("results/bam/run/{accession}.bedgraph", accession=config['samples'][wildcards.sample])
+             lambda wildcards: expand("results/bam/run/{accession}_chr{chrom}.bedgraph", accession=config['samples'][wildcards.sample], chrom=wildcards.chrom)
         output:
-             "results/bam/sample/{sample}_tmp.bedgraph"
+             "results/bam/sample/{sample}_chr{chrom}_tmp.bedgraph"
         wildcard_constraints:
              sample="((?!tmp).)*"
         conda:
@@ -58,9 +63,9 @@ rule merge_bedgraphs_by_run:
 
 rule avg_merged_bedgraph_by_run:
         input:
-                "results/bam/sample/{sample}_tmp.bedgraph"
+                "results/bam/sample/{sample}_chr{chrom}_tmp.bedgraph"
         output:
-                "results/bam/sample/{sample}.bedgraph"
+                "results/bam/sample/{sample}_chr{chrom}.bedgraph"
         wildcard_constraints:
              sample="((?!tmp).)*"
         script:
@@ -68,9 +73,9 @@ rule avg_merged_bedgraph_by_run:
 
 rule merge_bedgraphs_by_sample:
         input:
-             lambda wildcards: expand("results/bam/sample/{sample}.bedgraph", sample=config['tissues'][wildcards.species][wildcards.cell_line])
+             lambda wildcards: expand("results/bam/sample/{sample}_chr{chrom}.bedgraph", sample=config['tissues'][wildcards.species][wildcards.cell_line], chrom=wildcards.chrom)
         output:
-             "results/bam/tissue/{species}/{cell_line}.bedgraph.tmp"
+             "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp"
         wildcard_constraints:
                cell_line="((?!chr).)*" # anything not containing chr
         conda:
@@ -79,18 +84,13 @@ rule merge_bedgraphs_by_sample:
 
 rule avg_merged_bedgraph_by_sample:
         input:
-                "results/bam/tissue/{species}/{cell_line}.bedgraph.tmp"
+                "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp"
         output:
-                "results/bam/tissue/{species}/{cell_line}.bedgraph"
+                "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph"
         wildcard_constraints:
                cell_line="((?!chr).)*" # anything not containing chr
         script:
                 "get_average_bedgraph.R"
-
-rule split_bedgraph:
-        input: 'results/bam/tissue/{species}/{cell_line}.bedgraph'
-        output: 'results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph'
-        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
 
 rule split_bed12:
         input: 'results/{species_prefix}.94.bed'
