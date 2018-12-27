@@ -20,7 +20,7 @@ include: "sub_snakemake/create_tables/SQLite/Snakefile"
 include: "sub_snakemake/upload_to_tables/SQLite/Snakefile"
 include: "sub_snakemake/upload_to_tables/Snakefile"
 include: "sub_snakemake/profiling/Snakefile"
-include: "sub_snakemake/canonical_targets/Snakefile"
+include: "sub_snakemake/no_reannotation/Snakefile"
 
 wildcard_constraints:
     species="[a-z]{3,4}",
