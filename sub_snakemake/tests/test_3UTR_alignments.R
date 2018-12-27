@@ -4,9 +4,9 @@ all_tests = function (species, taxonomic_id) {
 
 	context(str_interp('${species}'))	
 
-	alignment = read_tsv( str_interp('../../results/${species}_chrY_msa.tsv'), col_names=c('tx_id','tax_id','seq'))
+	alignment = read_tsv( str_interp('../../results/msa/no_reannotation/${species}_chrY_3UTR_msa.tsv'), col_names=c('tx_id','tax_id','seq'))
 	canon_tax_ids = read_tsv('../../config/species_basic2.tsv', col_names=c('tax_id'))
-	bed_file = read_tsv( str_interp('../../results/bed/${species}_3UTR_biopython.chrY.bed'), col_names=FALSE)
+	bed_file = read_tsv( str_interp('../../results/bed/no_reannotation/${species}_3UTR.chrY.bed'), col_names=FALSE)
 
 	tax_ids = alignment$tax_id %>% unique()
 
@@ -83,7 +83,5 @@ all_tests = function (species, taxonomic_id) {
 })
 }
 
-context('Human')
 all_tests('hsa','9606')
-context('Mouse')
 all_tests('mmu','10090')

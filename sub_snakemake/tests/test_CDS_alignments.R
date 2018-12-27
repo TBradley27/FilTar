@@ -4,9 +4,9 @@ all_tests = function (species, taxonomic_id) {
 
 	context(str_interp('${species}'))	
 
-	alignment = read_tsv( str_interp('../../results/${species}_chrY_CDS_msa.tsv'), col_names=c('tx_id','tax_id','seq'))
+	alignment = read_tsv(str_interp('../../results/msa/no_reannotation/${species}_chrY_CDS_msa.tsv'), col_names=c('tx_id','tax_id','seq'))
 	canon_tax_ids = read_tsv('../../config/species_basic2.tsv', col_names=c('tax_id'))
-	bed_file = read_tsv( str_interp('../../results/bed/${species}_CDS.chrY.bed'), col_names=FALSE)
+	bed_file = read_tsv(str_interp('../../results/bed/no_reannotation/${species}_CDS.chrY.bed'), col_names=FALSE)
 
 	tax_ids = alignment$tax_id %>% unique()
 
@@ -42,7 +42,7 @@ all_tests = function (species, taxonomic_id) {
 
 	#print(alignment$tx_id[!alignment$tx_id %in% bed_file$X5])
 
-	test_that("There is an output for every single transcript", {
+	test_that("There is an output for every single transcript", { #transcripts with all Ns are discarded
 	  expect_true(alignment$tx_id %>% unique() %>% length() == bed_file$X5 %>% unique() %>% length())
 	})
 	print(alignment$tx_id %>% unique() %>% length()) #289 - I think all N alignments are deleted
