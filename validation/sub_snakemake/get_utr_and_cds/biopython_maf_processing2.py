@@ -57,21 +57,6 @@ with open(snakemake.input['bed'] ) as f:
 
         else:
            add_alignment()
-           # write process - triggered once script hits a record != accession
-
-          #AlignIO.write(new_multiple_alignment, "results/{}_{}.fa".format(accession, snakemake.wildcards['feature']), "fasta")
-           
-<<<<<<< HEAD:validation/sub_snakemake/get_utr_and_cds/biopython_maf_processing2.py
-           call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}_{}.fa {} > tmp{}_{}.tsv".format(accession,snakemake.wildcards['feature'],  accession,snakemake.wildcards['chrom'], snakemake.wildcards['feature']), shell=True) #Execute a shell command
-           call(["rm", "results/{}_{}.fa".format(accession, snakemake.wildcards['feature'])])
-           call("cat tmp{}_{}.tsv >> results/hsa_chr{}_{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'], snakemake.wildcards['chrom'], snakemake.wildcards['feature']), shell=True)
-           call(["rm","tmp{}_{}.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'])])
-=======
-           #call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}_{}.fa {} > tmp{}_{}.tsv".format(accession, snakemake.wildcards['feature'], accession, snakemake.wildcards['chrom'], snakemake.wildcards['feature']), shell=True) #Execute a shell command
-           #call(["rm", "results/{}_{}.fa".format(accession, snakemake.wildcards['feature'])])
-           #call("cat tmp{}_{}.tsv >> results/hsa_chr{}_{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'], snakemake.wildcards['chrom'], snakemake.wildcards['feature']), shell=True)
-           #call(["rm","tmp{}_{}.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'])])
->>>>>>> c6b51b5... refactor code for generating alignments:sub_snakemake/get_utr_and_cds/biopython_maf_processing2.py
            
            start_pos = [] # initialise a new transcript record
            end_pos = []
@@ -83,20 +68,10 @@ with open(snakemake.input['bed'] ) as f:
 
       add_alignment()     
 
-       #call("exe/targetscan7/convert_fasta_to_tsv.sh results/{}_{}.fa {} > tmp{}_{}.tsv".format(accession, snakemake.wildcards['feature'], accession, snakemake.wildcards['chrom'], snakemake.wildcards['feature']), shell=True) #Execute a shell command
-       #call(["rm", "results/{}_{}.fa".format(accession, snakemake.wildcards['feature'])])
-       #call("cat tmp{}_{}.tsv >> results/hsa_chr{}_{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'], snakemake.wildcards['chrom'], snakemake.wildcards['feature']), shell=True)
-       #call(["rm","tmp{}_{}.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'])])
-
-#f = open("results/hsa_chr{}_{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature']), 'r')
-
-# prevents writing to an already existing file
-#call(["rm",snakemake.output[0]])
-
 result = reduce(lambda x, y: x.replace(y, snakemake.config["TaxID"][y]), snakemake.config["TaxID"], big_alignment) # get NCBI taxonomic IDs
 result = result.replace('\n','') # convert from fasta to tsv
 result = result.replace('>','\n') # convert from fasta to tsv
-result = re.sub('(\s[0-9]{4,6})',r'\1\t',result) # convert from fasta to tsv
+result = re.sub('(\s[0-9]{4,7})',r'\1\t',result) # convert from fasta to tsv
 result = re.sub('\n','',result, count=1) # remove leading empty line
 
 target = open(snakemake.output[0], 'w')
@@ -104,6 +79,7 @@ target = open(snakemake.output[0], 'w')
 for line in iter(result.splitlines()):
         pattern = re.compile('\.[0-9][0-9]?\sN+')
         pattern2 = re.compile('T[0-9]+\sN+')
+        pattern3 = re.compile('^N+$') # when ref transcript is unknown - it leaves a trailing lines of Ns which need to be removed
         if 'delete' in line:
             pass
         elif 'unknown' in line:
@@ -112,25 +88,8 @@ for line in iter(result.splitlines()):
             pass
         elif pattern2.search(line):
             pass
+        elif pattern3.search(line):
+            pass
         else:
             line2 = line + '\n'
             target.write(line2)
-
-##for line in iter(f):
-#	result = reduce(lambda x, y: x.replace(y, snakemake.config["TaxID"][y]), snakemake.config["TaxID"], line)
-#	pattern = re.compile('\.[0-9][0-9]?\sN+')
-#	pattern2 = re.compile('T[0-9]+\sN+') # in cases in which the transcript identifer does not have a version number
-#	if 'delete' in result: # deletes some species to get an 84-way alingment instead of a 100-way alignment
-#		pass
-#	elif 'unknown' in result:
-#		pass
-#	elif pattern.search(result): # deletes malprocessed lines in which repeat Ns comprise the second column
-#		pass
-#	elif pattern2.search(result): 
-#		pass
-#	else:
-#		target.write(result)
-#	del result
-#f.close()
-
-#call(["rm","results/hsa_chr{}_{}_msa_tmp.tsv".format(snakemake.wildcards['chrom'], snakemake.wildcards['feature'])])
