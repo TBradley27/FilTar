@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 rule index_maf_files:
         input:
            maf="data/maf_{species}/chr{chrom}.maf",
@@ -9,6 +10,8 @@ rule index_maf_files:
         script:
            "biopython_maf_processing.py"
 
+=======
+>>>>>>> 60be7f7... prevent conflict between conservation and no_conservation workflows
 rule biopython_get_msa: 
         input: 
            maf="data/maf_{species}/chr{chrom}.maf", 
@@ -20,4 +23,8 @@ rule biopython_get_msa:
         conda: 
            "envs/biopython.yaml" 
         script: 
+<<<<<<< HEAD
            "biopython_maf_processing2.py"
+=======
+           "biopython_maf_processing2.py
+>>>>>>> 60be7f7... prevent conflict between conservation and no_conservation workflows
