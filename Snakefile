@@ -13,6 +13,7 @@ include: "sub_snakemake/mirna/Snakefile"
 include: "sub_snakemake/target_prediction/targetscan/Snakefile"
 include: "sub_snakemake/get_utr_and_cds/Snakefile"
 include: "sub_snakemake/no_reannotation/Snakefile"
+include: "sub_snakemake/get_utr_and_cds/no_conservation/Snakefile"
 
 wildcard_constraints:
     species="[a-z]{3,4}",
