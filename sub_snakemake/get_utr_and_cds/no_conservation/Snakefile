@@ -1,0 +1,18 @@
+def get_dna_file(wildcards):
+	if wildcards.species == 'hsa':
+		return("data/Homo_sapiens.GRCh38.dna.primary_assembly.fa")
+	if wildcards.species == 'mmu':
+		return("data/Mus_musculus.GRCm38.dna.primary_assembly.fa")
+
+rule reformat_bed_file:
+	input: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bed"
+	output: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bedtools.bed"
+	shell: "exe/get_bedtools_bed.sh {input} {output}"
+
+rule get_fasta:
+	input:
+		dna=get_dna_file,
+		bed="results/bed/mmu_liver_3UTR.chrY.bedtools.bed"
+	output: "results/utr/{species}_{tissue}_chr{chrom}_{feature}.tsv"
+	conda: 'envs/bedtools.yaml'
+	shell: "bedtools getfasta -name -s -tab -fi {input.dna} -bed {input.bed} -fo {output}"

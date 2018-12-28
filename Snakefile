@@ -21,6 +21,7 @@ include: "sub_snakemake/upload_to_tables/SQLite/Snakefile"
 include: "sub_snakemake/upload_to_tables/Snakefile"
 include: "sub_snakemake/profiling/Snakefile"
 include: "sub_snakemake/no_reannotation/Snakefile"
+include: "sub_snakemake/get_utr_and_cds/no_conservation/Snakefile"
 
 wildcard_constraints:
     species="[a-z]{3,4}",
