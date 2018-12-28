@@ -4,6 +4,12 @@ def get_dna_file(wildcards):
 	if wildcards.species == 'mmu':
 		return("data/Mus_musculus.GRCm38.dna.primary_assembly.fa")
 
+def get_NCBI_taxonomic_id(wildcards):
+	if wildcards.species == 'hsa':
+		return('9606')
+	if wildcards.species == 'mmu':
+		return('10090')
+
 rule reformat_bed_file:
 	input: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bed"
 	output: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bedtools.bed"
@@ -13,6 +19,12 @@ rule get_fasta:
 	input:
 		dna=get_dna_file,
 		bed="results/bed/mmu_liver_3UTR.chrY.bedtools.bed"
-	output: "results/utr/{species}_{tissue}_chr{chrom}_{feature}.tsv"
+	output: "results/utr/{species}_{tissue}_chr{chrom}_{feature}.tmp.tsv"
 	conda: 'envs/bedtools.yaml'
 	shell: "bedtools getfasta -name -s -tab -fi {input.dna} -bed {input.bed} -fo {output}"
+
+rule fix_tsv:
+	input: "results/utr/{species}_{tissue}_chr{chrom}_{feature}.tmp.tsv"
+	output: "results/utr/{species}_{tissue}_chr{chrom}_{feature}.tsv"
+	params: get_NCBI_taxonomic_id
+	shell: "exe/fix_tsv.sh {input} {params} {output}"
