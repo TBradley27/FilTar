@@ -28,11 +28,16 @@ rule gtf_to_bed_CDS:
             gtf=get_gtf_file,
             script="exe/pre-processing/gtf_to_bed.sh"
         output:
-            "results/bed/{species}_{tissue}_CDS.chr{chrom}.bed"
+            "results/bed/{species}_{tissue}_CDS.chr{chrom}.tmp.bed"
         conda:
             "envs/biopython.yaml"
         shell:
             "{input.script} {input.gtf} CDS {wildcards.chrom} {output}"
+
+rule filter_bed_file:
+	input: "results/bed/{species}_{tissue}_CDS.chr{chrom}.tmp.bed"
+	output: "results/bed/{species}_{tissue}_CDS.chr{chrom}.bed"
+	script: "filter_bed6.R" 
 
 rule gtf_to_bed_no_reannotation:
         input:
@@ -69,7 +74,7 @@ rule biopython_get_msa:
 rule biopython_get_no_reannotation_msa:
         input:
            maf="data/maf_{species}/chr{chrom}.maf",
-           bed="results/bed/no_reannotation/{species}_{feature}.chr{chrom}.bed",
+           bed="results/bed/no_reannotation/{species}_{feature}.chr{chrom}.filtered.bed",
            maf_index="data/{species}_chr{chrom}.mafindex",
            shell_script="exe/targetscan7/convert_fasta_to_tsv.sh"
         output:

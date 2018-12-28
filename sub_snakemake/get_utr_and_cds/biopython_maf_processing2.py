@@ -26,70 +26,73 @@ def add_alignment():
            global big_alignment   
            big_alignment += new_multiple_alignment.format('fasta')
            return()
- 
-if snakemake.wildcards['species'] == "hsa":    #Identify the species identifier passed through the command line
-       build = "hg38"
-elif snakemake.wildcards['species'] == "mmu":
-        build = "mm10"
+
+if os.stat(snakemake.input['bed']).st_size == 0:
+     target = open(snakemake.output[0], 'w')
 else:
-        build = ''
+    if snakemake.wildcards['species'] == "hsa":    #Identify the species identifier passed through the command line
+       build = "hg38"
+    elif snakemake.wildcards['species'] == "mmu":
+       build = "mm10"
+    else:
+       build = ''
 
-idx = AlignIO.MafIO.MafIndex(snakemake.input['maf_index'], snakemake.input['maf'], "{}.chr{}".format(build, snakemake.wildcards['chrom'])  )
+    idx = AlignIO.MafIO.MafIndex(snakemake.input['maf_index'], snakemake.input['maf'], "{}.chr{}".format(build, snakemake.wildcards['chrom'])  )
 
-start_pos = []
-end_pos = []
-accession = 'empty'
-with open(snakemake.input['bed'] ) as f:
-    big_alignment = ''
-    for line in f:    #Open and loop through line-by-line the relevant BED file
-        parts = line.split()  
+    start_pos = []
+    end_pos = []
+    accession = 'empty'
+    with open(snakemake.input['bed'] ) as f:
+       big_alignment = ''
+       for line in f:    #Open and loop through line-by-line the relevant BED file
+          parts = line.split()  
 
-        if accession == 'empty':
-            accession = parts[4]   
-            start_pos.append(int(parts[1]))
-            end_pos.append(int(parts[2]))
-            strand = (int(parts[3]))
+          if accession == 'empty':
+             accession = parts[4]   
+             start_pos.append(int(parts[1]))
+             end_pos.append(int(parts[2]))
+             strand = (int(parts[3]))
 
-        elif parts[4] == accession:       # If accession has multiple entries in bed, add additional genome co-ordinates to rel. lists
-            start_pos.append(int(parts[1]))
-            end_pos.append(int(parts[2]))
-            strand = (int(parts[3]))
+          elif parts[4] == accession:       # If accession has multiple entries in bed, add additional genome co-ordinates to rel. lists
+             start_pos.append(int(parts[1]))
+             end_pos.append(int(parts[2]))
+             strand = (int(parts[3]))
 
-        else:
-           add_alignment()
-           
-           start_pos = [] # initialise a new transcript record
-           end_pos = []
-           start_pos.append(int(parts[1]))
-           end_pos.append(int(parts[2]))
-           strand = (int(parts[3]))
-           accession = parts[4]
-    else: #Not sure, but I think this is for transcripts with only one 'exon', which are not the first transcript in the bed record.
+          else:
+             add_alignment()
+   
+             start_pos = [] # initialise a new transcript record
+             end_pos = []
+             start_pos.append(int(parts[1]))
+             end_pos.append(int(parts[2]))
+             strand = (int(parts[3]))
+             accession = parts[4]
+       else: #Not sure, but I think this is for transcripts with only one 'exon', which are not the first transcript in the bed record.
 
-      add_alignment()     
+         add_alignment()     
 
-result = reduce(lambda x, y: x.replace(y, snakemake.config["TaxID"][y]), snakemake.config["TaxID"], big_alignment) # get NCBI taxonomic IDs
-result = result.replace('\n','') # convert from fasta to tsv
-result = result.replace('>','\n') # convert from fasta to tsv
-result = re.sub('(\s[0-9]{4,7})',r'\1\t',result) # convert from fasta to tsv
-result = re.sub('\n','',result, count=1) # remove leading empty line
+       result = reduce(lambda x, y: x.replace(y, snakemake.config["TaxID"][y]), snakemake.config["TaxID"], big_alignment) # get NCBI taxonomic IDs
+       result = result.replace('\n','') # convert from fasta to tsv
+       result = result.replace('>','\n') # convert from fasta to tsv
+       result = re.sub('(\s[0-9]{4,7})',r'\1\t',result) # convert from fasta to tsv
+       result = re.sub('\n','',result, count=1) # remove leading empty line
 
-target = open(snakemake.output[0], 'w')
+       target = open(snakemake.output[0], 'w')
 
-for line in iter(result.splitlines()):
-        pattern = re.compile('\.[0-9][0-9]?\sN+')
-        pattern2 = re.compile('T[0-9]+\sN+')
-        pattern3 = re.compile('^N+$') # when ref transcript is unknown - it leaves a trailing lines of Ns which need to be removed
-        if 'delete' in line:
-            pass
-        elif 'unknown' in line:
-            pass
-        elif pattern.search(line):
-            pass
-        elif pattern2.search(line):
-            pass
-        elif pattern3.search(line):
-            pass
-        else:
-            line2 = line + '\n'
-            target.write(line2)
+       for line in iter(result.splitlines()):
+          pattern = re.compile('\.[0-9][0-9]?\sN+')
+          pattern2 = re.compile('T[0-9]+\sN+')
+          pattern3 = re.compile('^N+$') # when ref transcript is unknown - it leaves a trailing lines of Ns which need to be removed
+          if 'delete' in line:
+              pass
+          elif 'unknown' in line:
+              pass
+          elif pattern.search(line):
+              pass
+          elif pattern2.search(line):
+              pass
+          elif pattern3.search(line):
+              pass
+          else:
+              line2 = line + '\n'
+              target.write(line2)

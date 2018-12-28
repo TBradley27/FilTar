@@ -2,9 +2,9 @@
 
 def get_bed6_file(wildcards):
         if wildcards.species == 'hsa':
-                return('results/Homo_sapiens.GRCh38.94.chr{}.bed6'.format(wildcards.chrom))
+                return('results/Homo_sapiens.GRCh38.94.chr{}.filtered.bed6'.format(wildcards.chrom))
         elif wildcards.species == 'mmu':
-                return('results/Mus_musculus.GRCm38.94.chr{}.bed6'.format(wildcards.chrom))
+                return('results/Mus_musculus.GRCm38.94.chr{}.filtered.bed6'.format(wildcards.chrom))
 
 rule get_bed6_file: #three_prime_utrs only
         input:
@@ -19,6 +19,16 @@ rule split_bed6_file:
         input: 'results/{prefix}.bed6'
         output: 'results/{prefix}.chr{chrom}.bed6'
         shell: 'grep -E "^{wildcards.chrom}" {input} > {output}'
+
+rule filter_bed6_file:
+        input: 'results/{prefix}.chr{chrom}.bed6'
+        output: 'results/{prefix}.chr{chrom}.filtered.bed6'
+        script: 'filter_bed6.R'
+
+rule filter_bed6_file_no_reannotation:
+	input: "results/bed/no_reannotation/{species}_{feature}.chr{chrom}.bed"
+	output: "results/bed/no_reannotation/{species}_{feature}.chr{chrom}.filtered.bed"
+	script: 'filter_bed6.R'
 
 rule get_extended_bed_file:
          input:
