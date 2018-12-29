@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-rule index_maf_files:
-        input:
-           maf="data/maf_{species}/chr{chrom}.maf",
-        output:
-           protected("data/{species}_chr{chrom}.mafindex")
-        conda: 'envs/biopython.yaml'
-        benchmark:
-           "benchmarks/{species}_chr{chrom}.mafindex.log"
-        script:
-           "biopython_maf_processing.py"
-
-=======
->>>>>>> 60be7f7... prevent conflict between conservation and no_conservation workflows
 rule biopython_get_msa: 
         input: 
            maf="data/maf_{species}/chr{chrom}.maf", 
@@ -23,8 +9,18 @@ rule biopython_get_msa:
         conda: 
            "envs/biopython.yaml" 
         script: 
-<<<<<<< HEAD
            "biopython_maf_processing2.py"
-=======
-           "biopython_maf_processing2.py
->>>>>>> 60be7f7... prevent conflict between conservation and no_conservation workflows
+
+rule biopython_get_no_reannotation_msa:
+        input:
+           maf="data/maf_{species}/chr{chrom}.maf",
+           bed="results/bed/no_reannotation/{species}_{feature}.chr{chrom}.filtered.bed",
+           maf_index="data/{species}_chr{chrom}.mafindex",
+           shell_script="exe/targetscan7/convert_fasta_to_tsv.sh"
+        output:
+           "results/msa/no_reannotation/{species}_chr{chrom}_{feature}_msa.tsv"
+        conda:
+           "envs/biopython.yaml"
+        script:
+           "biopython_maf_processing2.py"
+
