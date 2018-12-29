@@ -9,4 +9,18 @@ rule biopython_get_msa:
         conda: 
            "envs/biopython.yaml" 
         script: 
-           "biopython_maf_processing2.py
+           "biopython_maf_processing2.py"
+
+rule biopython_get_no_reannotation_msa:
+        input:
+           maf="data/maf_{species}/chr{chrom}.maf",
+           bed="results/bed/no_reannotation/{species}_{feature}.chr{chrom}.filtered.bed",
+           maf_index="data/{species}_chr{chrom}.mafindex",
+           shell_script="exe/targetscan7/convert_fasta_to_tsv.sh"
+        output:
+           "results/msa/no_reannotation/{species}_chr{chrom}_{feature}_msa.tsv"
+        conda:
+           "envs/biopython.yaml"
+        script:
+           "biopython_maf_processing2.py"
+
