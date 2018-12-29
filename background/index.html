@@ -3,6 +3,36 @@ layout: default
 title: FilTar - Background
 ---
 
-<h>FilTar - Background & Motivation</h>
+<h1>Background & Motivation</h1>
 
-<p>testing</p>	
+<p> The primary motivation behind FilTar is to increase the specificty of existing computational miRNA target prediction methods in animals by integrating context-specific (i.e. tissue or cell-line) expression information derived from RNA-Sequencing experiments. More specifically, by using this information we achieve the following:</p>
+
+<ol, type="a">
+	<li>Filtering of putative miRNA target transcripts according to expression of those transcripts</li>
+	<li>Context-specific reannotation of 3'UTR (three prime unstranslated regions) of mRNA transcripts</li>
+</ol>
+
+<p>By doing this, we a) ensure that predicted target transcripts are actually expressed within a given biological context and b) when making target predicting, we have an accurate model of the 3'UTR within that given biological context</p>
+
+<h2>Use of existing animal miRNA target prediction methods</h2>
+
+<p>As mentioned previously, FilTar does not implement target prediction 'from scratch' but rather works by taking the output from existing target prediction methods and adding context-specific information to increase the accuracy of those predictions. Therefore, it is worth providing a brief summary here of target prediction methods used:</p>
+
+<h3>Targetscan7</h3>
+
+<p>Targetscan7 is the latest iteration of the targetscan family of algorithms, all of which require a seed match between a miRNA and a given miRNA response element on the target transcript. A seed match exists when there is full complementarity between the miRNA seed region (i.e. nucleotides 2-7 of the miRNA) and the putative target. Seed matching is the first step of the targetscan algorithm. In the next steps, the conservation of the 3'UTRs is calculated amongst 83 vertebrate species, which in addition with the output of the seed matching algorithm is used to calculate the probability of conserved targeting targeting (P<sub>CT</sub>) of each candidate interaction. The P<sub>CT</sub> is one feature of 14 of a linear regression model trained on miRNA transfection data, used to compute the context++ score which is predictive of the efficacy of each candidate interaction. More negative context++ scores indicate greater predicted downregulation of targets.</p>
+
+<h3>miRanda</h3>
+
+<h2>Implementation as a piece of software</h2>
+<p>FilTar is implemented using the Snakemake workflow management tool. The basic philosophy behind snakemake is to model data processing workflows as a build process in the same style that makefiles are used to compile software. In this paradigm, in brief, there are a series of short recipes or rules which specify the input files or 'ingredients' necessary to build a given target. The output of one rule can be specified as the input of another rule, meaning that a given workflow can be most easily modelled as a directed acyclic graph (DAG) terminating in the production of a given target file. When a given target is specified, snakemake will recursively trace through the DAG in order to trigger rules necessary to generate the target file.</p>
+
+<p>This development paradigm lends itself to many useful properties for the user: Primarily, the user can generate many different files of interest with very little direct work user to due to extensive workflow automation. Users can also generate files at intermediate stages of the canonical, longest workflow/DAG (which can be very useful in their own right) without generating downstream data which may not be needed. For instance, the user may wish to generate reannotated 3'UTR sequences without computing predicted targets for those sequences. Also, use of snakemake ensures a higher efficiency use of resources, by modularising the build process into a number of discrete processes working in series and parallel, which means that, if the build process fails for whatever reason, it is unlikely that the user will have to begin the entire process from the beginning as intermediate files will have been generated.</p>
+
+<p>Whilst it is not possible to go into detail about the benefits of such an approach here, the benefits can be listed as: Extensive automation, modularity, reproducibility, extensibility, configurability, and ease of workflow interpretation and maintenance.</p>
+
+<nav>
+<ul>
+        <li><a href="/filtar_command_line/">Home</a></li>
+</ul>
+</nav>
