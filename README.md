@@ -1,4 +1,3 @@
-# APAtrap
-A snakemake workflow for APAtrap
+# FilTar
 
-![BED extension DAF](https://github.com/TBradley27/APAtrap/blob/master/HeLa_dag.svg)
+Hello, this documentation will guide you through how to use the FilTar command line tool
