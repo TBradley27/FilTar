@@ -9,34 +9,36 @@ layout: default
 
 <li><strong>Conda:</strong> The tool is a snakemake project and it is therefore essential that the conda package manager is installed on your system. The easiest way to do this is to obtain conda through the relatively lightweight miniconda python distribution, which only contains conda and its dependencies (<a href="https://conda.io/docs/user-guide/install/index.html">Installation Instructions</a>).</li></br>
 
-<li><b>Snakemake:</b> <a href="https://snakemake.readthedocs.io/en/stable/getting_started/installation.html">Snakemake</a> can be installed using conda essily with the following command:
+<li><strong>Snakemake:</strong> <a href="https://snakemake.readthedocs.io/en/stable/getting_started/installation.html">Snakemake</a> can be installed using conda essily with the following command:
 
 <code>conda install -c bioconda -c conda-forge snakemake</code>
 </li></br>
 
-<li>filtar (R package): The filtar R package also exists to perform a series of data manipulations within the main FilTar workflow. It can be installed via use of the devtools R package with the following command within the R console:
+<li><strong>filtar (R package):</strong> The filtar R package also exists to perform a series of data manipulations within the main FilTar workflow. It can be installed via use of the devtools R package with the following command within the R console:<br>
 
 <code>devtools::install_github('TBradley27/filtar')</code>
-</li>
+</li><br>
 
-<li>perl modules: It is not recommended to install perls module using conda*. The recommended method of installing perl modules for us with filtar is to install cpanm perl package manager, and then to manually install perl modules using cpanm. cpanm can itself be installed using conda:
+<li><strong>perl modules:</strong> It is not recommended to install perls module using conda*. The recommended method of installing perl modules for us with filtar is to install cpanm perl package manager, and then to manually install perl modules using cpanm. cpanm can itself be installed using conda:<br>
 
-<code>conda install -c bioconda perl-app-cpanminus</code>
+<code>conda install -c bioconda perl-app-cpanminus</code><br>
 
-Two perl modules are needed to correctly execute targetscan7 - Bio::TreeIO and Statistics::Lite. They can be installed as follows:
+Two perl modules are needed to correctly execute targetscan7 - <code>Bio::TreeIO</code> and <code>Statistics::Lite</code>. They can be installed as follows:<br>
 
-<code>cpanm Bio::Perl</code>
-<code>cpanm Statistics::Lite</code>
+<code>cpanm Bio::Perl</code><br>
+<code>cpanm Statistics::Lite</code><br>
 
 * This is because conda installs perl modules in different non-interacting directories using different installations of perl, making them very difficult if not possible to use together.
-</li>
-<li>Other: For the remaining dependencies, the user has the choice of the following two options:
+</li><br>
+<li><strong>Other:</strong> For the remaining dependencies, the user has the choice of the following two options:<br>
 
-a)  To allow dependencies to be managed within the snakemake workflow. If the '--use-conda' flag (see later) is used when executing snakemake, then snakemake will use conda to download and/or activate environments containing dependencies needed to execute a given rule (i.e. job within the larger workflow). That environment will then be reactivated whenever that same rule is executed.
+	<ol type='a'>
+	<li>  To allow dependencies to be managed within the snakemake workflow. If the '--use-conda' flag (see later) is used when executing snakemake, then snakemake will use conda to download and/or activate environments containing dependencies needed to execute a given rule (i.e. job within the larger workflow). That environment will then be reactivated whenever that same rule is executed.<br>
 
-For example, is the '--use-conda' flag is used, filtar will download and install HISAT2 and run withins its own self-contained conda environment. The dependency would be installed within conda, so root priviliges would not be needed.
+For example, is the '--use-conda' flag is used, filtar will download and install HISAT2 and run withins its own self-contained conda environment. The dependency would be installed within conda, so root priviliges would not be needed.</li><br>
 
-b) The user can manage their own dependencies outside of the filtar workflow. If the '--use-conda' flag is not used, then filtar will try and find HISAT2 within the current environment using the PATH environment variable.
+	<li>The user can manage their own dependencies outside of the filtar workflow. If the '--use-conda' flag is not used, then filtar will try and find HISAT2 within the current environment using the PATH environment variable.</li>	
+	</ol>
 </li>
 </ol>
 
