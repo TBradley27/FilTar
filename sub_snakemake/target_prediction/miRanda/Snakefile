@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 def get_dna_file(wildcards):
         sci_species_name = config['sci_species_name'][wildcards.species]
         genome_build = config['genome_build'][wildcards.species]
@@ -41,6 +42,10 @@ rule merge_fasta_nr:
 
 rule fix_fasta_output:
 	input: "results/msa/{species}_{tissue}_chr{chrom}_3UTR.tmp2.fa"
+=======
+rule fix_fasta_output:
+	input: "results/msa/{species}_{tissue}_chr{chrom}.tmp.fa"
+>>>>>>> 9ce149c... add use of miRanda
 	output: "results/msa/{species}_{tissue}_chr{chrom}.fa"
 	shell: "sed 's/(+)//g' {input} | sed 's/(-)//g' > {output}"
 
@@ -51,6 +56,7 @@ rule miRanda:
 	output: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt"
 	conda: "envs/miRanda.yaml"
 	shell: "miranda {input.mirna} {input.utr} > {output}"
+<<<<<<< HEAD
 
 rule convert_miRanda_to_tsv:
         input: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt"
@@ -63,3 +69,5 @@ rule aggregate_miRanda_output_no_reannotation:
         wildcard_constraints:
                tissue="((?!filt).)*"
         shell: "cat {input} > {output}"
+=======
+>>>>>>> 9ce149c... add use of miRanda

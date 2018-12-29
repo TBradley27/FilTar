@@ -59,6 +59,8 @@ wildcard_constraints:
     ensembl_release="[0-9]{2,3}",
     genus_species="[A-Z][a-z]+_[a-z]+"
 
+include: "sub_snakemake/target_prediction/miRanda/Snakefile"
+
 wildcard_constraints:
     species="[a-z]{3,4}",
     tissue="((?!chr([A-Z]|\d)).)*", # pattern to ensure tissue wildcard does not contain the following pattern: chr[0-9] or chr[A-Z]

@@ -1,7 +1,3 @@
-subworkflow main_workflow:
-        workdir: ".."
-        snakefile: "../Snakefile"
-
 def get_gtf_file(wildcards):
 	if wildcards.species == 'hsa':
 		return ('data/Homo_sapiens.GRCh38.94.mod.gtf')
@@ -10,12 +6,11 @@ def get_gtf_file(wildcards):
 	else:
 		return('NULL')
 
-def get_bed6_file(wildcards):
-        print(wildcards)
+def get_dna_file(wildcards):
         if wildcards.species == 'hsa':
-                return('results/Homo_sapiens.GRCh38.92.bed6')
-        elif wildcards.species == 'mmu':
-                return('results/Mus_musculus.GRCm38.92.bed6')
+                return("data/Homo_sapiens.GRCh38.dna.primary_assembly.fa")
+        if wildcards.species == 'mmu':
+                return("data/Mus_musculus.GRCm38.dna.primary_assembly.fa")
 
 rule index_maf_files:
 	input:
@@ -27,19 +22,11 @@ rule index_maf_files:
 	script:
 	   "biopython_maf_processing.py"
 
-<<<<<<< HEAD:validation/sub_snakemake/get_utr_and_cds/Snakefile
-rule get_all_transcript_ids:
-	input:
-		gtf=get_gtf_file
-	output: "results/bed/{species}_all_transcripts.txt"
-	shell: "exe/get_all_transcripts.sh {input} > {output}"
-=======
 rule get_transcript_ids:
         input:
                 gtf=get_gtf_file
         output: "results/bed/{species}_chr{chrom}_all_transcripts.txt"
         shell: "exe/get_all_transcripts.sh {input} {wildcards.chrom} > {output}"
->>>>>>> 401aa54... parallelise process for generating bed files for new annotations:sub_snakemake/get_utr_and_cds/Snakefile
 
 rule gtf_to_bed_CDS:
         input:
@@ -101,3 +88,12 @@ rule get_utr_lengths:
         input:  'results/bed/{species}_{cell_line}.utr.full.bed'
         output: 'results/utrs/{species}_{cell_line}.utr.lengths.tsv'
         script: 'get_utr_lengths.R'
+
+rule get_single_species_seq_fa:
+        input:
+                dna=get_dna_file,
+                bed="results/bed/mmu_liver_3UTR.chrY.bedtools.bed"
+        output: "results/msa/{species}_{tissue}_chr{chrom}.tmp.fa"
+        conda: 'envs/bedtools.yaml'
+        shell: "bedtools getfasta -name -s -fi {input.dna} -bed {input.bed} -fo {output}"
+

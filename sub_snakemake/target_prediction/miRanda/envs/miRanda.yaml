@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 channels:
+=======
+channel:
+>>>>>>> 9ce149c... add use of miRanda
  - bioconda
 dependencies:
  - miranda
