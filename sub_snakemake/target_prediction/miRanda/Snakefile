@@ -56,10 +56,40 @@ rule load_in_miRanda_scores_SQLite:
 #           "results/{species}_chr{chrom}_loaded.miRanda.txt"
 #        shell:
 #           "{input.script} {input.miRanda_results} {wildcards.chrom} {wildcards.species}"
+rule reformat_bed_file_for_bedtools:
+        input: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bed"
+        output: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bedtools.bed"
+        shell: "exe/get_bedtools_bed.sh {input} {output}"
+
+rule reformat_bed_file_for_bedtools_no_reannotation:
+        input: "results/bed/no_reannotation/{species}_{feature}.chr{chrom}.filtered.bed"
+        output: "results/bed/no_reannotation/{species}_{feature}.chr{chrom}.bedtools.bed"
+        shell: "exe/get_bedtools_bed.sh {input} {output}"
+
+rule get_single_species_seq_fa:
+        input:
+                dna=get_dna_file,
+                bed="results/bed/mmu_liver_3UTR.chr{chrom}.bedtools.bed"
+        output: "results/msa/{species}_{tissue}_chr{chrom}.tmp.fa"
+        conda: 'envs/bedtools.yaml'
+        shell: "bedtools getfasta -name -s -fi {input.dna} -bed {input.bed} -fo {output}"
+
+rule get_single_species_seq_fa_no_reannotation:
+        input:
+                dna=get_dna_file,
+                bed="results/bed/no_reannotation/{species}_3UTR.chr{chrom}.bedtools.bed"
+        output: "results/msa/no_reannotation/{species}_chr{chrom}.tmp.fa"
+        conda: 'envs/bedtools.yaml'
+        shell: "bedtools getfasta -name -s -fi {input.dna} -bed {input.bed} -fo {output}"
 
 rule fix_fasta_output:
 	input: "results/msa/{species}_{tissue}_chr{chrom}.tmp.fa"
 	output: "results/msa/{species}_{tissue}_chr{chrom}.fa"
+	shell: "sed 's/(+)//g' {input} | sed 's/(-)//g' > {output}"
+
+rule fix_fasta_output_no_reannotation:
+	input: "results/msa/no_reannotation/{species}_chr{chrom}.tmp.fa"
+	output: "results/msa/no_reannotation/{species}_chr{chrom}.fa"
 	shell: "sed 's/(+)//g' {input} | sed 's/(-)//g' > {output}"
 
 rule miRanda:
@@ -67,5 +97,13 @@ rule miRanda:
 		utr="results/msa/{species}_{tissue}_chr{chrom}.fa",
 		mirna="data/mirbase_mature_{species}.filtered.fa"
 	output: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt"
+	conda: "envs/miRanda.yaml"
+	shell: "miranda {input.mirna} {input.utr} > {output}"
+
+rule miRanda_no_reannotation:
+	input:
+		utr="results/msa/no_reannotation/{species}_chr{chrom}.fa",
+		mirna="data/mirbase_mature_{species}.filtered.fa"
+	output: "results/targets/miRanda/{species}/chr{chrom}.txt"
 	conda: "envs/miRanda.yaml"
 	shell: "miranda {input.mirna} {input.utr} > {output}"
