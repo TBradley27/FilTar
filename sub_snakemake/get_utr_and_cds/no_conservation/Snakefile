@@ -15,7 +15,7 @@ rule reformat_bed_file:
 	output: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bedtools.bed"
 	shell: "exe/get_bedtools_bed.sh {input} {output}"
 
-rule get_fasta:
+rule get_single_species_seq_tsv:
 	input:
 		dna=get_dna_file,
 		bed="results/bed/mmu_liver_3UTR.chrY.bedtools.bed"
