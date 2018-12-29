@@ -44,7 +44,7 @@ rule gtf_to_bed_no_reannotation:
             gtf=get_gtf_file,
             script="exe/pre-processing/gtf_to_bed.sh"
         output:
-            "results/bed/no_reannotation/{species}_{feature}.chr{chrom}.bed"
+            "results/bed/no_reannotation/{species}_{feature}.chr{chrom}.tmp.bed"
         conda:
             "envs/biopython.yaml"
         shell:
@@ -88,12 +88,3 @@ rule get_utr_lengths:
         input:  'results/bed/{species}_{cell_line}.utr.full.bed'
         output: 'results/utrs/{species}_{cell_line}.utr.lengths.tsv'
         script: 'get_utr_lengths.R'
-
-rule get_single_species_seq_fa:
-        input:
-                dna=get_dna_file,
-                bed="results/bed/mmu_liver_3UTR.chrY.bedtools.bed"
-        output: "results/msa/{species}_{tissue}_chr{chrom}.tmp.fa"
-        conda: 'envs/bedtools.yaml'
-        shell: "bedtools getfasta -name -s -fi {input.dna} -bed {input.bed} -fo {output}"
-

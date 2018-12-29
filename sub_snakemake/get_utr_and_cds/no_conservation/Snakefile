@@ -10,11 +10,6 @@ def get_NCBI_taxonomic_id(wildcards):
 	if wildcards.species == 'mmu':
 		return('10090')
 
-rule reformat_bed_file:
-	input: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bed"
-	output: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bedtools.bed"
-	shell: "exe/get_bedtools_bed.sh {input} {output}"
-
 rule get_single_species_seq_tsv:
 	input:
 		dna=get_dna_file,
