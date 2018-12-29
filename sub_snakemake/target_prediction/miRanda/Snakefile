@@ -1,0 +1,12 @@
+rule fix_fasta_output:
+	input: "results/msa/{species}_{tissue}_chr{chrom}.tmp.fa"
+	output: "results/msa/{species}_{tissue}_chr{chrom}.fa"
+	shell: "sed 's/(+)//g' {input} | sed 's/(-)//g' > {output}"
+
+rule miRanda:
+	input:
+		utr="results/msa/{species}_{tissue}_chr{chrom}.fa",
+		mirna="data/mirbase_mature_{species}.filtered.fa"
+	output: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt"
+	conda: "envs/miRanda.yaml"
+	shell: "miranda {input.mirna} {input.utr} > {output}"

@@ -14,6 +14,7 @@ include: "sub_snakemake/target_prediction/targetscan/Snakefile"
 include: "sub_snakemake/get_utr_and_cds/Snakefile"
 include: "sub_snakemake/no_reannotation/Snakefile"
 include: "sub_snakemake/get_utr_and_cds/no_conservation/Snakefile" # for conservation information substitute 'no_conservation' for 'with_conservation'
+include: "sub_snakemake/target_prediction/miRanda/Snakefile"
 
 wildcard_constraints:
     species="[a-z]{3,4}",
