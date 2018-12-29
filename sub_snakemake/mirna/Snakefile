@@ -14,3 +14,8 @@ rule mirna_species_fasta:
            "data/mirbase_mature_{species}.fa"
         shell:
            "grep -A 1 {wildcards.species} {input} | awk '{{ print $1 }}' | sed 's/--//g' | sed '/^$/d' > {output}"
+
+rule filter_mirna_species_fasta:
+	input: "data/mirbase_mature_{species}.fa"
+	output: "data/mirbase_mature_{species}.filtered.fa"
+	script: "filter_mirna_fasta.py"
