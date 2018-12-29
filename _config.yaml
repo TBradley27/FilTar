@@ -1,3 +1,4 @@
 name: FilTar
 markdown: kramdown
 theme: jekyll-theme-slate
+show_downloads: true
