@@ -18,8 +18,27 @@ rule get_single_species_seq_tsv:
 	conda: 'envs/bedtools.yaml'
 	shell: "bedtools getfasta -name -s -tab -fi {input.dna} -bed {input.bed} -fo {output}"
 
+rule get_single_species_seq_tsv_no_reannotation:
+        input:
+                dna=get_dna_file,
+                bed="results/bed/no_reannotation/{species}_{feature}.chr{chrom}.bedtools.bed"
+        output: "results/msa/no_reannotation/{species}_chr{chrom}_{feature}.tmp.tsv"
+        conda: 'envs/bedtools.yaml'
+        shell: "bedtools getfasta -name -s -tab -fi {input.dna} -bed {input.bed} -fo {output}"
+
 rule fix_tsv:
 	input: "results/msa/{species}_{tissue}_chr{chrom}_{feature}.tmp.tsv"
 	output: "results/msa/{species}_{tissue}_chr{chrom}_{feature}_msa.tsv"
 	params: get_NCBI_taxonomic_id
 	shell: "exe/fix_tsv.sh {input} {params} {output}"
+
+rule fix_tsv_no_reannotation:
+        input: "results/msa/no_reannotation/{species}_chr{chrom}_{feature}.tmp.tsv"
+        output: "results/msa/no_reannotation/{species}_chr{chrom}_{feature}.tsv"
+        params: get_NCBI_taxonomic_id
+        shell: "exe/fix_tsv.sh {input} {params} {output}"
+
+
+
+
+
