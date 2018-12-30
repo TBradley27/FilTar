@@ -32,18 +32,18 @@ Two perl modules are needed to correctly execute targetscan7 - <code>Bio::TreeIO
 </li><br>
 <li><strong>Other:</strong> For the remaining dependencies, the user has the choice of the following two options:<br><br>
 
-	<ol type='A'>
+	<ol type='I'>
 	<li>  To allow dependencies to be managed within the snakemake workflow. If the <code>--use-conda</code> flag (see later) is used when executing snakemake, then snakemake will use conda to download and/or activate environments containing dependencies needed to execute a given rule (i.e. job within the larger workflow). That environment will then be reactivated whenever that same rule is executed.<br><br>
 
 For example, if the <code>--use-conda</code> flag is used, filtar will download and install HISAT2 and run withins its own self-contained conda environment. The dependency would be installed within conda, so root priviliges would not be needed.</li><br>
 
-	<li>The user can manage their own dependencies outside of the filtar workflow. If the '--use-conda' flag is not used, then filtar will try and find HISAT2 within the current environment using the PATH environment variable.</li>	
+	<li>The user can manage their own dependencies outside of the filtar workflow. If the <code>--use-conda</code> flag is not used, then filtar will try and find HISAT2 within the current environment using the PATH environment variable.</li>	
 	</ol>
 
-<p>Note 1: Option a) may cause problems on systems such as some HPC environments in which data download is uncoupled from intensive data processing. In which case option b) may be preferable</p>
+<p>Note 1: Option I) may cause problems on systems such as some HPC environments in which data download is uncoupled from intensive data processing. In which case option II) may be preferable</p>
 
 Note 2: For more flexibility if users would like filtar to manage some dependencies internally (e.g. HISAT2) and some dependencies externally (e.g. trim galore) they could edit the relevant Snakefile and comment out the 'conda' directive from the relevant rule.
-In this case, that rule's dependencies would not be managed internally by filtar even when the '--use-conda' flag is used when executing the 'snakemake' command
+In this case, that rule's dependencies would not be managed internally by filtar even when the <code>--use-conda</code> flag is used when executing the 'snakemake' command
 </li>
 </ol>
 </body>		
