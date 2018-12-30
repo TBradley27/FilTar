@@ -19,7 +19,7 @@ layout: default
 <p><code>devtools::install_github('TBradley27/filtar')</code></p>
 </li><br>
 
-<li><strong>perl modules:</strong> It is not recommended to install perls module using conda*. The recommended method of installing perl modules for us with filtar is to install cpanm perl package manager, and then to manually install perl modules using cpanm. cpanm can itself be installed using conda:
+<li><strong>Perl modules:</strong> It is not recommended to install perls module using conda*. The recommended method of installing perl modules for us with filtar is to install cpanm perl package manager, and then to manually install perl modules using cpanm. cpanm can itself be installed using conda:
 
 <p><code>conda install -c bioconda perl-app-cpanminus</code><br></p>
 
@@ -40,9 +40,7 @@ For example, if the <code>--use-conda</code> flag is used, filtar will download 
 	<li>The user can manage their own dependencies outside of the filtar workflow. If the '--use-conda' flag is not used, then filtar will try and find HISAT2 within the current environment using the PATH environment variable.</li>	
 	</ol>
 
-
-
-Note 1: Option a) may cause problems on systems such as some HPC environments in which data download is uncoupled from intensive data processing. In which case option b) may be preferable
+<p>Note 1: Option a) may cause problems on systems such as some HPC environments in which data download is uncoupled from intensive data processing. In which case option b) may be preferable</p>
 
 Note 2: For more flexibility if users would like filtar to manage some dependencies internally (e.g. HISAT2) and some dependencies externally (e.g. trim galore) they could edit the relevant Snakefile and comment out the 'conda' directive from the relevant rule.
 In this case, that rule's dependencies would not be managed internally by filtar even when the '--use-conda' flag is used when executing the 'snakemake' command
