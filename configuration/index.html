@@ -1,0 +1,20 @@
+-----
+layout: default
+-----
+
+<h1>Configuration:</h1>
+
+<p>The primary configuration which must take place is the following:</p>
+<ol>
+<li>A mapping between tissue or cell line identifiers, their respective sample accession (c.f. <a href="https://www.ncbi.nlm.nih.gov/biosample/">BioSamples</a>), and the mapping of sample accessions to sequencing run accessions</li>
+<li>A labelling of each run accession to determine if that library corresponds to single-end or paired-end sequencing</li>
+<li>A selection of which miRNAs (using canonical miRNA names found in miRBase with the three letter species prefix) to use for target prediction. If this configuration is left blank, target prediction is performed for all miRBase annotated miRNAs of that species</li>
+<li>The expression threshold on which context++ scores are filtered. To manage this, users should edit the 'params' directive of the results/no_reannotation or results/target_predication/targetscan Snakefiles for 'reannotation' and 'no reannotation' analyses respectively</li>
+</ol>
+<p>These details can be manually configured using the config/accession_mappings.yaml and config/config.yaml config files respectively.</p>
+
+<p>For run accessions, users can provide their own data, or aim to download raw data from public repositiories. If the former option is used, then users must manually place their data in either the data/single-end
+or the data/paired-end directories depending on which is appropriate. Accessions used do not necessarily need to be of external significance (i.e. universally recognised and understood by other scientists), however if the aim is to download raw sequencing data from public repositories, then run accessions must correspond to the accessions of the run sequence data which is aimed to be downloaded. If user data is used, files names must be in the form {accession}.fastq.gz for single-end data and {accession}_1.fastq.gz and {accession}_2.fastq.gz containing the first and second mate pair reads, respectively.</p>
+
+<p>For the most part, external tools are executed using default parameters which are documented in their respective snakefiles (found within subdirectories of the sub_snakemake directory). Values of parameters can be altered by directly editing the 'param' key-value pairs contained within the rules of these snakefiles.</p>
+
