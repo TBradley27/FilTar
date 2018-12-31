@@ -123,16 +123,16 @@ rule targetscan_context_scores:
 
 rule aggregate_contextpp_scores:
        input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
-       output: protected("results/targets/{species}_{tissue}_msa.contextpp.tsv")
+       output: protected("results/targets/{species}/{tissue}.contextpp.tsv")
        shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
 rule expression_filter_contextpp_scores:
         input:
-            contextpp_scores="results/targets/{species}_{tissue}_msa.contextpp.tsv",
+            contextpp_scores="results/targets/{species}/{tissue}.contextpp.tsv",
             expression_values="results/salmon/{species}_{tissue}.sf"
         params:
             tpm_expression_threshold=2
-        output: protected("results/targets/{species}_{tissue}_msa.contextpp.filtered.tsv")
+        output: protected("results/targets/{species}/{tissue}.contextpp.filt.tsv")
         script: 'filter_contextpp_scores.R'
 
 ### other ###
