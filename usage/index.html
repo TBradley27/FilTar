@@ -1,0 +1,49 @@
+---
+layout: default
+---
+<body>
+
+<h1>Usage</h1>
+
+<p>FilTar is used as followed:</p>
+
+<code>snakemake {name_of_target_file}</code>
+
+<p>When executing this command, the user must ensure that they are in the project root directory containing the main project makefile.</p>
+
+<p>The name structure of the target file will depend on whether the user wishes to reannotate 3'UTRs or not. For reannotation:</p>
+
+<code>snakemake results/targets/{species}_{tissue}_msa.contextpp.tsv</code>
+
+<p>The <code>species</code> and <code>tissue</code> wildcards will evaluate to the the species and biological context of interest. The three letter prefix of the species using the first letter of the genus name, and the first two letters of the species name must be used e.g.:<p>
+
+<code>snakemake results/targets/hsa_liver_msa.contextpp.tsv</code>
+
+<p>If the user does not want to reannotate 3'UTR, but still wishes to produce target predictions, then they can run the following command:<p>
+
+<code>snakemake results/targets/no_reannotation/{species}_msa.contextpp.tsv</code>
+
+<p>For targetscan, if the user wishes to identify miRNA target sites, without computing a context++ score (Agarwal et al. 2015 - 10.7554/eLife.05005) for each target site, then the substring 'contextpp' in the target file name should be substituted for 'sites' like so:<p>
+
+<code>snakemake results/targets/no_reannotation/{species}_msa.sites.tsv</code>
+
+<p>If the user wishes to filter computed contextpp scores, then they should add the suffix 'filtered.tsv' to the ususal file name like so:</p>
+
+<code>snakemake results/targets/no_reannotation/{species}_msa.sites.filtered.tsv</code>
+
+<p>Many options can be passed to the snakemake command in order modulate behaviour, reference should be made to the official Snakemake <a href="https://snakemake.readthedocs.io/en/stable/">Snakemake documentation</a> as an exhaustive reference</p>
+
+<p>Of particular importance, is to note that Snakemake has its own built-in scheduling to manage the execution of different rules. Many rules can be executed in parallel using the <code>--cores {num_cores}</code> option.
+Combined use of this option and execution within high-performance computing environments enable the execution of rules across many different cores.</p>
+
+<h2>Warnings</h2>
+<ol>
+	<li>The script generating the context++ scores uses RNAplfold as a dependency which itself generates ~100KB of data per transcript per species per tissue.
+Therefore, generating context++ score for a large number of tissues will consume a lot of disk space. RNAplfold can de deleted after each analysis run
+to help mitigate against this issue.</li> 
+
+	<li>Be cautious to delete files if running the same analysis (e.g. same species and tissue) using different 
+3'UTR annotations, as targetscan7 will use RNAplfold generated from a previous analysis automatically. Again, manually deleting RNAplfold output will
+protect against this issue.</li>
+</ol>
+</body>		
