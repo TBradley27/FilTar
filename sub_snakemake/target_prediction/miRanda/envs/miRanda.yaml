@@ -1,4 +1,0 @@
-channel:
- - bioconda
-dependencies:
- - miranda
