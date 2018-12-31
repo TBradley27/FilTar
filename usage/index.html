@@ -28,7 +28,7 @@ title: Usage
 
 <p>Whilst this usage option will invoke the most rules, and therefore use the most resources, we believe it will produce the most accurate set of target predictions</p>
 
-<h2>No reannotation</h2>
+<h2>Option: no 3'UTR reannotation</h2>
 
 <p>If the user does not want to reannotate 3'UTR, but still wishes to produce target predictions, then they can run the following command:<p>
 
@@ -36,19 +36,19 @@ title: Usage
 
 <p>In this case, FilTar will default to using 3'UTR annotations from the latest release of Ensembl/ENCODE</p> 
 
-<h2>No expression filtering</h2>
+<h2>Option: no mRNA expression filtering</h2>
 
 If the user does not wish filter predicted targets by normalised expression levels, then they should remove the suffix 'filtered.tsv' from the ususal file name pattern like so:</p>
 
 <code>snakemake results/targets/no_reannotation/{species}_msa.sites.filtered.tsv</code>
 
-<h2>No 3'UTR conservation information</h2>
+<h2>Option: no 3'UTR conservation information</h2>
 
 <p>When using Filtar to run targetscan7, the user can choose not to incorporate conservation information by running the algorithm on single 3'UTR sequences rather than multiple sequence alignments. Running targetscan with conservation information requires the download of large 100-way genome-wide alignment MAF files (totalling >500GB of information) - as a result, running the algorithm without 3'UTR conservation information would be appropriate when storage space is limited.</p>
 
 <p>In order to run FilTar in no conservation mode, the user must open <code>Snakefile</code> and edit line 16 to substitute the string <code>with conservation</code> with <code>no conservation</code></p>
 
-<h2>Other target prediction algorithms</h2>
+<h2>Option: Use other target prediction algorithms</h2>
 
 <p>As mentioned previously, targetscan7 is the defauly miRNA target prediction algorithm used for FilTar. However, users can also choose to use the miRanda algorithm using the following target pattern:</p>
 
@@ -71,11 +71,11 @@ Combined use of this option and execution within high-performance computing envi
 
 <h2>Warnings</h2>
 <ol>
-	<li><strong>Storage space</strong>The script generating the context++ scores uses RNAplfold as a dependency which itself generates ~100KB of data per transcript per species per tissue.
+	<li><strong>Storage space:</strong> The script generating the context++ scores uses RNAplfold as a dependency which itself generates ~100KB of data per transcript per species per tissue.
 Therefore, generating context++ score for a large number of tissues will consume a lot of disk space. RNAplfold can de deleted after each analysis run
 to help mitigate against this issue. As mentioned previously, running FilTar when using 3'UTR conservation information will consume a large amount of storage space</li> 
 
-	<li><strong>Cleaning output directories</strong>Be cautious to delete files if running the same analysis (e.g. same species and tissue) using different 
+	<li><strong>Cleaning output directories:</strong> Be cautious to delete files if running the same analysis (e.g. same species and tissue) using different 
 3'UTR annotations, as targetscan7 will use RNAplfold generated from a previous analysis automatically. Again, manually deleting RNAplfold output will
 protect against this issue.</li>
 </ol>
