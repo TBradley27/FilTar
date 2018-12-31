@@ -6,31 +6,63 @@ title: Usage
 
 <h1>Usage</h1>
 
-<p>FilTar is used as followed:</p>
+<h2>Preliminary Information</h2>
+
+<p>No matter how the user wishes to use FilTar, it is always invoked using the same format:</p>
 
 <code>snakemake {name_of_target_file}</code>
 
-<p>When executing this command, the user must ensure that they are in the project root directory containing the main project makefile.</p>
+<p>FilTar is run in this way, because it does not exist as a standard binary executable, or a script to be read by an interpreter, but rather as as a collection of snakefiles, scripts, text file and directory structures which relate to each other to achieve a common purpose i.e. the repository/directory itself is the tool.</p>
 
-<p>The name structure of the target file will depend on whether the user wishes to reannotate 3'UTRs or not. For reannotation:</p>
+<p>As a result of this emphasis on directory structure, the user must ensure that they are located at the directory root when invoking snakemake.</p>
 
-<code>snakemake results/targets/{species}_{tissue}_msa.contextpp.tsv</code>
+<h2>Standard Usage</h2>
+
+<p>Standard usage refers to usage of the tool in which the user reannotates 3'UTRs, filters mRNA targets by expression level, and uses targetscan7 with multiple sequence alignment data:</p>
+
+<code>snakemake results/targets/{species}_{tissue}_msa.contextpp.filtered.tsv</code>
 
 <p>The <code>species</code> and <code>tissue</code> wildcards will evaluate to the the species and biological context of interest. The three letter prefix of the species using the first letter of the genus name, and the first two letters of the species name must be used e.g.:<p>
 
-<code>snakemake results/targets/hsa_liver_msa.contextpp.tsv</code>
+<code>snakemake results/targets/hsa_liver_msa.contextpp.filtered.tsv</code>
+
+<p>Whilst this usage option will invoke the most rules, and therefore use the most resources, we believe it will produce the most accurate set of target predictions</p>
+
+<h2>No reannotation</h2>
 
 <p>If the user does not want to reannotate 3'UTR, but still wishes to produce target predictions, then they can run the following command:<p>
 
-<code>snakemake results/targets/no_reannotation/{species}_msa.contextpp.tsv</code>
+<code>snakemake results/targets/no_reannotation/{species}_msa.contextpp.filtered.tsv</code>
 
-<p>For targetscan, if the user wishes to identify miRNA target sites, without computing a context++ score (Agarwal et al. 2015 - 10.7554/eLife.05005) for each target site, then the substring 'contextpp' in the target file name should be substituted for 'sites' like so:<p>
+<p>In this case, FilTar will default to using 3'UTR annotations from the latest release of Ensembl/ENCODE</p> 
 
-<code>snakemake results/targets/no_reannotation/{species}_msa.sites.tsv</code>
+<h2>No expression filtering</h2>
 
-<p>If the user wishes to filter computed contextpp scores, then they should add the suffix 'filtered.tsv' to the ususal file name like so:</p>
+If the user does not wish filter predicted targets by normalised expression levels, then they should remove the suffix 'filtered.tsv' from the ususal file name pattern like so:</p>
 
 <code>snakemake results/targets/no_reannotation/{species}_msa.sites.filtered.tsv</code>
+
+<h2>No 3'UTR conservation information</h2>
+
+<p>When using Filtar to run targetscan7, the user can choose not to incorporate conservation information by running the algorithm on single 3'UTR sequences rather than multiple sequence alignments. Running targetscan with conservation information requires the download of large 100-way genome-wide alignment MAF files (totalling >500GB of information) - as a result, running the algorithm without 3'UTR conservation information would be appropriate when storage space is limited.</p>
+
+<p>In order to run FilTar in no conservation mode, the user must open <code>Snakefile</code> and edit line 16 to substitute the string <code>with conservation</code> with <code>no conservation</code></p>
+
+<h2>Other target prediction algorithms</h2>
+
+<p>As mentioned previously, targetscan7 is the defauly miRNA target prediction algorithm used for FilTar. However, users can also choose to use the miRanda algorithm using the following target pattern:</p>
+
+<code>snakemake results/targets/miRanda/{species}/{tissue}.filtered.txt</code>
+
+<h2>Intermediate files</h2>
+
+<p>Many intermediate files are generated when executing the canonical FilTar workflow. These files can be useful in their own right, and the user may wish to generate these files without expending resources creating downstream files. For example, with targetscan, if the user wishes to identify miRNA target sites, without computing a context++ scor for each target site, then the substring 'contextpp' in the target file name should be substituted for 'sites' like so:<p>
+
+<code>snakemake results/targets/{species}_{tissue}_msa.contextpp.filtered.tsv</code>
+
+<p>To get a comprehensive view of intermediate files generated, the user will have to inspect relevant Snakefiles manually. Alternatively, the user can inspect the stdout from a conventional snakemake run to determine intermediate files generated for various targets</p>
+
+<h2>Modulating snakemake behaviour</h2>
 
 <p>Many options can be passed to the snakemake command in order modulate behaviour, reference should be made to the official Snakemake <a href="https://snakemake.readthedocs.io/en/stable/">Snakemake documentation</a> as an exhaustive reference</p>
 
@@ -39,11 +71,11 @@ Combined use of this option and execution within high-performance computing envi
 
 <h2>Warnings</h2>
 <ol>
-	<li>The script generating the context++ scores uses RNAplfold as a dependency which itself generates ~100KB of data per transcript per species per tissue.
+	<li><strong>Storage space</strong>The script generating the context++ scores uses RNAplfold as a dependency which itself generates ~100KB of data per transcript per species per tissue.
 Therefore, generating context++ score for a large number of tissues will consume a lot of disk space. RNAplfold can de deleted after each analysis run
-to help mitigate against this issue.</li> 
+to help mitigate against this issue. As mentioned previously, running FilTar when using 3'UTR conservation information will consume a large amount of storage space</li> 
 
-	<li>Be cautious to delete files if running the same analysis (e.g. same species and tissue) using different 
+	<li><strong>Cleaning output directories</strong>Be cautious to delete files if running the same analysis (e.g. same species and tissue) using different 
 3'UTR annotations, as targetscan7 will use RNAplfold generated from a previous analysis automatically. Again, manually deleting RNAplfold output will
 protect against this issue.</li>
 </ol>
