@@ -10,12 +10,12 @@ install:
    - conda config --set always_yes yes --set changeps1 no
    - conda update -q conda
    - conda info -a
+   - conda config --add channels defaults
+   - conda config --add channels conda-forge
    - conda config --add channels bioconda
-
-   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-   - source activate test-environment
-   - conda install snakemake==5.2.4
+   - conda create -q -n test-environment snakemake python=$TRAVIS_PYTHON_VERSION
 
 script:
+   - source activate test-environment
    - snakemake --version 
    - snakemake -n results/targets/mmu_liver_msa.contextpp.tsv
