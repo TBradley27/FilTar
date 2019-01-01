@@ -42,6 +42,11 @@ rule get_extended_bed_file:
          script:
              "extend_bed2.R"
 
+rule aggregrate_extended_bed_files:
+	input: lambda wildcards: expand("results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
+	output: "results/bed/{species}_{tissue}_3UTR.bed"
+	shell: "cat {input} > {output}"
+
 #rule reformat_normal_bed_file:
 #         input:
 #           script="exe/reformat_normal_bed.R",
