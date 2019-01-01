@@ -22,7 +22,7 @@ def get_species_synonym(wildcards):
 rule get_gtf_file:
      output: "data/{species_prefix}.94.gtf"
      params: get_species
-     shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-94/gtf/{params}/{wildcards.species_prefix}.94.gtf.gz && gunzip data/{wildcards.species_prefix}.94.gtf.gz && sed 's/^chr//g' data/{wildcards.species_prefix}.94.gtf > tmp && mv tmp data/{wildcards.species_prefix}.94.gtf"
+     shell: "rsync -av rsynch://ftp.ensembl.org/ensembl/pub/release-94/gtf/{params}/{wildcards.species_prefix}.94.gtf.gz data/ && gunzip data/{wildcards.species_prefix}.94.gtf.gz && sed 's/^chr//g' data/{wildcards.species_prefix}.94.gtf > tmp && mv tmp data/{wildcards.species_prefix}.94.gtf"
 
 rule download_fasta:
         input:
