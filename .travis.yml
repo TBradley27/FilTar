@@ -21,10 +21,12 @@ install:
    - conda config --add channels r
    - conda config --add channels conda-forge
    - conda config --add channels bioconda
-   - conda create -q -n test-environment snakemake r r-devtools python=$TRAVIS_PYTHON_VERSION
+   - conda create -q -n test-environment snakemake r r-devtools perl-app-cpanminus python=$TRAVIS_PYTHON_VERSION
 
 script:
    - source activate test-environment
+   - cpanm Bio::Perl
+   - cpanm Statistics::Lite
    - Rscript -e 'devtools::install_github("TBradley27/filtar_R")'
    - snakemake --version
    - travis_wait 23 snakemake data/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz 
