@@ -14,9 +14,10 @@ install:
    - conda update -q conda
    - conda info -a
    - conda config --add channels defaults
+   - conda config --add channels r
    - conda config --add channels conda-forge
    - conda config --add channels bioconda
-   - conda create -q -n test-environment snakemake python=$TRAVIS_PYTHON_VERSION
+   - conda create -q -n test-environment snakemake r python=$TRAVIS_PYTHON_VERSION
 
 script:
    - source activate test-environment
