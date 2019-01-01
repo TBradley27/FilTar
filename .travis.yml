@@ -26,6 +26,7 @@ install:
 script:
    - source activate test-environment
    - Rscript -e 'devtools::install_github("TBradley27/filtar_R")'
-   - snakemake --version 
-   - travis_wait 30 snakemake --use-conda results/targets/no_reannotation/mmu_chrY.contextpp.tsv
+   - snakemake --version
+   - snakemake travis_wait 23 snakemake data/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz 
+   - snakemake --use-conda results/targets/no_reannotation/mmu_chrY.contextpp.tsv
    - head results/targets/no_reannotation/mmu_chrY.contextpp.tsv
