@@ -34,6 +34,7 @@ rule download_fasta:
 rule decompress_dna_file:
         input: "data/{species_prefix}.dna.primary_assembly.fa.gz"
         output: "data/{species_prefix}.dna.primary_assembly.fa"
+        conda: "envs/pigz.yaml"
         threads: 8
         shell: "pigz -p {threads} -d {input}"
 
