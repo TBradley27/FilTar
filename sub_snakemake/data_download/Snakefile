@@ -19,6 +19,13 @@ def get_species_synonym(wildcards):
         elif wildcards.species_prefix == 'Homo_sapiens.GRCh38':
                 return ('homo_sapiens')
 
+#rule download_mirna_data:
+#       input:
+#       output:
+#          "data/mature.fa"
+#       shell:
+#          "wget --directory-prefix=data/ ftp://mirbase.org/pub/mirbase/CURRENT/mature.fa.gz && gunzip {output}"
+
 rule get_gtf_file:
      output: "data/{species_prefix}.94.gtf"
      params: get_species
