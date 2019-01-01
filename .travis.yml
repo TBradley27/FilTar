@@ -18,4 +18,4 @@ install:
 script:
    - source activate test-environment
    - snakemake --version 
-   - snakemake -n results/targets/mmu_liver_msa.contextpp.tsv
+   - snakemake -n results/targets/mmu/liver.contextpp.tsv
