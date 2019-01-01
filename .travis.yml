@@ -27,5 +27,5 @@ script:
    - source activate test-environment
    - Rscript -e 'devtools::install_github("TBradley27/filtar_R")'
    - snakemake --version 
-   - snakemake --use-conda results/targets/no_reannotation/mmu_chrY.contextpp.tsv
+   - travis_wait 30 snakemake --use-conda results/targets/no_reannotation/mmu_chrY.contextpp.tsv
    - head results/targets/no_reannotation/mmu_chrY.contextpp.tsv
