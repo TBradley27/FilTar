@@ -3,7 +3,6 @@ python: "3.6"
 
 os:
  - linux
- - osx
 
 install:
    - sudo apt-get update
@@ -22,4 +21,5 @@ install:
 script:
    - source activate test-environment
    - snakemake --version 
-   - snakemake --use-conda results/targets/no_reannotation/mmu_chrY_msa.contextpp.tsv
+   - snakemake --use-conda results/targets/no_reannotation/mmu_chrY.contextpp.tsv
+   - head results/targets/no_reannotation/mmu_chrY.contextpp.tsv
