@@ -12,8 +12,9 @@ install:
    - conda info -a
    - conda config --add channels bioconda
 
-   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION snakemake
+   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
    - source activate test-environment
+   - conda install -c bioconda snakemake=5.2.2
 
 script:
    - snakemake --version 
