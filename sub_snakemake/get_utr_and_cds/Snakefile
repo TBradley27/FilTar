@@ -59,7 +59,7 @@ rule gtf_to_bed_no_reannotation:
 #                'grep -P "^{wildcards.chrom}\t" {input} > {output}'
 
 rule get_utr_lengths:
-        input:  'results/bed/{species}_{cell_line}.utr.full.bed'
-        output: 'results/utrs/{species}_{cell_line}.utr.lengths.tsv'
+        input:  'results/bed/{species}_{tissue}_3UTR.bed'
+        output: 'results/utrs/{species}_{tissue}.utr.lengths.tsv'
         script: 'get_utr_lengths.R'
 
