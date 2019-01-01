@@ -17,10 +17,11 @@ install:
    - conda config --add channels r
    - conda config --add channels conda-forge
    - conda config --add channels bioconda
-   - conda create -q -n test-environment snakemake r python=$TRAVIS_PYTHON_VERSION
+   - conda create -q -n test-environment snakemake r r-devtools python=$TRAVIS_PYTHON_VERSION
 
 script:
    - source activate test-environment
+   - Rscript -e 'devtools::install_github("TBradley27/filtar_R")'
    - snakemake --version 
    - snakemake --use-conda results/targets/no_reannotation/mmu_chrY.contextpp.tsv
    - head results/targets/no_reannotation/mmu_chrY.contextpp.tsv
