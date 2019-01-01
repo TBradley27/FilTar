@@ -22,13 +22,13 @@ def get_species_synonym(wildcards):
 rule get_gtf_file:
      output: "data/{species_prefix}.94.gtf"
      params: get_species
-     shell: "rsync -av rsynch://ftp.ensembl.org/ensembl/pub/release-94/gtf/{params}/{wildcards.species_prefix}.94.gtf.gz data/ && gunzip data/{wildcards.species_prefix}.94.gtf.gz && sed 's/^chr//g' data/{wildcards.species_prefix}.94.gtf > tmp && mv tmp data/{wildcards.species_prefix}.94.gtf"
+     shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-94/gtf/{params}/{wildcards.species_prefix}.94.gtf.gz data/ && gunzip data/{wildcards.species_prefix}.94.gtf.gz && sed 's/^chr//g' data/{wildcards.species_prefix}.94.gtf > tmp && mv tmp data/{wildcards.species_prefix}.94.gtf"
 
 rule download_fasta:
         input:
         output: "data/{species_prefix}.dna.primary_assembly.fa.gz"
         params: get_species_synonym
-        shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-94/fasta/{params}/dna/{wildcards.species_prefix}.dna.primary_assembly.fa.gz"
+        shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-94/fasta/{params}/dna/{wildcards.species_prefix}.dna.primary_assembly.fa.gz data/"
 
 rule decompress_dna_file:
         input: "data/{species_prefix}.dna.primary_assembly.fa.gz"
