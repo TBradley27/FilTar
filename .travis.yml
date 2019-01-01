@@ -14,3 +14,5 @@ install:
 
    - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION snakemake
    - source activate test-environment
+
+script: which conda
