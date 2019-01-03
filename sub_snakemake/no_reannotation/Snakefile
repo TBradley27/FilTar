@@ -69,6 +69,7 @@ rule targetscan_context_scores_no_reannotation:
             script="exe/targetscan7/targetscan_70_context_scores.patch.pl"
         params:
              RNAplfold_dir="results/targets/no_reannotation/RNAplfold/{species}/"
+        conda: "envs/viennarna.yaml"
         output:
             "results/targets/no_reannotation/{species}_chr{chrom}.contextpp.tsv"
         shell:
