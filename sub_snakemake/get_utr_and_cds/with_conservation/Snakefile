@@ -18,7 +18,7 @@ rule biopython_get_no_reannotation_msa:
            maf_index="data/{species}_chr{chrom}.mafindex",
            shell_script="exe/targetscan7/convert_fasta_to_tsv.sh"
         output:
-           "results/msa/no_reannotation/{species}_chr{chrom}_{feature}_msa.tsv"
+           "results/msa/no_reannotation/{species}_chr{chrom}_{feature}.tsv"
         conda:
            "envs/biopython.yaml"
         script:
