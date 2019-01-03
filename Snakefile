@@ -21,7 +21,7 @@ include: "sub_snakemake/upload_to_tables/SQLite/Snakefile"
 include: "sub_snakemake/upload_to_tables/Snakefile"
 include: "sub_snakemake/profiling/Snakefile"
 include: "sub_snakemake/no_reannotation/Snakefile"
-include: "sub_snakemake/get_utr_and_cds/no_conservation/Snakefile" # for conservation information substitute 'no_conservation' for 'with_conservation'
+include: "sub_snakemake/get_utr_and_cds/with_conservation/Snakefile" # for conservation information substitute 'no_conservation' for 'with_conservation'
 include: "sub_snakemake/target_prediction/miRanda/Snakefile"
 
 wildcard_constraints:
@@ -31,4 +31,4 @@ wildcard_constraints:
     feature="(3UTR|CDS)"
 
 rule all:
-     input: expand("results/targets/canonical/{species}_chr{chrom}_msa.contextpp.tsv", species='hsa', chrom='Y')
+     input: "results/targets/mmu/liver.contextpp.tsv"
