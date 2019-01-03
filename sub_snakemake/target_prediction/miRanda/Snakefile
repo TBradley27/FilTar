@@ -1,7 +1,8 @@
-<<<<<<< HEAD
 def get_dna_file(wildcards):
-        sci_species_name = config['sci_species_name'][wildcards.species]
-        genome_build = config['genome_build'][wildcards.species]
+        if wildcards.species == 'hsa':
+                return("data/Homo_sapiens.GRCh38.dna.chromosome.{}.fa".format(wildcards.chrom))
+        if wildcards.species == 'mmu':
+                return("data/Mus_musculus.GRCm38.dna.chromosome.{}.fa".format(wildcards.chrom))
 
 rule reformat_bed_file_for_bedtools:
         input: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bed"
@@ -58,17 +59,10 @@ rule miRanda:
 	conda: "envs/miRanda.yaml"
 	shell: "miranda {input.mirna} {input.utr} > {output}"
 
-rule convert_miRanda_to_tsv:
-        input: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt"
-        output: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.tsv"
-        shell: "exe/convert_miRanda_to_tsv.sh {input} {output}"
-
-rule aggregate_miRanda_output_no_reannotation:
-        input: lambda wildcards: expand("results/targets/miRanda/{species}/{tissue}_chr{chrom}.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
-        output: "results/targets/miRanda/{species}/{tissue}.tsv"
-        wildcard_constraints:
-               tissue="((?!filt).)*"
-        shell: "cat {input} > {output}"
+#rule aggregate_miRanda_output:
+#	input: lambda wildcards: expand("results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
+#	output: "results/targets/miRanda/{species}/{tissue}.txt"
+#	shell: "cat {input} > {output}"
 
 rule miRanda_no_reannotation:
 	input:
@@ -77,3 +71,10 @@ rule miRanda_no_reannotation:
 	output: "results/targets/miRanda/{species}/chr{chrom}.txt"
 	conda: "envs/miRanda.yaml"
 	shell: "miranda {input.mirna} {input.utr} > {output}"
+
+#rule aggregate_miRanda_output_no_reannotation:
+#        input: lambda wildcards: expand("results/targets/miRanda/{species}/chr{chrom}.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
+#        output: "results/targets/miRanda/{species}.txt"
+#        shell: "cat {input} > {output}"
+
+

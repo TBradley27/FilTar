@@ -74,13 +74,14 @@ rule decompress_dna_file:
 
 rule download_fasta:
         input:
-        output: "data/{species_prefix}.dna.primary_assembly.fa.gz"
+        output: "data/{species_prefix}.dna.chromosome.{chrom}.fa.gz"
         params: get_species_synonym
-        shell: "wget --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-94/fasta/{params}/dna/{wildcards.species_prefix}.dna.primary_assembly.fa.gz"
+        shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-94/fasta/{params}/dna/{wildcards.species_prefix}.dna.chromosome.{wildcards.chrom}.fa.gz data/"
 
 rule decompress_dna_file:
-        input: "data/{species_prefix}.dna.primary_assembly.fa.gz"
-        output: "data/{species_prefix}.dna.primary_assembly.fa"
+        input: "data/{species_prefix}.dna.chromosome.{chrom}.fa.gz"
+        output: "data/{species_prefix}.dna.chromosome.{chrom}.fa"
+        conda: "envs/pigz.yaml"
         threads: 8
         shell: "pigz -p {threads} -d {input}"
 
