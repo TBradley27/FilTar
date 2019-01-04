@@ -37,3 +37,5 @@ script:
    - touch results/bed/no_reannotation/mmu_3UTR.chrY.filtered.bed # in order to retrigger target build
    - snakemake results/targets/no_reannotation/mmu_chrY.contextpp.tsv -n
    - snakemake --use-conda -p results/targets/no_reannotation/mmu_chrY.contextpp.tsv
+   - head results/targets/no_reannotation/mmu_chrY.contextpp.tsv
+   - Rscript -e 'testthat::test_file("targetscan_test.R")'
