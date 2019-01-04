@@ -21,10 +21,11 @@ install:
    - conda config --add channels r
    - conda config --add channels conda-forge
    - conda config --add channels bioconda
-   - conda create -q -n test-environment snakemake r r-devtools r-testthat perl-app-cpanminus python=$TRAVIS_PYTHON_VERSION
+   - conda create -q -n test-environment snakemake r r-devtools perl-app-cpanminus python=$TRAVIS_PYTHON_VERSION
 
 script:
    - source activate test-environment
+   - conda install -c r r-testthat
    - cpanm Bio::Perl
    - cpanm Statistics::Lite
    - Rscript -e 'devtools::install_github("TBradley27/filtar_R")'
