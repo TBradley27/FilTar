@@ -39,15 +39,14 @@ rule merge_fasta_nr:
         input: "results/msa/no_reannotation/{species}_chr{chrom}.tmp.fa"
         output: "results/msa/no_reannotation/{species}_chr{chrom}.tmp2.fa"
         script: "merge_fasta.R"
-        return('data/' + sci_species_name + '.' + genome_build + '.dna.chromosome.{}.fa'.format(wildcards.chrom))
 
 rule fix_fasta_output:
-	input: "results/msa/{species}_{tissue}_chr{chrom}.tmp.fa"
+	input: "results/msa/{species}_{tissue}_chr{chrom}.tmp2.fa"
 	output: "results/msa/{species}_{tissue}_chr{chrom}.fa"
 	shell: "sed 's/(+)//g' {input} | sed 's/(-)//g' > {output}"
 
 rule fix_fasta_output_no_reannotation:
-	input: "results/msa/no_reannotation/{species}_chr{chrom}.tmp.fa"
+	input: "results/msa/no_reannotation/{species}_chr{chrom}.tmp2.fa"
 	output: "results/msa/no_reannotation/{species}_chr{chrom}.fa"
 	shell: "sed 's/(+)//g' {input} | sed 's/(-)//g' > {output}"
 
@@ -59,10 +58,24 @@ rule miRanda:
 	conda: "envs/miRanda.yaml"
 	shell: "miranda {input.mirna} {input.utr} > {output}"
 
-#rule aggregate_miRanda_output:
-#	input: lambda wildcards: expand("results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
-#	output: "results/targets/miRanda/{species}/{tissue}.txt"
-#	shell: "cat {input} > {output}"
+rule aggregate_miRanda_output:
+	input: lambda wildcards: expand("results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
+	output: "results/targets/miRanda/{species}/{tissue}.txt"
+	shell: "cat {input} > {output}"
+
+rule convert_miRanda_to_tsv:
+	input: "results/targets/miRanda/{species}/{tissue}.txt"
+	output: "results/targets/miRanda/{species}/{tissue}.tsv"
+	shell: "grep -A 1 'hit' {input} | sed '/--/d' | grep '>' | sed 's/>//' > {output}"
+
+rule expression_filter_miRanda:
+        input:
+            contextpp_scores="results/targets/miRanda/{species}/{tissue}.tsv",
+            expression_values="results/salmon/{species}_{tissue}.sf"
+        params:
+            tpm_expression_threshold=2
+        output: protected("results/targets/miRanda/{species}/{tissue}_filt.tsv")
+        script: 'filter_contextpp_scores.R'
 
 rule miRanda_no_reannotation:
 	input:
@@ -72,9 +85,12 @@ rule miRanda_no_reannotation:
 	conda: "envs/miRanda.yaml"
 	shell: "miranda {input.mirna} {input.utr} > {output}"
 
-#rule aggregate_miRanda_output_no_reannotation:
-#        input: lambda wildcards: expand("results/targets/miRanda/{species}/chr{chrom}.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
-#        output: "results/targets/miRanda/{species}.txt"
-#        shell: "cat {input} > {output}"
+rule aggregate_miRanda_output_no_reannotation:
+        input: lambda wildcards: expand("results/targets/miRanda/{species}/chr{chrom}.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
+        output: "results/targets/miRanda/{species}.txt"
+        shell: "cat {input} > {output}"
 
-
+rule convert_miRanda_to_tsv_nr:
+        input: "results/targets/miRanda/{species}.txt"
+        output: "results/targets/miRanda/{species}.tsv"
+        shell: "grep -A 1 'hit' {input} | sed '/--/d' | grep '>' | sed 's/>//' > {output}"

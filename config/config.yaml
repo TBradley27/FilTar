@@ -28,6 +28,5 @@ paired_end: [SRR290901,SRR290902,SRR4119904,SRR4119905]
 mirnas: [mmu-miR-188-5p] #if this configuration is left blank - processing is performed for all miRNAs of a given species as default
 transcripts: [ENSMUST00000189888.6]
 
-reannotation: False
-conservation: False
-sequence_data_source: ENA
+mirnas: [mmu-miR-188-5p] #if this configuration is left blank - processing is performed for all miRNAs of a given species as default
+transcripts: [ENSMUST00000189888.6]
