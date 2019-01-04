@@ -1,10 +1,10 @@
 tissues:
         mmu: 
-                liver: [SRS387309,ERS026ddd] # insert relevant sample accessions here
+                liver: [SRS387309,foo] # insert relevant sample accessions here
         hsa:
 samples:
          SRS387309: [SRR652248,SRR652249]
-         ERS026ddd: [ERR032203,ERR032204]
+         foo: [ERR032203, ERR032204]
 
 single_end: [SRR652248,SRR652249]
 paired_end: [ERR032203,ERR032204]
@@ -15,14 +15,5 @@ mouse:
 human:
         runs: []
 
-mirnas: [mmu-miR-29b-3p,mmu-miR-132-3p] #if this configuration is left blank - processing is performed for all species miRNAs as default
-
-# e.g.
-#
-#
-# tissues:
-#       hsa:
-#               kidney: [SRS00001]
-#
-# samples:
-#               SRS00001: [SRR000001, SRR0000002]
+mirnas: [mmu-miR-29b-3p,mmu-miR-132-3p, mmu-miR-7061-5p] #if this configuration is left blank - processing is performed for all miRNAs of a given species as default
+transcripts: [ENSMUST00000055032.13]
