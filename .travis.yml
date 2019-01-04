@@ -31,6 +31,8 @@ script:
    - snakemake --version
    - snakemake --use-conda -p results/targets/no_reannotation/mmu_chrY.contextpp.tsv # no conservation mode
    - head results/targets/no_reannotation/mmu_chrY.contextpp.tsv
+   - snakemake --use-conda -p results/targets/miRanda/mmu/chrY.txt # test miRanda
+   - head results/targets/miRanda/mmu/chrY.txt
    - sed -i "s/no_conservation/with_conservation/" Snakefile
    - touch results/bed/no_reannotation/mmu_3UTR.chrY.filtered.bed # in order to retrigger target build
    - snakemake results/targets/no_reannotation/mmu_chrY.contextpp.tsv -n
