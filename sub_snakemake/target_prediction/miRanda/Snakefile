@@ -63,19 +63,19 @@ rule aggregate_miRanda_output:
 	output: "results/targets/miRanda/{species}/{tissue}.txt"
 	shell: "cat {input} > {output}"
 
-rule convert_miRanda_to_tsv:
-	input: "results/targets/miRanda/{species}/{tissue}.txt"
-	output: "results/targets/miRanda/{species}/{tissue}.tsv"
-	shell: "grep -A 1 'hit' {input} | sed '/--/d' | grep '>' | sed 's/>//' > {output}"
+#rule convert_miRanda_to_tsv:
+#	input: "results/targets/miRanda/{species}/{tissue}.txt"
+#	output: "results/targets/miRanda/{species}/{tissue}.tsv"
+#	shell: "grep -A 1 'hit' {input} | sed '/--/d' | grep '>' | sed 's/>//' > {output}"
 
-rule expression_filter_miRanda:
-        input:
-            contextpp_scores="results/targets/miRanda/{species}/{tissue}.tsv",
-            expression_values="results/salmon/{species}_{tissue}.sf"
-        params:
-            tpm_expression_threshold=2
-        output: protected("results/targets/miRanda/{species}/{tissue}_filt.tsv")
-        script: 'filter_contextpp_scores.R'
+#rule expression_filter_miRanda:
+#        input:
+#            contextpp_scores="results/targets/miRanda/{species}/{tissue}.tsv",
+#            expression_values="results/salmon/{species}_{tissue}.sf"
+#        params:
+#            tpm_expression_threshold=2
+#        output: protected("results/targets/miRanda/{species}/{tissue}_filt.tsv")
+#        script: 'filter_contextpp_scores.R'
 
 rule miRanda_no_reannotation:
 	input:
@@ -85,12 +85,12 @@ rule miRanda_no_reannotation:
 	conda: "envs/miRanda.yaml"
 	shell: "miranda {input.mirna} {input.utr} > {output}"
 
-rule aggregate_miRanda_output_no_reannotation:
-        input: lambda wildcards: expand("results/targets/miRanda/{species}/chr{chrom}.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
-        output: "results/targets/miRanda/{species}.txt"
-        shell: "cat {input} > {output}"
+#rule aggregate_miRanda_output_no_reannotation:
+#        input: lambda wildcards: expand("results/targets/miRanda/{species}/chr{chrom}.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
+#        output: "results/targets/miRanda/{species}.txt"
+#        shell: "cat {input} > {output}"
 
-rule convert_miRanda_to_tsv_nr:
-        input: "results/targets/miRanda/{species}.txt"
-        output: "results/targets/miRanda/{species}.tsv"
-        shell: "grep -A 1 'hit' {input} | sed '/--/d' | grep '>' | sed 's/>//' > {output}"
+#rule convert_miRanda_to_tsv_nr:
+#        input: "results/targets/miRanda/{species}.txt"
+#        output: "results/targets/miRanda/{species}.tsv"
+#        shell: "grep -A 1 'hit' {input} | sed '/--/d' | grep '>' | sed 's/>//' > {output}"
