@@ -9,7 +9,8 @@ united_quant2 = filtar::AvgSalmonQuant(united_quant)
 
 avg_quant = tibble::tibble(Name=united_quant2$Name, Length=20, EffectiveLength=20.00, TPM=united_quant2$avg, NumReads=20.00)
 
-real_output = paste(snakemake@output[[1]],'quant.sf',sep="")
+real_output = paste(snakemake@output[[1]],'quant.sf',sep="/")
+dir.create(snakemake@output[[1]])
 
 write.table(
         x=avg_quant,
