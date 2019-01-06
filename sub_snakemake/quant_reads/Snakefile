@@ -9,7 +9,7 @@ def get_cDNA_file(wildcards):
 rule download_cdna_file:
         output: "data/{species_prefix}.cdna.all.fa.gz"
 	params: get_cDNA_file
-	shell: "wget -nv --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/{params}/cdna/{wildcards.species_prefix}.cdna.all.fa.gz"
+	shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-92/fasta/{params}/cdna/{wildcards.species_prefix}.cdna.all.fa.gz data"
 
 rule decompress_cdna_file:
         input: "data/{species_prefix}.cdna.all.fa.gz"
