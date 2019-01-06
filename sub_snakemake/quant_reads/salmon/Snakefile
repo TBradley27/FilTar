@@ -6,13 +6,13 @@ def get_cDNA_file (wildcards):
 
 rule salmon_index:
         input:
-             get_cDNA_file   #"data/{genus_species}.{build}.cdna.all.fa"
-        output:
-            directory("results/salmon/indexes/{species}")
+            "data/{species_prefix}.cdna.all.fa"
+        params: index_dir="results/salmon/indexes/{species_prefix}/"
+        output: "results/salmon/indexes/{species_prefix}/sa.bin"
         threads: 8
         conda: "envs/salmon.yaml"
         shell:
-            "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
+            "salmon index --threads {threads} -t {input} -i {params.index_dir} --type quasi -k 31"
 
 def get_input_files (wildcards):
         if wildcards.run_accession in config['paired_end']:
@@ -27,9 +27,16 @@ def get_input_files (wildcards):
         else:
                 raise Exception("\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(wildcards.run_accession))
 
+def get_index (wildcards):
+		if wildcards.accession in config['mouse']['runs']:
+			return("results/salmon/indexes/Mus_musculus.GRCm38/sa.bin")
+		elif wildcards.accession in config['human']['runs']:
+			return('results/salmon/indexes/hsa_GRCh38/sa.bin')
+		else:
+			return('foo')
 
 rule salmon_quant:
-        output:  directory("results/salmon/runs/{species}/{run_accession}")
+        output:  "results/salmon/runs/{accession}/quant.sf" #"results/salmon/runs/{accession}/quant.sf", "results/salmon/{accession}/lib_format_counts.json"
 	input:
            reads=get_input_files,
            index="results/salmon/indexes/{species}"
