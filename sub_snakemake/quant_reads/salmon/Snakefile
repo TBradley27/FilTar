@@ -1,11 +1,11 @@
 rule salmon_index:
         input:
             "data/{species_prefix}.cdna.all.fa"
-        output:
-            directory("results/salmon/indexes/{species_prefix}/")
+        params: index_dir="results/salmon/indexes/{species_prefix}/"
+        output: "results/salmon/indexes/{species_prefix}/sa.bin"
         threads: 8
         shell:
-            "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
+            "salmon index --threads {threads} -t {input} -i {params.index_dir} --type quasi -k 31"
 
 def get_input_files (wildcards):
         if wildcards.accession in config['paired_end']:
@@ -20,14 +20,14 @@ def get_input_files (wildcards):
 
 def get_index (wildcards):
 		if wildcards.accession in config['mouse']['runs']:
-			return("results/salmon/indexes/Mus_musculus.GRCm38/")
+			return("results/salmon/indexes/Mus_musculus.GRCm38/sa.bin")
 		elif wildcards.accession in config['human']['runs']:
-			return('results/salmon/indexes/hsa_GRCh38/')
+			return('results/salmon/indexes/hsa_GRCh38/sa.bin')
 		else:
 			return('foo')
 
 rule salmon_quant:
-        output:  directory("results/salmon/runs/{accession}/") #"results/salmon/runs/{accession}/quant.sf", "results/salmon/{accession}/lib_format_counts.json"
+        output:  "results/salmon/runs/{accession}/quant.sf" #"results/salmon/runs/{accession}/quant.sf", "results/salmon/{accession}/lib_format_counts.json"
 	input:
            reads=get_input_files,
            index=get_index
