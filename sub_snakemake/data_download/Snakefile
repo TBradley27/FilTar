@@ -34,43 +34,7 @@ def get_species_synonym(wildcards):
 rule get_gtf_file:
      output: "data/{genus_species}.{build}.{ensembl_release}.chr.gtf"
      params: get_species
-     shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/gtf/{params}/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf.gz data/ && gunzip data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf.gz && sed 's/^chr//g' data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf > tmp && mv tmp data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf"
-
-rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
-        input: "data/{species_prefix}.{ensembl_release}.chr.gtf"
-        output: "data/{species_prefix}.{ensembl_release}.mod.chr.gtf"
-        shell: "sed -r 's/^MT//g' {input} | sed '/^\t/d'  > {output}" # delete mitochondiral records and records not assigned to a chromosome
-
-rule get_transcript_ids:
-        input:
-                gtf=get_gtf_file
-        output: "results/bed/{species}_chr{chrom}_all_transcripts.txt"
-        shell: "exe/get_all_transcripts.sh {input} {wildcards.chrom} > {output}"
-
-# Genome assemblies
-
-rule download_toplevel_dna:
-	output: "data/{genus_species}.{build}.dna.toplevel.fa.gz"
-	params: get_species
-	shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/fasta/{params}/dna/{wildcards.genus_species}.{wildcards.build}.dna.toplevel.fa.gz data/"
-
-rule download_primary_assembly_dna:
-        output: "data/{genus_species}.{build}.dna.primary_assembly.fa.gz"
-        params: get_species
-        shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/fasta/{params}/dna/{wildcards.genus_species}.{wildcards.build}.dna.primary_assembly.fa.gz data/"
-
-rule download_chromsomal_dna:
-        input:
-        output: "data/{genus_species}.{build}.dna.chromosome.{chrom}.fa.gz"
-        params: get_species
-        shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/fasta/{params}/dna/{wildcards.genus_species}.{wildcards.build}.dna.chromosome.{wildcards.chrom}.fa.gz data/"
-
-rule decompress_dna_file:
-        input: "data/{species_prefix}.dna.{assembly_level}.fa.gz"
-        output: "data/{species_prefix}.dna.{assembly_level}.fa"
-        conda: "envs/pigz.yaml"
-        threads: 8
-        shell: "pigz -p {threads} -d {input}"
+     shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-94/gtf/{params}/{wildcards.species_prefix}.94.gtf.gz data/ && gunzip data/{wildcards.species_prefix}.94.gtf.gz && sed 's/^chr//g' data/{wildcards.species_prefix}.94.gtf > tmp && mv tmp data/{wildcards.species_prefix}.94.gtf"
 
 rule download_fasta:
         input:
