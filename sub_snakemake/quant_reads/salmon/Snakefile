@@ -2,7 +2,7 @@ rule salmon_index:
         input:
             "data/{species_prefix}.cdna.all.fa"
         output:
-            directory("results/salmon/indexes/{species_prefix}/")
+            directory("results/salmon/indexes/{species_prefix}")
         threads: 8
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
@@ -27,7 +27,7 @@ def get_index (wildcards):
 			return('foo')
 
 rule salmon_quant:
-        output:  directory("results/salmon/runs/{accession}/") #"results/salmon/runs/{accession}/quant.sf", "results/salmon/{accession}/lib_format_counts.json"
+        output:  directory("results/salmon/runs/{accession}") #"results/salmon/runs/{accession}/quant.sf", "results/salmon/{accession}/lib_format_counts.json"
 	input:
            reads=get_input_files,
            index=get_index
@@ -38,23 +38,23 @@ rule salmon_quant:
 		"quant_salmon.py"
 
 rule salmon_get_lib_type:
-	input: "results/salmon/runs/{run_accession}/" 
+	input: "results/salmon/runs/{run_accession}" 
 	output: "results/salmon/{run_accession}/lib_type.txt"
         shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
 
 rule salmon_quantmerge_by_run:
-	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}/", run_accession=config['samples'][wildcards.sample]),
+	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}", run_accession=config['samples'][wildcards.sample]),
 	output: "results/salmon/samples/{sample}.quant.tmp.sf"
         conda: "envs/salmon.yaml"
 	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 
 rule salmon_average_quantmerge_runs:
         input: "results/salmon/samples/{sample}.quant.tmp.sf",
-        output: directory("results/salmon/samples/{sample}/")
+        output: directory("results/salmon/samples/{sample}")
         script: "get_average_quant.R"
 
 rule salmon_quantmerge_by_sample:
-        input:  lambda wildcards: expand('results/salmon/samples/{sample}/', sample=config['tissues'][wildcards.species][wildcards.tissue]),
+        input:  lambda wildcards: expand('results/salmon/samples/{sample}', sample=config['tissues'][wildcards.species][wildcards.tissue]),
         output: "results/salmon/{species}_{tissue}.sf.tmp"
         conda: "envs/salmon.yaml"
         shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
