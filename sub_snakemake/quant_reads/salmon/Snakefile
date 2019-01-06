@@ -7,12 +7,12 @@ def get_cDNA_file (wildcards):
 rule salmon_index:
         input:
             "data/{species_prefix}.cdna.all.fa"
-        params: index_dir="results/salmon/indexes/{species_prefix}/"
-        output: "results/salmon/indexes/{species_prefix}/sa.bin"
+        output:
+            directory("results/salmon/indexes/{species_prefix}")
         threads: 8
         conda: "envs/salmon.yaml"
         shell:
-            "salmon index --threads {threads} -t {input} -i {params.index_dir} --type quasi -k 31"
+            "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
 
 def get_input_files (wildcards):
         if wildcards.run_accession in config['paired_end']:
@@ -29,14 +29,14 @@ def get_input_files (wildcards):
 
 def get_index (wildcards):
 		if wildcards.accession in config['mouse']['runs']:
-			return("results/salmon/indexes/Mus_musculus.GRCm38/sa.bin")
+			return("results/salmon/indexes/Mus_musculus.GRCm38/")
 		elif wildcards.accession in config['human']['runs']:
-			return('results/salmon/indexes/hsa_GRCh38/sa.bin')
+			return('results/salmon/indexes/hsa_GRCh38/')
 		else:
 			return('foo')
 
 rule salmon_quant:
-        output:  "results/salmon/runs/{accession}/quant.sf" #"results/salmon/runs/{accession}/quant.sf", "results/salmon/{accession}/lib_format_counts.json"
+        output:  directory("results/salmon/runs/{accession}") #"results/salmon/runs/{accession}/quant.sf", "results/salmon/{accession}/lib_format_counts.json"
 	input:
            reads=get_input_files,
            index="results/salmon/indexes/{species}"
@@ -49,28 +49,24 @@ rule salmon_quant:
 		"quant_salmon.py"
 
 rule salmon_get_lib_type:
-	input: "results/salmon/runs/{species}/{run_accession}" 
-	output: "results/salmon/runs/{species}/{run_accession}_lib_type.txt" # like this because you cannot create files inside snakemake created directories
-	wildcard_constraints:
-		run_accession="((?!lib_type).)*" # excludes substring 'lib_type'
-	shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
+	input: "results/salmon/runs/{run_accession}" 
+	output: "results/salmon/{run_accession}/lib_type.txt"
+        shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
 
 rule salmon_quantmerge_by_run:
-	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}/", run_accession=config['samples'][wildcards.sample]),
+	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}", run_accession=config['samples'][wildcards.sample]),
 	output: "results/salmon/samples/{sample}.quant.tmp.sf"
         conda: "envs/salmon.yaml"
 	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 
 rule salmon_average_quantmerge_runs:
-        input: "results/salmon/samples/{species}/{sample}.quant.tmp.sf",
-        output: directory("results/salmon/samples/{species}/{sample}")
-        wildcard_constraints:
-               sample="((?!quant.tmp).)*" # anything not containing quant.tmp
+        input: "results/salmon/samples/{sample}.quant.tmp.sf",
+        output: directory("results/salmon/samples/{sample}")
         script: "get_average_quant.R"
 
 rule salmon_quantmerge_by_sample:
-        input:  lambda wildcards: expand('results/salmon/samples/{species}/{sample}', sample=config['tissues'][wildcards.species][wildcards.tissue], species=wildcards.species)
-        output: temp("results/salmon/{species}/{tissue}.sf.tmp")
+        input:  lambda wildcards: expand('results/salmon/samples/{sample}', sample=config['tissues'][wildcards.species][wildcards.tissue]),
+        output: "results/salmon/{species}_{tissue}.sf.tmp"
         conda: "envs/salmon.yaml"
         shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 
