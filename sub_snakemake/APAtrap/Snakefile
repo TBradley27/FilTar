@@ -40,6 +40,8 @@ rule get_bedgraph:
         "results/bam/run/{accession}.bedgraph"
     conda:
         "envs/bedtools.yaml"
+    wildcard_constraints:
+               accession="((?!_chr).)*"
     benchmark:
         "benchmarks/genomeCoverageBed/{accession}.txt"
     shell:
