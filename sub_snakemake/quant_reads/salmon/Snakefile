@@ -21,9 +21,9 @@ def get_input_files (wildcards):
 
 def get_index (wildcards):
 		if wildcards.accession in config['mouse']['runs']:
-			return("results/salmon/indexes/Mus_musculus.GRCm38/")
+			return("results/salmon/indexes/Mus_musculus.GRCm38")
 		elif wildcards.accession in config['human']['runs']:
-			return('results/salmon/indexes/hsa_GRCh38/')
+			return('results/salmon/indexes/hsa_GRCh38')
 		else:
 			return('foo')
 
