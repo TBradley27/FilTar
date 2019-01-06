@@ -4,8 +4,7 @@ rule trim_single_end_reads:
        input: 
            "data/single_end/{accession}.fastq.gz"
        output: 
-           "results/trimmed_fastq/{accession}_trimmed.fq.gz",
-           "results/trimmed_fastq/{accession}.fastq.gz_trimming_report.txt"
+           "results/trimmed_fastq/{accession}_trimmed.fq.gz"
        conda: 
           "envs/trim-galore.yaml"
        benchmark:
@@ -19,9 +18,7 @@ rule trim_paired_end_reads:
           file2="data/paired_end/{accession}_2.fastq.gz"
        output:
            "results/trimmed_fastq/{accession}_1_val_1.fq.gz",
-           "results/trimmed_fastq/{accession}_2_val_2.fq.gz",
-           "results/trimmed_fastq/{accession}_1.fastq.gz_trimming_report.txt",
-           "results/trimmed_fastq/{accession}_2.fastq.gz_trimming_report.txt"
+           "results/trimmed_fastq/{accession}_2_val_2.fq.gz"
        conda:
           "envs/trim-galore.yaml"
        benchmark:
