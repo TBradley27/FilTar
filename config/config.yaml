@@ -17,5 +17,5 @@ mouse:
 human:
         runs: []
 
-mirnas: [mmu-miR-188-5p] #if this configuration is left blank - processing is performed for all miRNAs of a given species as default
+mirnas: [mmu-miR-144-5p,mmu-miR-188-5p] #if this configuration is left blank - processing is performed for all miRNAs of a given species as default
 transcripts: [ENSMUST00000189888.6]
