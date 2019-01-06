@@ -1,17 +1,19 @@
 tissues:
         mmu: 
-                liver: [SRS387309,foo] # insert relevant sample accessions here
+                liver: [SRS387309] # insert relevant sample accessions here
+                retina: [SRS21256x]
+                oocyte: [SRS540320]
         hsa:
 samples:
          SRS387309: [SRR652248,SRR652249]
-         foo: [ERR032203, ERR032204]
+         SRS21256x: [SRR290901,SRR290902]
+         SRS540320: [SRR1137901,SRR1137902]
 
-single_end: [SRR652248,SRR652249]
-paired_end: [ERR032203,ERR032204]
+single_end: [SRR652248,SRR652249,SRR1137901,SRR1137902]
+paired_end: [SRR290901,SRR290902]
 
 mouse:
-        runs: [SRR652248,SRR652249,ERR032203,ERR032204]
-
+        runs: [SRR652248,SRR652249,SRR290901,SRR290902,SRR1137901,SRR1137902]
 human:
         runs: []
 
