@@ -4,6 +4,7 @@ rule salmon_index:
         output:
             directory("results/salmon/indexes/{species_prefix}")
         threads: 8
+        conda: "envs/salmon.yaml"
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
 
