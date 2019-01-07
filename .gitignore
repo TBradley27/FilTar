@@ -13,7 +13,6 @@ data/
 logs/
 results/
 reports/fastqc/
-*APA*
 *AIRs.txt
 *.snakemake.*
 *lunp
