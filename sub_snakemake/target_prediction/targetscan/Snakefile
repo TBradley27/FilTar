@@ -22,6 +22,9 @@ rule prep_mirna_family_file:
         script:
            "get_mirna_family.R"
 
+def get_tax_id(wildcards):
+	return(config['tax_ids'][wildcards.species])
+
 rule prep_mirna_mature_alt:
         input:
            data="data/mature.fa",
