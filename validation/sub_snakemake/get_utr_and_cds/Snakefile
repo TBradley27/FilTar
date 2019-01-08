@@ -2,7 +2,7 @@ def get_gtf_file(wildcards):
 	sci_species_name = config['sci_species_name'][wildcards.species]
         genome_build = config['genome_build'][wildcards.species]
 
-        return ( 'data/' + sci_species_name + '.' + genome_build + '.94.mod.gtf'  )
+        return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.mod.gtf'.format(config['ensembl_release'])  )
 
 def get_dna_file(wildcards):
         if wildcards.species == 'hsa':
