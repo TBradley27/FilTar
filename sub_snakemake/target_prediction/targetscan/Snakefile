@@ -122,6 +122,15 @@ rule targetscan_context_scores:
         shell:
             "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {wildcards.species} {input.AIRs} {params.RNAplfold_dir}"
 
+rule expression_filter_contextpp_scores_chr:
+	input:
+		contextpp_scores="results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv",
+		expression_values="results/salmon/{species}/{tissue}.sf"
+	params:
+		tpm_expression_threshold=2
+	output: protected("results/targets/{species}/{tissue}_chr{chrom}.contextpp.filt.tsv")
+	script: 'filter_contextpp_scores.R'
+
 rule aggregate_contextpp_scores:
        input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
        output: protected("results/targets/{species}/{tissue}.contextpp.tsv")
