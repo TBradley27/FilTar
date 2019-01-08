@@ -1,10 +1,10 @@
 #!/bin/bash
 
 def get_bed6_file(wildcards):
-        if wildcards.species == 'hsa':
-                return('results/Homo_sapiens.GRCh38.{}.chr{}.filtered.bed6'.format(config['ensembl_release'], wildcards.chrom))
-        elif wildcards.species == 'mmu':
-                return('results/Mus_musculus.GRCm38.{}.chr{}.filtered.bed6'.format(config['ensembl_release'], wildcards.chrom))
+	sci_species_name = config['sci_species_name'][wildcards.species]
+        genome_build = config['genome_build'][wildcards.species]
+
+	return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.chr{}.filtered.bed6'.format(config['ensembl_release'], wildcards.chrom) )
 
 rule get_bed6_file: #three_prime_utrs only
         input:
