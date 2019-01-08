@@ -1,10 +1,10 @@
 #!/bin/bash
 
 def get_bed_file(wildcards):
-	if wildcards.species == 'hsa':
-		return('results/Homo_sapiens.GRCh38_chr{}.{}.filtered.bed'.format(wildcards.chrom, config['ensembl_release']))
-	elif wildcards.species == 'mmu':
-		return('results/Mus_musculus.GRCm38_chr{}.{}.filtered.bed'.format(wildcards.chrom, config['ensembl_release']))
+	sci_species_name = config['sci_species_name'][wildcards.species]
+        genome_build = config['genome_build'][wildcards.species]
+	
+	return('results/' + sci_species_name + '.' + genome_build + '_chr{}.{}.filtered.bed'.format(wildcards.chrom, config['ensembl_release']))	
 
 # derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
 
