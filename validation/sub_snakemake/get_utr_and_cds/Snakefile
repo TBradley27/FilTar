@@ -1,10 +1,8 @@
 def get_gtf_file(wildcards):
-	if wildcards.species == 'hsa':
-		return ('data/Homo_sapiens.GRCh38.94.mod.gtf')
-	elif wildcards.species == 'mmu':
-		return ('data/Mus_musculus.GRCm38.94.mod.gtf')
-	else:
-		return('NULL')
+	sci_species_name = config['sci_species_name'][wildcards.species]
+        genome_build = config['genome_build'][wildcards.species]
+
+        return ( 'data/' + sci_species_name + '.' + genome_build + '.94.mod.gtf'  )
 
 def get_dna_file(wildcards):
         if wildcards.species == 'hsa':

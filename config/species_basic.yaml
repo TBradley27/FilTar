@@ -25,6 +25,16 @@ genome_build:
         mmu: GRCm38
         dre: GRCz11
 
+sci_species_name:
+        hsa: Homo_sapiens
+        mmu: Mus_musculus
+        dre: Danio_rerio
+
+genome_build:
+        hsa: GRCh38
+        mmu: GRCm38
+        dre: GRCz11
+
 TaxID: 
         hg38: "9606"
         hg19: "9606"

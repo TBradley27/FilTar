@@ -6,9 +6,9 @@ def get_cDNA_file (wildcards):
 
 rule salmon_index:
         input:
-            "data/{species_prefix}.cdna.all.fa"
+             get_cDNA_file   #"data/{genus_species}.{build}.cdna.all.fa"
         output:
-            directory("results/salmon/indexes/{species_prefix}")
+            directory("results/salmon/indexes/{species}")
         threads: 8
         conda: "envs/salmon.yaml"
         shell:
@@ -20,23 +20,23 @@ def get_input_files (wildcards):
                                 'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.run_accession)
                                 ]
                 return(input_files)
-        elif wildcards.run_accession in config['single_end']:
+        else:
                 input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.run_accession)
                              ]
                 return(input_file)
         else:
                 raise Exception("\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(wildcards.run_accession))
 
-def get_index (wildcards):
-		if wildcards.accession in config['mouse']['runs']:
-			return("results/salmon/indexes/Mus_musculus.GRCm38")
-		elif wildcards.accession in config['human']['runs']:
-			return('results/salmon/indexes/hsa_GRCh38')
-		else:
-			return('foo')
+#def get_index (wildcards):
+#		if wildcards.accession in config['mouse']['runs']:
+#			return("results/salmon/indexes/Mus_musculus.GRCm38")
+#		elif wildcards.accession in config['human']['runs']:
+#			return('results/salmon/indexes/hsa_GRCh38')
+#		else:
+#			return('foo')
 
 rule salmon_quant:
-        output:  directory("results/salmon/runs/{accession}") #"results/salmon/runs/{accession}/quant.sf", "results/salmon/{accession}/lib_format_counts.json"
+        output:  directory("results/salmon/runs/{species}/{run_accession}")
 	input:
            reads=get_input_files,
            index="results/salmon/indexes/{species}"
@@ -49,24 +49,26 @@ rule salmon_quant:
 		"quant_salmon.py"
 
 rule salmon_get_lib_type:
-	input: "results/salmon/runs/{run_accession}" 
+	input: "results/salmon/runs/{species}/{run_accession}" 
 	output: "results/salmon/{run_accession}/lib_type.txt"
         shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
 
 rule salmon_quantmerge_by_run:
-	input:	lambda wildcards: expand("results/salmon/runs/{run_accession}", run_accession=config['samples'][wildcards.sample]),
-	output: "results/salmon/samples/{sample}.quant.tmp.sf"
+	input:	lambda wildcards: expand("results/salmon/runs/{species}/{run_accession}", run_accession=config['samples'][wildcards.sample], species=wildcards.species)
+	output: temp("results/salmon/samples/{species}/{sample}.quant.tmp.sf")
         conda: "envs/salmon.yaml"
 	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 
 rule salmon_average_quantmerge_runs:
-        input: "results/salmon/samples/{sample}.quant.tmp.sf",
-        output: directory("results/salmon/samples/{sample}")
+        input: "results/salmon/samples/{species}/{sample}.quant.tmp.sf",
+        output: directory("results/salmon/samples/{species}/{sample}")
+        wildcard_constraints:
+               sample="((?!quant.tmp).)*" # anything not containing quant.tmp
         script: "get_average_quant.R"
 
 rule salmon_quantmerge_by_sample:
-        input:  lambda wildcards: expand('results/salmon/samples/{sample}', sample=config['tissues'][wildcards.species][wildcards.tissue]),
-        output: "results/salmon/{species}_{tissue}.sf.tmp"
+        input:  lambda wildcards: expand('results/salmon/samples/{species}/{sample}', sample=config['tissues'][wildcards.species][wildcards.tissue], species=wildcards.species)
+        output: temp("results/salmon/{species}/{tissue}.sf.tmp")
         conda: "envs/salmon.yaml"
         shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
 

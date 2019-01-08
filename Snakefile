@@ -68,4 +68,4 @@ wildcard_constraints:
     feature="(3UTR|CDS)"
 
 rule all:
-     input: expand("results/targets/canonical/{species}_chr{chrom}_msa.contextpp.tsv", species='hsa', chrom='Y')
+     input: "results/targets/mmu/liver.contextpp.tsv" 

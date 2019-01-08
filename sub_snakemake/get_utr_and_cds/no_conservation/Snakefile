@@ -1,8 +1,8 @@
 def get_dna_file(wildcards):
-        if wildcards.species == 'hsa':
-                return("data/Homo_sapiens.GRCh38.dna.chromosome.{}.fa".format(wildcards.chrom))
-        if wildcards.species == 'mmu':
-                return("data/Mus_musculus.GRCm38.dna.chromosome.{}.fa".format(wildcards.chrom))
+	sci_species_name = config['sci_species_name'][wildcards.species]
+        genome_build = config['genome_build'][wildcards.species]
+
+	return('data/' + sci_species_name + '.' + genome_build + '.dna.chromosome.{}.fa'.format(wildcards.chrom))
 
 def get_NCBI_taxonomic_id(wildcards):
 	if wildcards.species == 'hsa':

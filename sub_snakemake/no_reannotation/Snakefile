@@ -79,15 +79,6 @@ rule aggregate_contextpp_scores_no_reannotation:
        output: protected("results/targets/no_reannotation/{species}/contextpp.tsv")
        shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
-rule expression_filter_contextpp_scores_no_reannotation:
-        input:
-            contextpp_scores="results/targets/no_reannotation/{species}/contextpp.tsv",
-            expression_values="results/salmon/{species}_{tissue}.sf"
-        params:
-            tpm_expression_threshold=2
-        output: protected("results/targets/no_reannotation/{species}/{tissue}.contextpp.filt.tsv")
-        script: 'filter_contextpp_scores.R'
-
 ### other ###
 
 rule fix_targetscan_sites_output_no_reannotation:
