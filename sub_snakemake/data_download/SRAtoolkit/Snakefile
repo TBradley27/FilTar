@@ -9,7 +9,7 @@ rule download_single_end_fastq:
 
 rule download_paired_end_fastq:
        input:
-       output: "data/{accession}_1.fastq", "data/{accession}_2.fastq"
+       output: "data/paired_end/{accession}_1.fastq", "data/paired_end/{accession}_2.fastq"
        conda: "envs/sra-tools.yaml"
        benchmark: "benchmarks/SRAtoolkit/{accession}.txt"
        shell: "fasterq-dump -O data/paired_end/ --threads 1 {wildcards.accession}"
