@@ -13,7 +13,7 @@ def get_NCBI_taxonomic_id(wildcards):
 rule get_single_species_seq_fa_targetscan:
 	input:
 		dna=get_dna_file,
-		bed="results/bed/mmu_liver_3UTR.chrY.bedtools.bed"
+		bed="results/bed/{species}_{tissue}_{feature}.chr{chrom}.bedtools.bed"
 	output: "results/msa/{species}_{tissue}_chr{chrom}_{feature}.tmp.fa"
 	conda: 'envs/bedtools.yaml'
 	shell: "bedtools getfasta -name -s -fi {input.dna} -bed {input.bed} -fo {output}"
