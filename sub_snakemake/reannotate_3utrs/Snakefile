@@ -4,7 +4,7 @@ def get_bed6_file(wildcards):
 	sci_species_name = config['sci_species_name'][wildcards.species]
         genome_build = config['genome_build'][wildcards.species]
 
-	return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.chr{}.filtered.bed6'.format(config['ensembl_release'], wildcards.chrom) )
+	return ( 'results/' + sci_species_name + '.' + genome_build + '.{}.chr{}.filtered.bed6'.format(config['ensembl_release'], wildcards.chrom) )
 
 rule get_bed6_file: #three_prime_utrs only
         input:
