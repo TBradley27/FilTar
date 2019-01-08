@@ -102,7 +102,7 @@ rule convert_miRanda_to_tsv_nr:
 rule expression_filter_miRanda_nr_chr:
         input:
             miRanda_scores="results/targets/miRanda/{species}/chr{chrom}.tsv",
-            expression_values="results/salmon/{species}_{tissue}.sf"
+            expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=0
         output: protected("results/targets/miRanda/{species}/{tissue}/chr{chrom}_nr.filt.tsv")
@@ -116,7 +116,7 @@ rule aggregate_miRanda_output_no_reannotation:
 rule expression_filter_miRanda_nr:
         input:
             miRanda_scores="results/targets/miRanda/{species}.tsv",
-            expression_values="results/salmon/{species}_{tissue}.sf"
+            expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=0
         output: protected("results/targets/miRanda/{species}/{tissue}.filt.tsv")
