@@ -19,14 +19,17 @@ rule prep_mirna_family_file:
         script:
            "get_mirna_family.R"
 
+def get_tax_id(wildcards):
+	return(config['tax_ids'][wildcards.species])
+
 rule prep_mirna_mature_alt:
         input:
            data="data/mature.fa",
            script="exe/prep_mirna_mature_alt.sh"
-        output:
-           "results/{species}_mature_mirna.tsv"
+        output: "results/{species}_mature_mirna.tsv"
+	params: get_tax_id
         shell:
-           "{input.script} {input.data} {wildcards.species} > {output}"
+           "{input.script} {input.data} {wildcards.species} {params} > {output}"
 
 rule prep_mir_for_context_scores:
         input:
