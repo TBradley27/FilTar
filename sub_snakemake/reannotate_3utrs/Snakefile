@@ -2,9 +2,9 @@
 
 def get_bed6_file(wildcards):
         if wildcards.species == 'hsa':
-                return('results/Homo_sapiens.GRCh38.94.chr{}.bed6'.format(wildcards.chrom))
+                return('results/Homo_sapiens.GRCh38.{}.chr{}.filtered.bed6'.format(config['ensembl_release'], wildcards.chrom))
         elif wildcards.species == 'mmu':
-                return('results/Mus_musculus.GRCm38.94.chr{}.bed6'.format(wildcards.chrom))
+                return('results/Mus_musculus.GRCm38.{}.chr{}.filtered.bed6'.format(config['ensembl_release'], wildcards.chrom))
 
 rule get_bed6_file: #three_prime_utrs only
         input:
