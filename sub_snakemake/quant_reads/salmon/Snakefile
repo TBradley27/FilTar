@@ -25,14 +25,6 @@ def get_input_files (wildcards):
                              ]
                 return(input_file)
 
-#def get_index (wildcards):
-#		if wildcards.accession in config['mouse']['runs']:
-#			return("results/salmon/indexes/Mus_musculus.GRCm38")
-#		elif wildcards.accession in config['human']['runs']:
-#			return('results/salmon/indexes/hsa_GRCh38')
-#		else:
-#			return('foo')
-
 rule salmon_quant:
         output:  directory("results/salmon/runs/{species}/{run_accession}")
 	input:
@@ -40,14 +32,18 @@ rule salmon_quant:
            index="results/salmon/indexes/{species}"
 	conda:
 		"envs/salmon.yaml"
+	wildcard_constraints:
+		run_accession="((?!lib_type).)*" # excludes substring 'lib_type'
 	threads: 4
 	script:
 		"quant_salmon.py"
 
 rule salmon_get_lib_type:
 	input: "results/salmon/runs/{species}/{run_accession}" 
-	output: "results/salmon/{run_accession}/lib_type.txt"
-        shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
+	output: "results/salmon/runs/{species}/{run_accession}_lib_type.txt" # like this because you cannot create files inside snakemake created directories
+	wildcard_constraints:
+		run_accession="((?!lib_type).)*" # excludes substring 'lib_type'
+	shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
 
 rule salmon_quantmerge_by_run:
 	input:	lambda wildcards: expand("results/salmon/runs/{species}/{run_accession}", run_accession=config['samples'][wildcards.sample], species=wildcards.species)

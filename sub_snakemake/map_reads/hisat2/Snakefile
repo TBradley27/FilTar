@@ -1,21 +1,21 @@
 import os
 
 def get_gtf_file(wildcards):
-	if wildcards.species == 'mmu':
-                return('data/Mus_musculus.GRCm38.94.gtf')
-	elif wildcards.species == 'hsa':
-		return('data/Homo_sapiens.GRCh38.94.gtf')
+        sci_species_name = config['sci_species_name'][wildcards.species]
+        genome_build = config['genome_build'][wildcards.species]
+
+        return ( 'data/' + sci_species_name + '.' + genome_build + '.94.gtf'  )
 
 def get_assembly(wildcards):
-	if wildcards.species == 'mmu':
-		return("data/Mus_musculus.GRCm38.dna.primary_assembly.fa")
-	if wildcards.species == 'hsa':
-		return("data/Homo_sapiens.GRCh38.dna.primary_assembly.fa")
+	sci_species_name = config['sci_species_name'][wildcards.species]
+        genome_build = config['genome_build'][wildcards.species]
+
+        return ( 'data/' + sci_species_name + '.' + genome_build + '.dna.primary_assembly.fa'  )
 
 def get_lib_type(wildcards):
 	hisat2_dict = {'IU':'','ISF':'FR','ISR':'RF', 'U':'','SF':'F','SR':'R'}	
-	if not os.path.exists('results/salmon/{}/lib_type.txt'.format(wildcards.accession)): return '' # stmps an error being generated when this file is missing
-        fp=open('results/salmon/{}/lib_type.txt'.format(wildcards.accession))
+	if not os.path.exists('results/salmon/{}/{}_lib_type.txt'.format(wildcards.species,wildcards.accession)): return '' # stmps an error being generated when this file is missing
+        fp=open('results/salmon/{}/{}_lib_type.txt'.format(wildcards.species,wildcards.accession))
         fp2 = fp.readlines()[0]
         lib_type = fp2.replace("\n","") 
 	tmp = hisat2_dict[lib_type]
@@ -42,13 +42,15 @@ def get_read_files (wildcards):
                              ]
 		return(input_file)
 
-def get_index_files(wildcards):
-	if wildcards.accession in config['human']['runs']:
-		return ('data/hsa.1.ht2')
-	elif wildcards.accession in config['mouse']['runs']:
-		return ('data/mmu.1.ht2')
-	else:
-		return ('accession not found in config file')
+#def get_index_files(wildcards):
+#	return
+#
+#	if wildcards.accession in config['human']['runs']:
+#		return ('data/hsa.1.ht2')
+#	elif wildcards.accession in config['mouse']['runs']:
+#		return ('data/mmu.1.ht2')
+#	else:
+#		return ('accession not found in config file')
 
 rule get_splice_sites_for_hisat2:
         input:
@@ -75,22 +77,23 @@ rule create_index:
         benchmark: "benchmarks/hisat2/{species}_index.log"
         threads: 16
         shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} data/{wildcards.species}"
+
 rule map_reads:
 	input: 
 		reads=get_read_files,
-		lib_type_file='results/salmon/{accession}/lib_type.txt',
-                index=get_index_files
+		lib_type_file='results/salmon/runs/{species}/{accession}_lib_type.txt',
+                index="data/{species}.1.ht2"
 	conda:
 		"envs/hisat2.yaml"
 	params: get_lib_type
         threads: 8
-        output: "results/bam/run/{accession}.sam"
+        output: "results/bam/run/{species}/{accession}.sam"
 	script:
 		"map_reads.py"
 
 rule sam_to_bam:
-	input: "results/bam/run/{accession}.sam",
-        output: "results/bam/run/{accession}.bam"
+	input: "results/bam/run/{species}/{accession}.sam",
+        output: "results/bam/run/{species}/{accession}.bam"
         threads: 8
         conda:
 	   "envs/hisat2.yaml"
@@ -98,12 +101,12 @@ rule sam_to_bam:
 
 rule samtools_sort:
     input:
-        "results/bam/run/{accession}.bam"
+        "results/bam/run/{species}/{accession}.bam"
     output:
-        "results/bam/run/{accession}.bam.sorted"
+        "results/bam/run/{species}/{accession}.bam.sorted"
     params:
         "-m 2G"
     threads: 8
-    benchmark: "benchmarks/samtools_sort/{accession}.log"
+    benchmark: "benchmarks/samtools_sort/{species}/{accession}.log"
     wrapper:
         "0.27.0/bio/samtools/sort"
