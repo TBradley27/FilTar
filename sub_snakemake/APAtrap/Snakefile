@@ -35,28 +35,28 @@ rule convert_genepred_to_bed12:
 
 rule get_bedgraph:
     input:
-        sorted_bam="results/bam/run/{accession}.bam.sorted",
+        sorted_bam="results/bam/run/{species}/{accession}.bam.sorted",
     output:
-        "results/bam/run/{accession}.bedgraph"
+        "results/bam/run/{species}/{accession}.bedgraph"
     conda:
         "envs/bedtools.yaml"
     wildcard_constraints:
                accession="((?!_chr).)*"
     benchmark:
-        "benchmarks/genomeCoverageBed/{accession}.txt"
+        "benchmarks/genomeCoverageBed/{species}/{accession}.txt"
     shell:
         "genomeCoverageBed -bg -ibam {input.sorted_bam} -split > {output}"
 
 rule split_bedgraph:
-        input: 'results/bam/run/{accession}.bedgraph'
-        output: 'results/bam/run/{accession}_chr{chrom}.bedgraph'
+        input: 'results/bam/run/{species}/{accession}.bedgraph'
+        output: 'results/bam/run/{species}/{accession}_chr{chrom}.bedgraph'
         shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
 
 rule merge_bedgraphs_by_run:
         input:
-             lambda wildcards: expand("results/bam/run/{accession}_chr{chrom}.bedgraph", accession=config['samples'][wildcards.sample], chrom=wildcards.chrom)
+             lambda wildcards: expand("results/bam/run/{species}/{accession}_chr{chrom}.bedgraph", species=wildcards.species, accession=config['samples'][wildcards.sample], chrom=wildcards.chrom)
         output:
-             "results/bam/sample/{sample}_chr{chrom}_tmp.bedgraph"
+             temp("results/bam/sample/{species}/{sample}_chr{chrom}_tmp.bedgraph")
         wildcard_constraints:
              sample="[E|D|S]RS.*"
         conda:
@@ -65,9 +65,9 @@ rule merge_bedgraphs_by_run:
 
 rule avg_merged_bedgraph_by_run:
         input:
-                "results/bam/sample/{sample}_chr{chrom}_tmp.bedgraph"
+                "results/bam/sample/{species}/{sample}_chr{chrom}_tmp.bedgraph"
         output:
-                "results/bam/sample/{sample}_chr{chrom}.bedgraph"
+                temp("results/bam/sample/{species}/{sample}_chr{chrom}.bedgraph")
         wildcard_constraints:
              sample="[E|D|S]RS[0-9X]+"
         script:
@@ -75,7 +75,7 @@ rule avg_merged_bedgraph_by_run:
 
 rule merge_bedgraphs_by_sample:
         input:
-             lambda wildcards: expand("results/bam/sample/{sample}_chr{chrom}.bedgraph", sample=config['tissues'][wildcards.species][wildcards.cell_line], chrom=wildcards.chrom)
+             lambda wildcards: expand("results/bam/sample/{species}/{sample}_chr{chrom}.bedgraph", species=wildcards.species, sample=config['tissues'][wildcards.species][wildcards.cell_line], chrom=wildcards.chrom)
         output:
              "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp"
         wildcard_constraints:
