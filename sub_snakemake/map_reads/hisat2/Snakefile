@@ -10,7 +10,10 @@ def get_assembly(wildcards):
 	sci_species_name = config['sci_species_name'][wildcards.species]
         genome_build = config['genome_build'][wildcards.species]
 
-        return ( 'data/' + sci_species_name + '.' + genome_build + '.dna.primary_assembly.fa'  )
+	if config['assembly_level'][wildcards.species] == 'primary':
+        	return ( 'data/' + sci_species_name + '.' + genome_build + '.dna.primary_assembly.fa'  )
+	elif config['assembly_level'][wildcards.species] == 'toplevel':
+		return ( 'data/' + sci_species_name + '.' + genome_build + '.dna.toplevel.fa'  )
 
 def get_lib_type(wildcards):
 	hisat2_dict = {'IU':'','ISF':'FR','ISR':'RF', 'U':'','SF':'F','SR':'R'}	
