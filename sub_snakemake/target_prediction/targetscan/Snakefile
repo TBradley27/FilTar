@@ -130,7 +130,7 @@ rule aggregate_contextpp_scores:
 rule expression_filter_contextpp_scores:
         input:
             contextpp_scores="results/targets/{species}/{tissue}.contextpp.tsv",
-            expression_values="results/salmon/{species}_{tissue}.sf"
+            expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=2
         output: protected("results/targets/{species}/{tissue}.contextpp.filt.tsv")

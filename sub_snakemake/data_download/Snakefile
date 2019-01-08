@@ -1,16 +1,7 @@
 #!/bin/bash
 
 def get_species(wildcards):
-        if wildcards.species_prefix == 'Homo_sapiens.GRCh38':
-                return('homo_sapiens')
-        if wildcards.species_prefix == 'Mus_musculus.GRCm38':
-                return('mus_musculus')
-
-def get_species_synonym(wildcards):
-        if wildcards.species_prefix == 'Mus_musculus.GRCm38':
-                return ('mus_musculus')
-        elif wildcards.species_prefix == 'Homo_sapiens.GRCh38':
-                return ('homo_sapiens')
+	return(wildcards.genus_species.lower())
 
 #rule download_mirna_data:
 #       input:
@@ -20,15 +11,15 @@ def get_species_synonym(wildcards):
 #          "wget --directory-prefix=data/ ftp://mirbase.org/pub/mirbase/CURRENT/mature.fa.gz && gunzip {output}"
 
 rule get_gtf_file:
-     output: "data/{species_prefix}.94.gtf"
+     output: "data/{genus_species}.{build}.94.gtf"
      params: get_species
-     shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-94/gtf/{params}/{wildcards.species_prefix}.94.gtf.gz data/ && gunzip data/{wildcards.species_prefix}.94.gtf.gz && sed 's/^chr//g' data/{wildcards.species_prefix}.94.gtf > tmp && mv tmp data/{wildcards.species_prefix}.94.gtf"
+     shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-94/gtf/{params}/{wildcards.genus_species}.{wildcards.build}.94.gtf.gz data/ && gunzip data/{wildcards.genus_species}.{wildcards.build}.94.gtf.gz && sed 's/^chr//g' data/{wildcards.genus_species}.{wildcards.build}.94.gtf > tmp && mv tmp data/{wildcards.genus_species}.{wildcards.build}.94.gtf"
 
 rule download_fasta:
         input:
-        output: "data/{species_prefix}.dna.chromosome.{chrom}.fa.gz"
-        params: get_species_synonym
-        shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-94/fasta/{params}/dna/{wildcards.species_prefix}.dna.chromosome.{wildcards.chrom}.fa.gz data/"
+        output: "data/{genus_species}.{build}.dna.chromosome.{chrom}.fa.gz"
+        params: get_species
+        shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-94/fasta/{params}/dna/{wildcards.genus_species}.{wildcards.build}.dna.chromosome.{wildcards.chrom}.fa.gz data/"
 
 rule decompress_dna_file:
         input: "data/{species_prefix}.dna.chromosome.{chrom}.fa.gz"
@@ -50,3 +41,13 @@ rule download_maf_files_mouse:
            protected("data/maf_mmu/chr{chrom}.maf")
         shell:
            "wget --directory-prefix=data/maf_mmu/ -nv http://hgdownload.cse.ucsc.edu/goldenPath/mm10/multiz60way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"
+
+rule download_cdna_file:
+        output: "data/{genus_species}.{build}.cdna.all.fa.gz"
+        params: get_species
+        shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-94/fasta/{params}/cdna/{wildcards.genus_species}.{wildcards.build}.cdna.all.fa.gz data"
+
+rule decompress_cdna_file:
+        input: "data/{species_prefix}.cdna.all.fa.gz"
+        output: "data/{species_prefix}.cdna.all.fa"
+        shell: "gunzip {input}"

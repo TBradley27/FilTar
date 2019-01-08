@@ -83,7 +83,7 @@ rule aggregate_contextpp_scores_no_reannotation:
 rule expression_filter_contextpp_scores_nr_chr:
         input:
             contextpp_scores="results/targets/no_reannotation/{species}_chr{chrom}.contextpp.tsv",
-            expression_values="results/salmon/{species}_{tissue}.sf"
+            expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=0
         output: protected("results/targets/no_reannotation/{species}/{tissue}_chr{chrom}.contextpp.filt.tsv")
@@ -92,7 +92,7 @@ rule expression_filter_contextpp_scores_nr_chr:
 rule expression_filter_contextpp_scores_no_reannotation:
         input:
             contextpp_scores="results/targets/no_reannotation/{species}/contextpp.tsv",
-            expression_values="results/salmon/{species}_{tissue}.sf"
+            expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=2
         output: protected("results/targets/no_reannotation/{species}/{tissue}.contextpp.filt.tsv")
