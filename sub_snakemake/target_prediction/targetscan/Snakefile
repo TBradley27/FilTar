@@ -1,5 +1,8 @@
 #!/bin/bash
 
+def get_tax_id(wildcards):
+	return(config['tax_ids'][wildcards.species])
+
 ### miRNA prep ###
 
 rule prep_mirna_seeds:
@@ -72,10 +75,12 @@ rule targetscan_branch_lengths:
            script="exe/targetscan7/targetscan_70_BL_bins.patch.pl"
         output:
              "results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv"
+        params: 
+              tax_id=get_tax_id
         benchmark:
              "benchmarks/branch_lengths_{species}_{tissue}_chr{chrom}.log"
         shell:
-            "{input.script} {input.msa_3UTR} {wildcards.species}  > {output}"
+            "{input.script} {input.msa_3UTR} {params.tax_id}  > {output}"
 
 rule targetscan_PCTs:
         input:
@@ -86,7 +91,7 @@ rule targetscan_PCTs:
             PCT_param="exe/targetscan7/PCT_parameters"
         output:
             "results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
-             temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv.sort.txt") # it is important that this is deleted
+             temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv.sort.txt") # it is important that this file is deleted
         benchmark:
             "benchmarks/{species}_{tissue}_chr{chrom}_msa.PCTs.log"
         shell:
@@ -119,11 +124,12 @@ rule targetscan_context_scores:
             "results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv"
         conda: "envs/viennarna.yaml" 
         params:
-            RNAplfold_dir="results/targets/RNAplfold/{species}/{tissue}"
+            RNAplfold_dir="results/targets/RNAplfold/{species}/{tissue}",
+            tax_id = get_tax_id
         benchmark:
             "benchmarks/{species}_{tissue}_chr{chrom}_msa.contextpp.log"
         shell:
-            "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {wildcards.species} {input.AIRs} {params.RNAplfold_dir}"
+            "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {params.tax_id} {input.AIRs} {params.RNAplfold_dir}"
 
 rule expression_filter_contextpp_scores_chr:
 	input:
