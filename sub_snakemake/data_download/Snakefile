@@ -18,9 +18,9 @@ def get_species(wildcards):
 #          "wget --directory-prefix=data/ ftp://mirbase.org/pub/mirbase/CURRENT/mature.fa.gz && gunzip {output}"
 
 rule get_gtf_file:
-     output: "data/{genus_species}.{build}.94.gtf"
+     output: "data/{genus_species}.{build}.94.chr.gtf"
      params: get_species
-     shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-94/gtf/{params}/{wildcards.genus_species}.{wildcards.build}.94.gtf.gz data/ && gunzip data/{wildcards.genus_species}.{wildcards.build}.94.gtf.gz && sed 's/^chr//g' data/{wildcards.genus_species}.{wildcards.build}.94.gtf > tmp && mv tmp data/{wildcards.genus_species}.{wildcards.build}.94.gtf"
+     shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-94/gtf/{params}/{wildcards.genus_species}.{wildcards.build}.94.chr.gtf.gz data/ && gunzip data/{wildcards.genus_species}.{wildcards.build}.94.chr.gtf.gz && sed 's/^chr//g' data/{wildcards.genus_species}.{wildcards.build}.94.chr.gtf > tmp && mv tmp data/{wildcards.genus_species}.{wildcards.build}.94.chr.gtf"
 
 rule download_toplevel_dna:
 	output: "data/{genus_species}.{build}.dna.toplevel.fa.gz"
