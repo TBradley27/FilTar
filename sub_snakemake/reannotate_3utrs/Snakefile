@@ -9,7 +9,7 @@ def get_bed6_file(wildcards):
 rule get_bed6_file: #three_prime_utrs only
         input:
             script="exe/gtf_to_bed.sh",
-            gtf="data/{prefix}.gtf"
+            gtf="data/{prefix}.chr.gtf"
         output:
             "results/{prefix}.bed6"
         shell:
