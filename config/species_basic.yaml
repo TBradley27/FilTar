@@ -1,4 +1,4 @@
-ensembl_release: 94
+ensembl_release: 95
 
 assembly_level:
         hsa: primary
@@ -52,10 +52,10 @@ genome_build:
         hsa: GRCh38
         mmu: GRCm38
         dre: GRCz11
-        gga: Gallus_gallus-5.0
+        gga: GRCg6a
         aca: AnoCar2.0
         ptr: Pan_tro_3.0
-        bta: UMD3.1
+        bta: ARS-UCD1.2
         cfa: CanFam3.1
         nle: Nleu_3.0
         chi: ARS1
