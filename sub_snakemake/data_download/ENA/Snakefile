@@ -5,13 +5,14 @@ rule download_single_end_fastq_file:
        output: 
             "data/single_end/{accession}.fastq.gz"
        benchmark: "benchmarks/ENA/{accession}.log"
-       shell: 
-            "wget -nv --directory-prefix=data/single_end/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/{wildcards.accession[0]}RR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}.fastq.gz || wget -nv --directory-prefix=data/single_end/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/{wildcards.accession[0]}RR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/{wildcards.accession}/{wildcards.accession}.fastq.gz"
+       script: "download_fastq.py" 
 
 rule download_paired_end_fastq_files:
        input:
        output:
            "data/paired_end/{accession}_{mate_number}.fastq.gz",
        benchmark: "benchmarks/ENA/{accession}_{mate_number}.log"
-       shell:
-          "wget -nv --directory-prefix=data/paired_end/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/{wildcards.accession[0]}RR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/{wildcards.accession}/{wildcards.accession}_{wildcards.mate_number}.fastq.gz || wget -nv --directory-prefix=data/paired_end/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/{wildcards.accession[0]}RR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_{wildcards.mate_number}.fastq.gz"
+       script: "download_fastq.py"
+
+
+#          "wget -nv --directory-prefix=data/paired_end/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/{wildcards.accession[0]}RR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/{wildcards.accession}/{wildcards.accession}_{wildcards.mate_number}.fastq.gz || wget -nv --directory-prefix=data/paired_end/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/{wildcards.accession[0]}RR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_{wildcards.mate_number}.fastq.gz"
