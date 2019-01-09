@@ -35,6 +35,7 @@ for transcript in list(config['transcripts']):
 	else:
 		raise Exception('\nInvalid transcript identifier "{}". Identifiers must adhere to official Ensembl identifier patterns e.g. "ENSMUST00000189888.6". Please revise.\n'.format(transcript))
 
+include: "sub_snakemake/data_download/SRAtoolkit/Snakefile"
 include: "sub_snakemake/data_download/Snakefile"
 include: "sub_snakemake/trim_reads/trim_galore/Snakefile"
 include: "sub_snakemake/quant_reads/salmon/Snakefile"
@@ -64,8 +65,9 @@ include: "sub_snakemake/target_prediction/miRanda/Snakefile"
 wildcard_constraints:
     species="[a-z]{3,4}",
     tissue="((?!chr([A-Z]|\d)).)*", # pattern to ensure tissue wildcard does not contain the following pattern: chr[0-9] or chr[A-Z]
-    chrom="[A-Za-z0-9]{1,2}",
-    feature="(3UTR|CDS)"
+    chrom="[A-Za-z0-9]{1,3}",
+    feature="(3UTR|CDS)",
+    ensembl_release="[0-9]{2,3}"
 
 rule all:
-     input: "results/targets/mmu/liver.contextpp.tsv" 
+     input: #"results/targets/mmu/liver.contextpp.tsv" 

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+def get_tax_id(wildcards):
+        return(config['tax_ids'][wildcards.species])
+
 ### main ###
 
 # NB: nr is short for no reannotation of 3'UTRs
@@ -26,10 +29,12 @@ rule targetscan_branch_lengths_no_reannotation:
         input:
            msa_3UTR="results/msa/no_reannotation/{species}_chr{chrom}_3UTR_msa.tsv",
            script="exe/targetscan7/targetscan_70_BL_bins.patch.pl"
+        params:
+            tax_id = get_tax_id
         output:
              "results/targets/no_reannotation/{species}_chr{chrom}_msa.branch_lengths.tsv"
         shell:
-            "{input.script} {input.msa_3UTR} {wildcards.species}  > {output}"
+            "{input.script} {input.msa_3UTR} {params.tax_id}  > {output}"
 
 rule targetscan_PCTs_no_reannotation:
         input:
@@ -68,11 +73,13 @@ rule targetscan_context_scores_no_reannotation:
             TA_SPS_param="exe/targetscan7/TA_SPS_by_seed_region.txt",
             script="exe/targetscan7/targetscan_70_context_scores.patch.pl"
         params:
-             RNAplfold_dir="results/targets/no_reannotation/RNAplfold/{species}/"
+             RNAplfold_dir="results/targets/no_reannotation/RNAplfold/{species}/",
+             tax_id = get_tax_id
+        conda: "envs/viennarna.yaml"
         output:
             "results/targets/no_reannotation/{species}_chr{chrom}_msa.contextpp.tsv"
         shell:
-            "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {wildcards.species} {input.AIRs} {params.RNAplfold_dir}"
+            "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {params.tax_id} {input.AIRs} {params.RNAplfold_dir}"
 
 rule aggregate_contextpp_scores_no_reannotation:
        input: lambda wildcards: expand("results/targets/no_reannotation/{species}_chr{chrom}_msa.contextpp.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
