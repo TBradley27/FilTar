@@ -1,6 +1,6 @@
 library(testthat)
 
-output_mmu = readr::read_tsv('results/targets/no_reannotation/mmu_chrY.contextpp.tsv')
+output_mmu = readr::read_tsv('results/targets/mmu/nr_oocyte_chrY.contextpp.filt.tsv')
 output_mmu = dplyr::filter(output_mmu, `Mirbase ID` == 'mmu-miR-188-5p') 
 
 print(output_mmu)
