@@ -22,9 +22,6 @@ rule prep_mirna_family_file:
         script:
            "get_mirna_family.R"
 
-def get_tax_id(wildcards):
-	return(config['tax_ids'][wildcards.species])
-
 rule prep_mirna_mature_alt:
         input:
            data="data/mature.fa",
@@ -136,15 +133,6 @@ rule aggregate_contextpp_scores:
        output: protected("results/targets/{species}/{tissue}.contextpp.tsv")
        shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
-rule expression_filter_contextpp_scores:
-        input:
-            contextpp_scores="results/targets/{species}/{tissue}.contextpp.tsv",
-            expression_values="results/salmon/{species}/{tissue}.sf"
-        params:
-            tpm_expression_threshold=2
-        output: protected("results/targets/{species}/{tissue}.contextpp.filt.tsv")
-        script: 'filter_contextpp_scores.R'
-
 ### other ###
 
 #rule delete_RNAplfold_output:
@@ -156,42 +144,6 @@ rule get_all_transcripts:
 	input: "results/bed/{species}_{tissue}.utr.full.bed"
 	output: "results/bed/{species}_{tissue}_all_transcripts.txt"
 	shell: "awk '{{ print $5}}' {input} | sort | uniq > {output}"
-
-rule get_AIR_file:
-        input: "results/targets/{species}_{tissue}.APA.txt", "results/utrs/{species}_{tissue}.utr.lengths.tsv" #output from APA usage file
-        output: "results/targets/{species}_{tissue}.AIRs.txt"
-        script: "get_tissue_specific_APA_file.R"
-
-rule patch_bin_lengths_script:
-        input:
-           BL_bins="exe/targetscan7/targetscan_70_BL_bins.pl",
-           patch_script="exe/targetscan7/patch_branch_lengths.sh"
-        output:
-          "exe/targetscan7/targetscan_70_BL_bins.patch.pl"
-        shell:
-          "{input.patch_script} {input.BL_bins} > {output}" # force reference species as a parameter
-
-rule patch_PCT_script:
-        input:
-           "exe/targetscan7/targetscan_70_BL_PCT.pl"
-        output:
-          "exe/targetscan7/targetscan_70_BL_PCT.patch.pl"
-        shell:
-          "sed -e '55 s;PCT_param;exe\/targetscan7\/PCT_param;g' {input} > {output}" # force reference species as a parameter
-
-rule patch_contextpp_script:
-        input:
-           contextpp="exe/targetscan7/targetscan_70_context_scores.pl",
-           patch_script="exe/targetscan7/patch_context_scores.sh"
-        output:
-          "exe/targetscan7/targetscan_70_context_scores.patch.pl"
-        shell:
-          "{input.patch_script} {input.contextpp} > {output}" # force reference species as a parameter
-
-rule aggregate_targetscan_sites:
-	input: lambda wildcards: expand("results/{species}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
-  	output: "results/{species}_msa.sites.tsv"
-	shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
 rule fix_targetscan_sites_output:
         input: "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"

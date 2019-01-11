@@ -3,9 +3,6 @@
 def get_species(wildcards):
 	return(wildcards.genus_species.lower())
 
-def get_species(wildcards):
-	return(wildcards.genus_species.lower())
-
 def get_gtf_file(wildcards):
         sci_species_name = config['sci_species_name'][wildcards.species]
         genome_build = config['genome_build'][wildcards.species]
@@ -19,10 +16,25 @@ def get_gtf_file(wildcards):
 #       shell:
 #          "wget --directory-prefix=data/ ftp://mirbase.org/pub/mirbase/CURRENT/mature.fa.gz && gunzip {output}"
 
+### GTF
+
 rule get_gtf_file:
      output: "data/{genus_species}.{build}.{ensembl_release}.chr.gtf"
      params: get_species
      shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/gtf/{params}/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf.gz data/ && gunzip data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf.gz && sed 's/^chr//g' data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf > tmp && mv tmp data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf"
+
+rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
+        input: "data/{species_prefix}.{ensembl_release}.chr.gtf"
+        output: "data/{species_prefix}.{ensembl_release}.mod.chr.gtf"
+        shell: "sed -r 's/^MT//g' {input} | sed '/^\t/d'  > {output}" # delete mitochondiral records and records not assigned to a chromosome
+
+rule get_transcript_ids:
+        input:
+                gtf=get_gtf_file
+        output: "results/bed/{species}_chr{chrom}_all_transcripts.txt"
+        shell: "exe/get_all_transcripts.sh {input} {wildcards.chrom} > {output}"
+
+# Genome assemblies
 
 rule download_toplevel_dna:
 	output: "data/{genus_species}.{build}.dna.toplevel.fa.gz"
