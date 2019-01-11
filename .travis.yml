@@ -31,13 +31,12 @@ script:
    - sed -i 's/ENA/SRAtoolkit/' Snakefile
    - Rscript -e 'devtools::install_github("TBradley27/filtar_R")'
    - snakemake --version
-   - snakemake --use-conda -p results/targets/no_reannotation/mmu/oocyte_chrY.contextpp.filt.tsv # no conservation mode
-   - head results/targets/no_reannotation/mmu/oocyte_chrY.contextpp.filt.tsv
-   - snakemake --use-conda -p results/targets/miRanda/mmu/oocyte/chrY_nr.filt.tsv # test miRanda
-   - head results/targets/miRanda/mmu/oocyte/chrY_nr.filt.tsv
-   - sed -i "s/no_conservation/with_conservation/" Snakefile
-   - touch results/bed/no_reannotation/mmu_3UTR.chrY.filtered.bed # in order to retrigger target build
-   - snakemake results/targets/no_reannotation/mmu/oocyte_chrY.contextpp.filt.tsv -n
-   - snakemake --use-conda -p results/targets/no_reannotation/mmu/oocyte_chrY.contextpp.filt.tsv
-   - head results/targets/no_reannotation/mmu/oocyte_chrY.contextpp.filt.tsv
+   - snakemake --use-conda -p results/targets/mmu/nr_oocyte_chrY.contextpp.filt.tsv # no conservation mode
+   - head results/targets/mmu/nr_oocyte_chrY.contextpp.filt.tsv
+   - snakemake --use-conda -p results/targets/miRanda/mmu/nr_oocyte/chrY.filt.tsv # test miRanda
+   - head results/targets/miRanda/mmu/nr_oocyte/chrY.filt.tsv
+   - sed -i "s/without_conservation/with_conservation/" Snakefile
+   - touch results/bed/mmu_nr_3UTR.chrY.bed # in order to retrigger target build
+   - snakemake --use-conda -p results/targets/mmu/nr_oocyte_chrY.contextpp.filt.tsv
+   - head results/targets/mmu/nr_oocyte_chrY.contextpp.filt.tsv
    - Rscript -e 'testthat::test_file("targetscan_test.R")'
