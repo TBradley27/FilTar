@@ -7,17 +7,27 @@ tissues:
         dre:
                 heart: [SRS566618]
         cel:
-                zygote: [SRS1665604]   
+                zygote: [SRS1665604]
+        fca:
+                unknown: [SRS2893812]
+        gga:
+                unknown: [SRS2766630]
 
 samples:
          SRS387309: [SRR652248,SRR652249]
          SRS21256x: [SRR290901,SRR290902]
          SRS540320: [SRR1137901,SRR1137902]
          SRS566618: [SRR1554475]
-         SRS1665604: [SRR4119904,SRR4119905]       
-
-single_end: [SRR652248,SRR652249,SRR1137901,SRR1137902,SRR1554475]
+         SRS1665604: [SRR4119904,SRR4119905]
+         SRS2893812: [SRR6639054]
+         SRS2766630: [SRR6387175]
+        
+single_end: [SRR652248,SRR652249,SRR1137901,SRR1137902,SRR1554475, SRR6639054, SRR6387175]
 paired_end: [SRR290901,SRR290902,SRR4119904,SRR4119905]
 
 mirnas: [mmu-miR-144-5p,mmu-miR-188-5p] #if this configuration is left blank - processing is performed for all miRNAs of a given species as default
 transcripts: [ENSMUST00000189888.6]
+
+reannotation: False
+conservation: False
+sequence_data_source: ENA

@@ -20,10 +20,13 @@ def get_input_files (wildcards):
                                 'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.run_accession)
                                 ]
                 return(input_files)
-        else:
+        elif wildcards.run_accession in config['single_end']:
                 input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.run_accession)
                              ]
                 return(input_file)
+        else:
+                raise Exception("\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(wildcards.run_accession))
+
 
 rule salmon_quant:
         output:  directory("results/salmon/runs/{species}/{run_accession}")
