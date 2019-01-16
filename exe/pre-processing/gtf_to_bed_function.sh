@@ -2,7 +2,7 @@
 
 gtf_to_bed () {
 
-	input="$1"; tx_feature="$2"; chromosome="$3"; output="$4"
+	input="$1"; tx_feature="$2"; output="$3"
 
 	if [[ "$tx_feature" == '3UTR' ]]; then
 		tx_feature_long=three_prime_utr
@@ -15,7 +15,7 @@ gtf_to_bed () {
 	grep "${tx_feature_long}" "$input" |
 	grep -E "\s${tx_feature_long}\s"|         # Braces needed for correct search - test for white space either side of the pattern
 	sed 's/^chr//g' |
-	grep '^'$chromosome'\s' |  # CCDS match confounds CDS search - warning: mmu and hsa have different prefixes for this
+#	grep '^'$chromosome'\s' |  # CCDS match confounds CDS search - warning: mmu and hsa have different prefixes for this
 	awk '{print $1,$4,$5,$7,$14$16}' |
 	sed 's/+/1/g'   |
 	sed 's/-/-1/g'  |

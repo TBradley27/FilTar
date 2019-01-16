@@ -40,11 +40,13 @@ def get_read_files (wildcards):
 			       'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession),
 				] 
 		return(input_files)
-	else:
+	elif wildcards.accession in config['single_end']:
 		input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
-                             ]
+				]
 		return(input_file)
-
+	else:
+		raise Exception("\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(wildcards.accession))
+		return
 #def get_index_files(wildcards):
 #	return
 #
