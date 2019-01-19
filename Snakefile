@@ -3,6 +3,7 @@ import re
 configfile: "config/config.yaml"
 configfile: "config/species_basic.yaml"
 configfile: "config/species_sequencing.yaml"
+configfile: "config/validation.yaml"
 
 if config['reannotation'] == True:
 	include: "sub_snakemake/with_reannotation/Snakefile"
@@ -50,6 +51,7 @@ include: "sub_snakemake/no_reannotation/Snakefile"
 include: "sub_snakemake/get_utr_and_cds/no_conservation/Snakefile" # for conservation information substitute 'no_conservation' for 'with_conservation'
 include: "sub_snakemake/get_utr_and_cds/without_conservation/Snakefile" # for conservation information substitute 'no_conservation' for 'with_conservation'
 include: "sub_snakemake/target_prediction/miRanda/Snakefile"
+include: "sub_snakemake/cumulative_plots/Snakefile"
 
 wildcard_constraints:
     species="[a-z]{3,4}",
@@ -60,8 +62,15 @@ wildcard_constraints:
     genus_species="[A-Z][a-z]+_[a-z]+"
 
 rule all:
-     input: #"results/targets/mmu/liver.contextpp.tsv" 
+     input: "results/plots/hsa_PRJNA231155_miR-137-3p_U343_exp.png", "results/plots/hsa_PRJNA231155_miR-137-3p_U343_alt_utr.png",
+             "results/plots/hsa_PRJNA292016_miR-141-3p_Du145_exp.png", "results/plots/hsa_PRJNA292016_miR-141-3p_Du145_alt_utr.png",
+             "results/plots/hsa_PRJNA304643_miR-1343-3p_A549_exp.png", "results/plots/hsa_PRJNA304643_miR-1343-3p_A549_alt_utr.png",
+             "results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_exp.png", "results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_alt_utr.png",
+             "results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_alt_utr.png"
 
-rule testing:
-	output: 'foo.txt'
-	shell: 'touch {output}'
