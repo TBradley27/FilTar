@@ -1,0 +1,336 @@
+ensembl_release: 95
+
+assembly_level:
+        hsa: primary
+        mmu: primary
+        dre: primary
+        gga: toplevel
+        aca: toplevel
+        ptr: toplevel
+        bta: toplevel
+        cfa: toplevel
+        nle: toplevel
+        chi: toplevel
+        ggo: toplevel
+        mml: toplevel
+        mmr: toplevel
+        mdo: toplevel
+        ssc: toplevel
+        oan: toplevel
+        ocu: toplevel
+        rno: toplevel
+        oar: toplevel
+        tni: toplevel
+        tgu: toplevel
+        ppa: toplevel
+
+chromosomes:
+        hsa: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y]
+        mmu: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,Y]
+        dre: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]
+        gga: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,30,31,32,33,W,Z,LGE64]
+        aca: [1,2,3,4,5,6,LGa,LGb,LGc,LGd,LGe,LGg,LGh]
+        ptr: [1,2A,2B,3,4,5,6,7,8,9,10,11,12,14,14,15,16,17,18,19,20,21,22,X,Y]
+        bta: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,X]
+        cfa: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,X]
+        nle: [1a,2,3,4,5,6,7b,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22a,23,24,25,X]
+        chi: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29]
+        ggo: [1,2A,2B,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X]
+        mml: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,X,Y]
+        mmr: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,X]
+        mdo: [1,2,3,4,5,6,7,8,X]
+        ssc: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
+        oan: [1,2,3,4,5,6,7,10,11,12,14,15,17,18,20,X1,X2,X3,X5]
+        ocu: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,X]
+        rno: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,X,Y]
+        oar: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,X]
+        tni: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]
+        tgu: [1,1A,1B,2,3,4,4A,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,LG2,LG5,LGE22,Z]
+        ppa: [1,2A,2B,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X]
+
+tax_ids: # for targetscan
+        hsa: 9606
+        mmu: 10090
+        dre: 7955
+        gga: 9031
+        aca: 28377
+        ptr: 9598
+        bta: 9913
+        cfa: 9615
+        nle: 61853
+        chi: 9925
+        ggo: 9593
+        mml: 9544
+        mmr: 30608
+        mdo: 13616
+        ssc: 9823
+        oan: 9258
+        ocu: 9986
+        rno: 10116
+        oar: 9940
+        tni: 99883
+        tgu: 59729
+        ppa: 9597
+
+sci_species_name:
+        hsa: Homo_sapiens
+        mmu: Mus_musculus
+        dre: Danio_rerio
+        gga: Gallus_gallus
+        aca: Anolis_carolinensis
+        ptr: Pan_troglodytes
+        bta: Bos_taurus
+        cfa: Canis_familiaris
+        nle: Nomascus_leucogenys
+        chi: Capra_hircus
+        ggo: Gorilla_gorilla
+        mml: Macaca_mulatta
+        mmr: Microcebus_murinus
+        mdo: Monodelphis_domestica
+        ssc: Sus_scrofa
+        oan: Ornithorhynchus_anatinus
+        ocu: Oryctolagus_cuniculus
+        rno: Rattus_norvegicus
+        oar: Ovis_aries
+        tni: Tetraodon_nigroviridis
+        tgu: Taeniopygia_guttata
+        ppa: Pan_paniscus
+
+genome_build:
+        hsa: GRCh38
+        mmu: GRCm38
+        dre: GRCz11
+        gga: GRCg6a
+        aca: AnoCar2.0
+        ptr: Pan_tro_3.0
+        bta: ARS-UCD1.2
+        cfa: CanFam3.1
+        nle: Nleu_3.0
+        chi: ARS1
+        ggo: gorGor4
+        mml: Mmul_8.0.1
+        mmr: Mmur_3.0
+        mdo: monDom5
+        ssc: Sscrofa11.1
+        oan: OANA5
+        ocu: OryCun2.0
+        rno: Rnor_6.0
+        oar: Oar_v3.1
+        tni: TETRAODON8
+        tgu: taeGut3.2.4
+        ppa: panpan1.1
+
+TaxID: 
+        hg38: "9606"
+        hg19: "9606"
+        panTro4: "9598"
+        panTro5: "9598"
+        gorGor3: "9595"
+        ponAbe2: "9601"
+        nomLeu3: "61853"
+        nomLeu2: "61853"
+        nomLeu1: "61853"
+        rheMac3: "9544"
+        rheMac8: "9544"
+        macFas5: "9541"
+        papHam1: "9557"
+        tarSyr1: "delete" #"9476"
+        tarSyr2: "delete" #"9476"
+        tupBel1: "delete" #"37347"
+        dipOrd1: "delete" #10020 # I am not sure what the species is or why it appears in the 100-way alignment
+        micMur1: "delete" #"30608"
+        choHof1: "delete" #"9358"
+        proCap1: "delete" #"9813"
+        papAnu2: "9557"
+        chlSab2: "60711"
+        calJac3: "9483"
+        saiBol1: "27679"
+        otoGar3: "30611"
+        tupChi1: "246437"
+        speTri2: "43179"
+        jacJac1: "51337"
+        micOch1: "79684"
+        criGri1: "10029"
+        mesAur1: "10036"
+        mm10: "10090"
+        rn6: "10116"
+        rn5: "10116"
+        hetGla2: "10181"
+        cavPor3: "10141"
+        chiLan1: "34839"
+        octDeg1: "10160"
+        oryCun2: "9986"
+        ochPri3: "9978"
+        ochPri2: "9978"
+        susScr3: "9823"
+        vicPac1: "30538"
+        vicPac2: "30538"
+        camFer1: "419612"
+        turTru2: "9739"
+        orcOrc1: "9733"
+        panHod1: "59538"
+        bosTau8: "9913"
+        bosTau7: "9913"
+        oviAri3: "9940"
+        oviAri1: "9940"
+        capHir1: "9925"
+        equCab2: "9796"
+        cerSim1: "9807"
+        felCat5: "9685"
+        felCat8: "9685"
+        canFam3: "9615"
+        musFur1: "9669"
+        ailMel1: "9646"
+        odoRosDiv1: "9708"
+        lepWed1: "9713"
+        pteAle1: "9402"
+        pteVam1: "132908"
+        myoDav1: "225400"
+        myoLuc2: "59463"
+        eptFus1: "29078"
+        eriEur1: "9365"
+        eriEur2: "9365"
+        sorAra2: "42254"
+        sorAra1: "42254"
+        conCri1: "143302"
+        loxAfr3: "9785"
+        eleEdw1: "28737"
+        triMan1: "127582"
+        chrAsi1: "185453"
+        echTel1: "9371"
+        echTel2: "9371"
+        oryAfe1: "1230840"
+        dasNov3: "9361"
+        monDom5: "13616"
+        sarHar1: "9305"
+        macEug2: "9315"
+        ornAna1: "9258"
+        falChe1: "345164"
+        falPer1: "8954"
+        ficAlb2: "59894"
+        zonAlb1: "44394"
+        geoFor1: "48883"
+        taeGut2: "59729"
+        taeGut1: "59729"
+        pseHum1: "181119"
+        melUnd1: "13146"
+        amaVit1: "241585"
+        araMac1: "176014"
+        colLiv1: "8932"
+        anaPla1: "8839"
+        galGal4: "9031"
+        melGal1: "9103"
+        allMis1: "8496"
+        cheMyd1: "8469"
+        chrPic2: "8478"
+        chrPic1: "8478"
+        pelSin1: "13735"
+        apaSpi1: "55534"
+        anoCar2: "28377"
+        xenTro7: "8364"
+        xenTro3: "8364"
+        latCha1: "7897"
+        tetNig2: "delete" #"99883" # This is because TargetScan7 discards most  fish species giving a 84-way alignment not a 100-way alignment
+        fr3: "delete" #"31033"
+        takFla1: "delete" #"433684"
+        oreNil2: "delete" #"8128"
+        neoBri1: "delete" #"32507"
+        hapBur1: "delete" #"8153"
+        mayZeb1: "delete" #"106582"
+        punNye1: "delete" #"303518"
+        oryLat2: "delete" #"8090"
+        xipMac1: "delete" #"8083"   
+        gasAcu1: "delete" #"69293"
+        gadMor1: "delete" #"8049"
+        danRer10: "delete" #"7955"
+        danRer7: "delete" #"7955"
+        astMex1: "delete" #"7994"
+        lepOcu1: "delete" #"7918"
+        petMar2: "delete" #"7757"
+        petMar1: "delete" #"7757"
+
+CommonName:
+        hg38: Human
+        panTro4: Chimp
+        gorGor3: Gorilla
+        ponAbe2: Orangutan
+        nomLeu3: Gibbon
+        rheMac3: Rhesis Macaque
+        macFas5: Crab-eating Macaque
+        papAnu2: Baboon
+        chlSab2: Green Monkey
+        calJac3: Marmoset
+        saiBol1: Squirrel monkey
+        otoGar3: Bushbaby
+        tupChi1: Chineses tree shrew
+        speTri2: Squirrell
+        jacJac1: Lesser Egyptian jerboa
+        micOch1: Prairie vole
+        criGri1: Chinese hamster
+        mesAur1: Golden hamster
+        mm10: Mouse
+        rn6: Rat
+        hetGla2: Naked mole-rat
+        cavPor3: Guinea pig
+        chiLan1: Chinchilla
+        octDeg1: Brush-tailed rat
+        oryCun2: Rabbit
+        ochPri3: Pika
+        susScr3: Pig
+        vicPac2: Alpaca
+        camFer1: Bactrian camel
+        turTru2: Dolphin
+        orcOrc1: Killer whale
+        panHod1: Tibetan antelope
+        bosTau8: Cow
+        oviAri3: Sheep
+        capHir1: Domestic goat
+        equCab2: Horse
+        cerSim1: White rhinocerous
+        felCat8: Cat
+        canFam3: Dog
+        musFur1: Ferret
+        ailMel1: Panda
+        odoRosDiv1: Pacific walrus
+        lepWed1: Weddell seal
+        pteAle1: Black flying-fox
+        pteVam1: Megabat
+        myoDav1: David's myotis bat
+        myoLuc2: Microbat
+        eptFus1: Big brown bat
+        eriEur2: Hedgehog
+        sorAra2: Shrew  
+        conCri1: Star-nosed mole
+        loxAfr3: Elephant
+        eleEdw1: Cape elephant shrew
+        triMan1: Manatee
+        chrAsi1: Cape golden mole
+        echTel2: Tenrec
+        oryAfe1: Aardvark
+        dasNov3: Armadillo
+        monDom5: Opossum
+        sarHar1: Tasmanian devil
+        macEug2: Wallaby
+        ornAna1: Platypus
+        falChe1: Saker falcon
+        falPer1: Peregrine falcon
+        ficAlb2: Collared flycatcher
+        zonAlb1: White-throated sparrow
+        geoFor1: Medium ground finch
+        taeGut2: Zebra finch
+        pseHum1: Tibetan ground jay
+        melUnd1: Budgerigar
+        amaVit1: Parrot
+        araMac1: Scarlet macaw
+        colLiv1: Rock pigeon
+        anaPla1: Mallard duck
+        galGal4: Chicken
+        melGal1: Turkey
+        allMis1: American alligator
+        cheMyd1: Green seaturtle
+        chrPic2: Painted turtle
+        pelSin1: Chinese softshell turtle
+        apaSpi1: Spiny softshell turtle
+        anoCar2: Lizard
+        xenTro7: Xenopus
+        latCha1: Coelacanth

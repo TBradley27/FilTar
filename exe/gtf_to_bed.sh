@@ -14,6 +14,7 @@ awk '{print $1,$4,$5,$7,$14$16}' |
   sed 's/-/-1/g'  |
   sed 's/\"//g'   |
   sed 's/;/./g'   |
+  sed 's/^chr//g' | # this is important
   sed 's/\.//2'   |
   tr ' '  \\t     |
   awk '{ OFS="\t" }{print $1,$2-1,$3,$4,$5}' > "$output"

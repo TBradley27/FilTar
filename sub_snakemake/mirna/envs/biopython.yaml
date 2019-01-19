@@ -1,0 +1,6 @@
+channels:
+ - conda-forge
+ - anaconda
+dependencies:
+ - biopython=1.72
+ - sed

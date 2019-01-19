@@ -1,40 +1,73 @@
-#!/bin/bash
+def get_cDNA_file (wildcards):
+	sci_species_name = config['sci_species_name'][wildcards.species]
+        genome_build = config['genome_build'][wildcards.species]
+	
+	return ( 'data/' + sci_species_name + '.' + genome_build + '.cdna.all.fa'  ) 
 
-
-rule download cdna_file:
+rule salmon_index:
         input:
-        output: "data/Homo_sapiens.GRCh38.cdna.all.fa.gz"
-        shell: "wget -nv --directory-prefix=data/ ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz"
-
-rule decompress_cdna_file:
-        input: "data/Homo_sapiens.GRCh38.cdna.all.fa.gz"
-        output: "data/Homo_sapiens.GRCh38.cdna.all.fa"
-        shell: "gunzip {input}"
-
-rule salmon_index_mouse:
-        input:
-            "data/Mus_musculus.GRCm38.cdna.all.fa"
+             get_cDNA_file   #"data/{genus_species}.{build}.cdna.all.fa"
         output:
-            "results/mmu_GRCm38_index"
+            directory("results/salmon/indexes/{species}")
         threads: 8
+        conda: "envs/salmon.yaml"
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
 
-rule salmon_index_humans:
-        input:
-            "data/Homo_sapiens.GRCh38.cdna.all.fa"
-        output:
-            "results/hsa_GRCh38_index/"
-        threads: 8
-        shell:
-            "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
+def get_input_files (wildcards):
+        if wildcards.run_accession in config['paired_end']:
+                input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.run_accession),
+                                'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.run_accession)
+                                ]
+                return(input_files)
+        elif wildcards.run_accession in config['single_end']:
+                input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.run_accession)
+                             ]
+                return(input_file)
+        else:
+                raise Exception("\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(wildcards.run_accession))
 
-rule salmon_quant_human:
-        input:
-          index="results/hsa_GRCh38_index/",
-          reads="results/{accession}_trimmed.fq.gz"
-        output:
-          "results/{accession}_salmon/"
-        threads: 4
-        shell:
-          "salmon quant -p {threads} -i {input.index} -l A -r {input.reads} -o {output}"
+
+rule salmon_quant:
+        output:  directory("results/salmon/runs/{species}/{run_accession}")
+	input:
+           reads=get_input_files,
+           index="results/salmon/indexes/{species}"
+	conda:
+		"envs/salmon.yaml"
+	wildcard_constraints:
+		run_accession="((?!lib_type).)*" # excludes substring 'lib_type'
+	threads: 4
+	script:
+		"quant_salmon.py"
+
+rule salmon_get_lib_type:
+	input: "results/salmon/runs/{species}/{run_accession}" 
+	output: "results/salmon/runs/{species}/{run_accession}_lib_type.txt" # like this because you cannot create files inside snakemake created directories
+	wildcard_constraints:
+		run_accession="((?!lib_type).)*" # excludes substring 'lib_type'
+	shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
+
+rule salmon_quantmerge_by_run:
+	input:	lambda wildcards: expand("results/salmon/runs/{species}/{run_accession}", run_accession=config['samples'][wildcards.sample], species=wildcards.species)
+	output: temp("results/salmon/samples/{species}/{sample}.quant.tmp.sf")
+        conda: "envs/salmon.yaml"
+	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
+
+rule salmon_average_quantmerge_runs:
+        input: "results/salmon/samples/{species}/{sample}.quant.tmp.sf",
+        output: directory("results/salmon/samples/{species}/{sample}")
+        wildcard_constraints:
+               sample="((?!quant.tmp).)*" # anything not containing quant.tmp
+        script: "get_average_quant.R"
+
+rule salmon_quantmerge_by_sample:
+        input:  lambda wildcards: expand('results/salmon/samples/{species}/{sample}', sample=config['tissues'][wildcards.species][wildcards.tissue], species=wildcards.species)
+        output: temp("results/salmon/{species}/{tissue}.sf.tmp")
+        conda: "envs/salmon.yaml"
+        shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
+
+rule salmon_average_quantmerge_samples:
+        input: "results/salmon/{species}/{tissue}.sf.tmp",
+        output: "results/salmon/{species}/{tissue}.sf"
+        script: "get_average_quant2.R"

@@ -1,16 +1,15 @@
 #!/bin/bash
 
-rule download_mirna_data:
-       input:
-       output:
-          "data/mature.fa"
-       shell:
-          "wget --directory-prefix=data/ ftp://mirbase.org/pub/mirbase/CURRENT/mature.fa.gz && gunzip {output}"
-
 rule mirna_species_fasta:
         input:
            "data/mature.fa"
         output:
            "data/mirbase_mature_{species}.fa"
         shell:
-           "grep -A 1 {wildcards.species} {input} | awk '{{ print $1 }}' | sed 's/--//g' | sed '/^$/d' > {output} "
+           "grep -A 1 {wildcards.species} {input} | awk '{{ print $1 }}' | sed 's/--//g' | sed '/^$/d' > {output}"
+
+rule filter_mirna_species_fasta:
+	input: "data/mirbase_mature_{species}.fa"
+	output: "data/mirbase_mature_{species}.filtered.fa"
+	conda: "envs/biopython.yaml"
+	script: "filter_mirna_fasta.py"

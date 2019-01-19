@@ -1,51 +1,18 @@
 #!/bin/bash
 
-#rule download_single_end_fastq_file:
-#       input:
-#       output: 
-#            "data/{accession}.fastq.gz"
-#       benchmark: "benchmarks/ENA/{accession}.log"
-#       shell: 
-#            "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/{wildcards.accession[0]}RR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[8]}/{wildcards.accession}/{wildcards.accession}.fastq.gz"
+rule download_single_end_fastq_file:
+       input:
+       output: 
+            "data/single_end/{accession}.fastq.gz"
+       benchmark: "benchmarks/ENA/{accession}.log"
+       script: "download_fastq.py" 
 
-rule download_single_end_fastq_file_alt:
+rule download_paired_end_fastq_files:
        input:
        output:
-            "data/{accession}.fastq.gz"
-       benchmark: "benchmarks/ENA/{accession}.log"
-       wildcard_constraints:
-         accession="[^_]"
-       shell:
-            "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/{wildcards.accession}/{wildcards.accession}.fastq.gz"
+           "data/paired_end/{accession}_{mate_number}.fastq.gz",
+       benchmark: "benchmarks/ENA/{accession}_{mate_number}.log"
+       script: "download_fastq.py"
 
-#rule download_first_paired_end_fastq_file:
-#       input:
-#       output:
-#           "data/{accession}_1.fastq.gz",
-#       benchmark: "benchmarks/ENA/{accession}.log"
-#       shell:
-#          "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/{wildcards.accession[0]}RR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/{wildcards.accession}/{wildcards.accession}_1.fastq.gz"
 
-rule download_second_paired_end_fastq_file:
-       input:
-       output:
-           "data/{accession}_2.fastq.gz"
-       benchmark: "benchmarks/ENA/{accession}.log"
-       shell:
-          "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/{wildcards.accession[0]}RR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/{wildcards.accession}/{wildcards.accession}_2.fastq.gz"
-
-#rule download_first_paired_end_fastq_file_alt:
-#       input:
-#       output:
-#           "data/{accession}_1.fastq.gz",
-#       benchmark: "benchmarks/ENA/{accession}.log"
-#       shell:
-#          "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_1.fastq.gz"
-
-#rule download_second_paired_end_fastq_file_alt:
-#       input:
-#       output:
-#           "data/{accession}_2.fastq.gz"
-#       benchmark: "benchmarks/ENA/{accession}.log"
-#       shell:
-#          "wget -nv --directory-prefix=data/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[8]}/{wildcards.accession}/{wildcards.accession}_2.fastq.gz"
+#          "wget -nv --directory-prefix=data/paired_end/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/{wildcards.accession[0]}RR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/{wildcards.accession}/{wildcards.accession}_{wildcards.mate_number}.fastq.gz || wget -nv --directory-prefix=data/paired_end/ ftp://ftp.sra.ebi.ac.uk/vol1/fastq/{wildcards.accession[0]}RR{wildcards.accession[3]}{wildcards.accession[4]}{wildcards.accession[5]}/00{wildcards.accession[9]}/{wildcards.accession}/{wildcards.accession}_{wildcards.mate_number}.fastq.gz"

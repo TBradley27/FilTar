@@ -13,3 +13,12 @@ data/
 logs/
 results/
 reports/fastqc/
+*AIRs.txt
+*.snakemake.*
+*lunp
+*.txt
+*.tsv
+*.ps
+*.gtf
+*.bed
+*.db
