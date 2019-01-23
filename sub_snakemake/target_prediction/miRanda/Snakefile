@@ -2,43 +2,6 @@ def get_dna_file(wildcards):
         sci_species_name = config['sci_species_name'][wildcards.species]
         genome_build = config['genome_build'][wildcards.species]
 
-rule reformat_bed_file_for_bedtools:
-        input: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bed"
-        output: "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bedtools.bed"
-        shell: "exe/get_bedtools_bed.sh {input} {output}"
-
-rule reformat_bed_file_for_bedtools_no_reannotation:
-        input: "results/bed/no_reannotation/{species}_{feature}.chr{chrom}.filtered.bed"
-        output: "results/bed/no_reannotation/{species}_{feature}.chr{chrom}.bedtools.bed"
-        shell: "exe/get_bedtools_bed.sh {input} {output}"
-
-rule get_single_species_seq_fa:
-        input:
-                dna=get_dna_file,
-                bed="results/bed/mmu_liver_3UTR.chr{chrom}.bedtools.bed"
-        output: "results/msa/{species}_{tissue}_chr{chrom}.tmp.fa"
-        conda: 'envs/bedtools.yaml'
-        shell: "bedtools getfasta -name -s -fi {input.dna} -bed {input.bed} -fo {output}"
-
-rule merge_fasta:
-	input: "results/msa/{species}_{tissue}_chr{chrom}.tmp.fa"
-	output: "results/msa/{species}_{tissue}_chr{chrom}.tmp2.fa"
-	script: "merge_fasta.R"
-
-rule get_single_species_seq_fa_no_reannotation:
-        input:
-                dna=get_dna_file,
-                bed="results/bed/no_reannotation/{species}_3UTR.chr{chrom}.bedtools.bed"
-        output: "results/msa/no_reannotation/{species}_chr{chrom}.tmp.fa"
-        conda: 'envs/bedtools.yaml'
-        shell: "bedtools getfasta -name -s -fi {input.dna} -bed {input.bed} -fo {output}"
-
-rule merge_fasta_nr:
-        input: "results/msa/no_reannotation/{species}_chr{chrom}.tmp.fa"
-        output: "results/msa/no_reannotation/{species}_chr{chrom}.tmp2.fa"
-        script: "merge_fasta.R"
-        return('data/' + sci_species_name + '.' + genome_build + '.dna.chromosome.{}.fa'.format(wildcards.chrom))
-
 rule fix_fasta_output:
 	input: "results/msa/{species}_{tissue}_chr{chrom}_3UTR.tmp2.fa"
 	output: "results/msa/{species}_{tissue}_chr{chrom}.fa"

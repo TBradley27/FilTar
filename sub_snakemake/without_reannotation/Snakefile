@@ -48,44 +48,43 @@ rule filter_bed6_file_no_reannotation:
         script: 'filter_bed6.R'
 
 rule split_filtered_bed6:
-	input: "results/bed/{species}_nr_{feature}.bed"
-	output: "results/bed/{species}_nr_{feature}.chr{chrom}.bed"
+	input: rules.filter_bed6_file_no_reannotation.output
+	output: "results/bed/{species}_{feature}.chr{chrom}.nr.bed"
 	shell: 'grep -E "^{wildcards.chrom}" {input} > {output} || true'
 
-### filter by expression level
 
-rule expression_filter_contextpp_scores_chr_no_reannotation:
-        input:
-                contextpp_scores="results/targets/{species}_nr_chr{chrom}_msa.contextpp.tsv",
-                expression_values="results/salmon/{species}/{tissue}.sf"
-        params:
-                tpm_expression_threshold=0
-        output: protected("results/targets/{species}/nr_{tissue}_chr{chrom}.contextpp.filt.tsv")
-        script: 'filter_contextpp_scores.R'
+## get_utr_and_cds & targetscan sites
 
-rule expression_filter_contextpp_scores_no_reannotatin:
+rule biopython_get_msa_nr:
         input:
-            contextpp_scores="results/targets/{species}/nr.contextpp.tsv",
-            expression_values="results/salmon/{species}/{tissue}.sf"
-        params:
-            tpm_expression_threshold=0
-        output: protected("results/targets/{species}/nr_{tissue}.contextpp.filt.tsv")
-        script: 'filter_contextpp_scores.R'
+           maf="data/maf_{species}/chr{chrom}.maf",
+           bed="results/bed/{species}_{feature}.chr{chrom}.nr.bed",
+           maf_index="data/{species}_chr{chrom}.mafindex"
+        output:
+           "results/msa/{species}_chr{chrom}_{feature}_msa_nr.tsv"
+        conda:
+           "envs/biopython.yaml"
+        script:
+           "biopython_maf_processing2.py"
 
-rule expression_filter_miRanda_nr_chr:
+rule targetscan_sites_nr:
         input:
-            miRanda_scores="results/targets/miRanda/{species}/nr_chr{chrom}.tsv",
-            expression_values="results/salmon/{species}/{tissue}.sf"
-        params:
-            tpm_expression_threshold=0
-        output: protected("results/targets/miRanda/{species}/nr_{tissue}/chr{chrom}.filt.tsv")
-        script: 'filter_miRanda_scores.R'
+           msa="results/msa/{species}_chr{chrom}_3UTR_msa_nr.tsv",
+           mirna_families="results/{species}_mirna_family.tsv",
+           script="exe/targetscan7/targetscan_70.patch.pl"
+        output:
+           "results/targets/{species}_chr{chrom}_msa.sites_nr.tmp.tsv"
+        benchmark:
+           "benchmarks/{species}_chr{chrom}_msa.sites.log"
+        shell:
+           "{input.script} {input.mirna_families} {input.msa} {output}"
 
-rule expression_filter_miRanda_nr:
-        input:
-            miRanda_scores="results/targets/miRanda/{species}/nr.tsv",
-            expression_values="results/salmon/{species}/{tissue}.sf"
-        params:
-            tpm_expression_threshold=0
-        output: protected("results/targets/miRanda/{species}/nr_{tissue}.filt.tsv")
-        script: 'filter_miRanda_scores.R'
+rule fix_targetscan_sites_output_nr:
+        input: rules.targetscan_sites_nr.output
+        output: protected("results/targets/{species}_chr{chrom}_msa_nr.sites.tsv")
+        script: "fix_ts_output.R"
+
+rule aggregate_targetscan_sites_nr:
+        input: lambda wildcards: expand("results/targets/{species}_chr{chrom}_msa_nr.sites.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
+        output: "results/targets/{species}_msa_nr.sites.tsv"
+        shell: "cat {input} | sed '1b;/Gene/d' > {output}"

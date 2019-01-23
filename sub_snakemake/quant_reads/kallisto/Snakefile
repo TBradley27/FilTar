@@ -1,7 +1,3 @@
-subworkflow main_workflow:
-        workdir: ".."
-        snakefile: "../Snakefile"
-
 def get_cDNA_file(wildcards):
 	if wildcards.assembly == 'GRCh38':
 		return('data/Homo_sapiens.GRCh38.cdna.all.fa')
@@ -17,22 +13,26 @@ rule get_index:
 
 def get_index_file (wildcards):
 	if wildcards.accession in config['mouse']['runs']:
-		return ('results/GRCm38.idx')
+		return ('results/kallisto/GRCm38.idx')
 	elif wildcards.accession in config['human']['runs']:
-		return ('results/GRCh38.idx')
+		return ('results/kallisto/GRCh38.idx')
+	else:
+		raise Exception("please specify which species run {} corresponds to".format(wildcards.accession))
 
 def get_input_files (wildcards):
-        if wildcards.accession in config['all_paired_end']:
+        if wildcards.accession in config['paired_end']:
                 input_files = [
 			       'results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession),
                                'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession)
                               ]
                 return(input_files)
-        else:
+        elif wildcards.accession in config['single_end']:
                 input_file = [
                               "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
                              ]
                 return(input_file)
+        else:
+                raise Exception("\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(wildcards.accession))	
 
 rule kallisto_quant:
         output: "results/kallisto/{accession}/abundance.tsv"
@@ -44,6 +44,5 @@ rule kallisto_quant:
         params:
                frag_length_mean=180,
                frag_length_sd=20
+	threads: 5
         script: "kallisto_quant.py"
-
-

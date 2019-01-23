@@ -3,7 +3,7 @@ subworkflow mainworkflow:
 	workdir: "../"
         snakefile: "../Snakefile"
 
-rule get_utr_lengths:
+rule get_utr_lengths2:
 	input:	'results/bed/{species}_{cell_line}.utr.full.bed'
 	output: 'results/utrs/{species}_{cell_line}.utr.lengths.tsv'
 	script: 'get_utr_lengths.R'
@@ -43,8 +43,7 @@ rule get_cumulative_plot_expression:
         input:
                 quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
                 quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-                cl_targets= "results/targets/specific/{species}_{cell_line}.sites.tsv",
-                canon_targets = "results/targets/canonical/{species}_msa.sites.tsv"
+                canon_targets = "results/targets/{species}_msa_nr.sites.tsv"
         params:
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
@@ -57,8 +56,8 @@ rule get_cumulative_plot_alt_utrs: # UTR reannotation analysis
         input:
                 quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
                 quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-                cl_targets= "results/targets/specific/{species}_{cell_line}.sites.tsv",
-                canon_targets ="results/targets/canonical/{species}_msa.sites.tsv"
+                cl_targets= "results/targets/{species}_{cell_line}_msa.sites.tsv",
+                canon_targets ="results/targets/{species}_msa_nr.sites.tsv"
         params:
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],

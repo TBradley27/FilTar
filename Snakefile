@@ -2,24 +2,13 @@ import re
 
 configfile: "config/config.yaml"
 configfile: "config/species_basic.yaml"
-configfile: "config/species_sequencing.yaml"
 configfile: "config/validation.yaml"
 
-if config['reannotation'] == True:
-	include: "sub_snakemake/with_reannotation/Snakefile"
-	include: "sub_snakemake/with_reannotation/map_reads/hisat2/Snakefile"
-elif config['reannotation'] == False:
-	include: "sub_snakemake/without_reannotation/Snakefile"
-else:
-	raise Exception("\nPlease enter a value of either 'True' or 'False' for the 'reannotation' key. Default values can be set in config/config.yaml\n")
+include: "sub_snakemake/with_reannotation/Snakefile"
+include: "sub_snakemake/with_reannotation/map_reads/hisat2/Snakefile"
+include: "sub_snakemake/without_reannotation/Snakefile"
 
-if config['conservation'] == True:
-	include: "sub_snakemake/get_utr_and_cds/with_conservation/Snakefile"
-elif config['conservation'] == False:
-	include: "sub_snakemake/get_utr_and_cds/without_conservation/Snakefile"
-	include: "sub_snakemake/target_prediction/miRanda/Snakefile"
-else:
-	raise Exception("\nPlease enter a value of either 'True' or 'False' for the 'conservation' key. Default values can be set in config/config.yaml\n")
+include: "sub_snakemake/target_prediction/miRanda/Snakefile"
 
 if config['sequence_data_source'] == 'ENA':
 	include: "sub_snakemake/data_download/ENA/Snakefile"
@@ -38,13 +27,10 @@ for transcript in list(config['transcripts']):
 
 include: "sub_snakemake/data_download/Snakefile"
 include: "sub_snakemake/trim_reads/trim_galore/Snakefile"
+include: "sub_snakemake/quant_reads/kallisto/Snakefile"
 include: "sub_snakemake/quant_reads/salmon/Snakefile"
 include: "sub_snakemake/mirna/Snakefile"
 include: "sub_snakemake/target_prediction/targetscan/Snakefile"
-include: "sub_snakemake/target_prediction/miRanda/Snakefile"
-include: "sub_snakemake/get_utr_and_cds/no_conservation/Snakefile" # for conservation information substitute 'no_conservation' for 'with_conservation'
-include: "sub_snakemake/get_utr_and_cds/without_conservation/Snakefile" # for conservation information substitute 'no_conservation' for 'with_conservation'
-include: "sub_snakemake/target_prediction/miRanda/Snakefile"
 include: "sub_snakemake/cumulative_plots/Snakefile"
 
 wildcard_constraints:

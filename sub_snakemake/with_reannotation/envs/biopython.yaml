@@ -1,5 +1,6 @@
 channels:
  - conda-forge
- - bioconda
+ - anaconda
 dependencies:
- - bedtools=2.27.1
+ - biopython=1.72
+ - sed

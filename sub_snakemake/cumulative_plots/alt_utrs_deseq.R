@@ -62,12 +62,11 @@ names(files) = samples$run
 # filter targets for 8mers and the correct miRNA
 
 cl_targets = filter(cl_targets, Site_type %in% snakemake@params$nontarget_site_types) 
-cl_targets = filter(cl_targets, miRNA_family_ID == snakemake@wildcards$miRNA)
+cl_targets = filter(cl_targets, miRNA_family_ID == 1620)
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$nontarget_site_types)
-canon_targets = filter(canon_targets, miRNA_family_ID == snakemake@wildcards$miRNA)
+canon_targets = filter(canon_targets, miRNA_family_ID == 1620)
 
-canon_targets$a_Gene_ID = gsub('\\..*','', canon_targets$a_Gene_ID)
 
 ### DESeq2
 
@@ -94,13 +93,12 @@ print(resLFC)
 results = cbind(resLFC@rownames, as.tibble(resLFC@listData))
   
 results = filter(results, is.na(log2FoldChange) == FALSE)
-results$`resLFC@rownames` = gsub('\\..*','',results$`resLFC@rownames`)
 
 # remove lowly expressed transcripts
 
 exp_data = filter(results, baseMean >= snakemake@params$exp_threshold)
 
-print(exp_data)
+print(exp_data[1:100,])
 
 # subset the expression data
 
@@ -108,7 +106,9 @@ non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% cl_ta
 
 #non_targets_exp = non_targets_exp - median(non_targets_exp)
 
-cl_targets = filter(cl_targets, Site_type %in%  snakemake@params$target_site_types)  
+print(cl_targets)
+cl_targets = filter(cl_targets, Site_type %in%  snakemake@params$target_site_types)
+print(cl_targets) 
 cl_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% cl_targets$a_Gene_ID]
 
 #cl_targets_exp = cl_targets_exp - median(non_targets_exp)

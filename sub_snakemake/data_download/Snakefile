@@ -80,6 +80,17 @@ rule download_maf_files_mouse:
         shell:
            "wget --directory-prefix=data/maf_mmu/ -nv http://hgdownload.cse.ucsc.edu/goldenPath/mm10/multiz60way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"
 
+rule index_maf_files:
+        input:
+           maf="data/maf_{species}/chr{chrom}.maf",
+        output:
+           protected("data/{species}_chr{chrom}.mafindex")
+        conda: 'envs/biopython.yaml'
+        benchmark:
+           "benchmarks/{species}_chr{chrom}.mafindex.log"
+        script:
+           "biopython_maf_processing.py"
+
 rule download_targetscan_data1:
         input:
         output:

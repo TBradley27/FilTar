@@ -7,15 +7,6 @@ library(tximport)
 
 # read in the data
 
-cl_targets = read_tsv(
-	file = snakemake@input$cl_targets,
-	col_names = TRUE,
-	col_types = 'ccciiiiiccccci',
-	trim_ws = FALSE
-	)
-
-print(cl_targets)
-
 canon_targets = read_tsv(
         file = snakemake@input$canon_targets,
         col_names = TRUE,
@@ -53,9 +44,9 @@ names(files) = samples$run
 # filter targets for 8mers and the correct miRNA
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$nontarget_site_types)
-canon_targets = filter(canon_targets, miRNA_family_ID == snakemake@wildcards$miRNA)
+canon_targets = filter(canon_targets, miRNA_family_ID == 1620)
 
-canon_targets$a_Gene_ID = gsub('\\..*','', canon_targets$a_Gene_ID)
+#canon_targets$a_Gene_ID = gsub('\\..*','', canon_targets$a_Gene_ID)
 
 ### DESeq2
 
@@ -72,17 +63,14 @@ dds <- DESeq(ddsTxi)
 
 print(resultsNames(dds))
 x = "treatment_miRNA_vs_negative_control"
-print(x)
 
 resLFC <- lfcShrink(dds, coef=x, 
                       type="normal")
 
-print(as.data.frame(resLFC))
-  
-results = cbind(resLFC@rownames, as.tibble(resLFC@listData))
+results = cbind(resLFC@rownames, as_tibble(resLFC@listData))
   
 results = filter(results, is.na(log2FoldChange) == FALSE)
-results$`resLFC@rownames` = gsub('\\..*','',results$`resLFC@rownames`)
+#results$`resLFC@rownames` = gsub('\\..*','',results$`resLFC@rownames`)
 
 
 # remove lowly expressed transcripts
@@ -90,6 +78,9 @@ results$`resLFC@rownames` = gsub('\\..*','',results$`resLFC@rownames`)
 exp_data = results
 
 # subset the expression data
+print('exp_data')
+print(exp_data[1:100,])
+print(canon_targets[1:100,])
 
 non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 
