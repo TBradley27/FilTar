@@ -63,9 +63,11 @@ names(files) = samples$run
 
 cl_targets = filter(cl_targets, Site_type %in% snakemake@params$nontarget_site_types) 
 cl_targets = filter(cl_targets, miRNA_family_ID == 1620)
+cl_targets = filter(cl_targets, species_ID == 9606)
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$nontarget_site_types)
 canon_targets = filter(canon_targets, miRNA_family_ID == 1620)
+canon_targets = filter(canon_targets, species_ID == 9606)
 
 
 ### DESeq2

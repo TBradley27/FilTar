@@ -42,15 +42,8 @@ wildcard_constraints:
     genus_species="[A-Z][a-z]+_[a-z]+"
 
 rule all:
-     input: "results/plots/hsa_PRJNA231155_miR-137-3p_U343_exp.png", "results/plots/hsa_PRJNA231155_miR-137-3p_U343_alt_utr.png",
-             "results/plots/hsa_PRJNA292016_miR-141-3p_Du145_exp.png", "results/plots/hsa_PRJNA292016_miR-141-3p_Du145_alt_utr.png",
-             "results/plots/hsa_PRJNA304643_miR-1343-3p_A549_exp.png", "results/plots/hsa_PRJNA304643_miR-1343-3p_A549_alt_utr.png",
-             "results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_exp.png", "results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_alt_utr.png",
-             "results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_alt_utr.png",
+     input: 
              "results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_alt_utr.png",
-             "results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_alt_utr.png",
              "results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_alt_utr.png",
-             "results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_alt_utr.png",
              "results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_alt_utr.png",
-             "results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_alt_utr.png"
 

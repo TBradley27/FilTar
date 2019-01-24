@@ -33,7 +33,7 @@ rule filter_bed6_file:
 rule split_bed6_file:
         input: 'results/{genus_species}.{build}.{ensembl_release}.filtered.bed6'
         output: 'results/{genus_species}.{build}.{ensembl_release}.chr{chrom}.filtered.bed6'
-        shell: 'grep -E "^{wildcards.chrom}" {input} > {output} || true'
+        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
 
 # derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
 
@@ -209,7 +209,7 @@ rule filter_CDS:
 rule split_CDS:
         input: "results/bed/{species}_{tissue}_CDS.filtered.bed"
         output: "results/bed/{species}_{tissue}_CDS.chr{chrom}.filtered.bed"
-        shell: 'grep -E "^{wildcards.chrom}" {input} > {output} || true'
+        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
 
 # get_utr_and_cds and targetscan
 

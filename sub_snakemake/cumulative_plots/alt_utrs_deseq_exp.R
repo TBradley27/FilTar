@@ -45,6 +45,7 @@ names(files) = samples$run
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$nontarget_site_types)
 canon_targets = filter(canon_targets, miRNA_family_ID == 1620)
+canon_targets = filter(canon_targets, species_ID == 9606)
 
 #canon_targets$a_Gene_ID = gsub('\\..*','', canon_targets$a_Gene_ID)
 

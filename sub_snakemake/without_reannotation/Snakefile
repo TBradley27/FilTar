@@ -40,7 +40,7 @@ rule aggregate_chromosomal_AIR_files:
 rule split_bed6:
         input: "results/bed/{species}_3UTR.bed"
         output: "results/bed/{species}_3UTR.chr{chrom}.bed"
-        shell: 'grep -E "^{wildcards.chrom}" {input} > {output}'
+        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
 
 rule filter_bed6_file_no_reannotation:
         input: "results/bed/{species}_{feature}.bed"
@@ -50,7 +50,7 @@ rule filter_bed6_file_no_reannotation:
 rule split_filtered_bed6:
 	input: rules.filter_bed6_file_no_reannotation.output
 	output: "results/bed/{species}_{feature}.chr{chrom}.nr.bed"
-	shell: 'grep -E "^{wildcards.chrom}" {input} > {output} || true'
+	shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
 
 
 ## get_utr_and_cds & targetscan sites
