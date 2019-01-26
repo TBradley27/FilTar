@@ -43,9 +43,27 @@ names(files) = samples$run
 
 # filter targets for 8mers and the correct miRNA
 
+miRNA_table = readr::read_tsv(
+        file = snakemake@input$miRNA_dict,
+        col_names = c('family_code','tax_id','mature_miRNA_name','mature_miRNA_sequence'),
+        col_types = 'cccc',
+        )
+
+
+species_three_letters = snakemake@wildcards$species
+species_tax_id = snakemake@config$tax_ids[[species_three_letters]]
+
+miRNA_name_with_prefix = paste(species_three_letters,snakemake@wildcards$miRNA,sep='-')
+miRNA_family = dplyr::filter(miRNA_table, mature_miRNA_name == miRNA_name_with_prefix)
+miRNA_family = miRNA_family$family_code[1]
+
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$nontarget_site_types)
-canon_targets = filter(canon_targets, miRNA_family_ID == 113)
-canon_targets = filter(canon_targets, species_ID == 9606)
+print(canon_targets)
+canon_targets = filter(canon_targets, miRNA_family_ID == miRNA_family)
+print(canon_targets)
+canon_targets = filter(canon_targets, species_ID == species_tax_id)
+
+print(canon_targets)
 
 #canon_targets$a_Gene_ID = gsub('\\..*','', canon_targets$a_Gene_ID)
 

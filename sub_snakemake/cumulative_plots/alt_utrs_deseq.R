@@ -61,14 +61,30 @@ names(files) = samples$run
 
 # filter targets for 8mers and the correct miRNA
 
-cl_targets = filter(cl_targets, Site_type %in% snakemake@params$nontarget_site_types) 
-cl_targets = filter(cl_targets, miRNA_family_ID == 113)
-cl_targets = filter(cl_targets, species_ID == 9606)
+miRNA_table = readr::read_tsv(
+        file = snakemake@input$miRNA_dict,
+        col_names = c('family_code','tax_id','mature_miRNA_name','mature_miRNA_sequence'),
+        col_types = 'cccc',
+        )
+
+
+species_three_letters = snakemake@wildcards$species
+species_tax_id = snakemake@config$tax_ids[[species_three_letters]]
+
+miRNA_name_with_prefix = paste(species_three_letters,snakemake@wildcards$miRNA,sep='-')
+miRNA_family = dplyr::filter(miRNA_table, mature_miRNA_name == miRNA_name_with_prefix)
+miRNA_family = miRNA_family$family_code[1]
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$nontarget_site_types)
-canon_targets = filter(canon_targets, miRNA_family_ID == 113)
-canon_targets = filter(canon_targets, species_ID == 9606)
+canon_targets = filter(canon_targets, miRNA_family_ID == miRNA_family)
+canon_targets = filter(canon_targets, species_ID == species_tax_id)
 
+cl_targets = filter(cl_targets, Site_type %in% snakemake@params$nontarget_site_types) 
+cl_targets = filter(cl_targets, miRNA_family_ID == miRNA_family)
+cl_targets = filter(cl_targets, species_ID == species_tax_id)
+
+print(canon_targets)
+print(cl_targets)
 
 ### DESeq2
 
@@ -106,29 +122,29 @@ print(exp_data[1:100,])
 
 non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% cl_targets$a_Gene_ID]
 
-#non_targets_exp = non_targets_exp - median(non_targets_exp)
+non_targets_exp = non_targets_exp - median(non_targets_exp)
 
 print(cl_targets)
 cl_targets = filter(cl_targets, Site_type %in%  snakemake@params$target_site_types)
 print(cl_targets) 
 cl_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% cl_targets$a_Gene_ID]
 
-#cl_targets_exp = cl_targets_exp - median(non_targets_exp)
+cl_targets_exp = cl_targets_exp - median(non_targets_exp)
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$target_site_types)
 canon_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 
-#canon_targets_exp = canon_targets_exp - median(non_targets_exp)
+canon_targets_exp = canon_targets_exp - median(non_targets_exp)
 
 new_targets_names = cl_targets[!cl_targets$a_Gene_ID %in% canon_targets$a_Gene_ID,]
 new_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% new_targets_names$a_Gene_ID]
 
-#new_targets_exp = new_targets_exp - median(non_targets_exp)
+new_targets_exp = new_targets_exp - median(non_targets_exp)
 
 old_targets_names = canon_targets[!canon_targets$a_Gene_ID %in% cl_targets$a_Gene_ID,]
 old_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% old_targets_names$a_Gene_ID]
 
-#old_targets_exp = old_targets_exp - median(non_targets_exp)
+old_targets_exp = old_targets_exp - median(non_targets_exp)
 
 #print(length(exp_data$Name))
 
