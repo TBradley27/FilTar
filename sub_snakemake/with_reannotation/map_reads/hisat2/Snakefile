@@ -92,7 +92,8 @@ rule map_reads:
 		"envs/hisat2.yaml"
 	params: get_lib_type
         threads: 8
-        output: "results/bam/run/{species}/{accession}.sam"
+        output: 
+		sam_file="results/bam/run/{species}/{accession}.sam"
 	script:
 		"map_reads.py"
 
