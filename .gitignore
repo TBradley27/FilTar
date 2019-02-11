@@ -22,3 +22,14 @@ reports/fastqc/
 *.gtf
 *.bed
 *.db
+*.bam
+*.bai
+*fastqc.html
+reports/*data/
+reports/paired_end/*data/
+reports/PRJNA231155_1.html
+reports/PRJNA231155_2.html
+reports/multiqc_salmon_single_end.html
+archives/
+import.sql
+my_data.rds

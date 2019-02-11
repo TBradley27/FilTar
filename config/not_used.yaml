@@ -1,3 +1,14 @@
+PRJNA258219: #mouse knockout
+        miR-122-5p: SRR1551170
+        mock: SRR1593030
+        all_runs: [SRR1551170,SRR1593030]
+
+PRJNA507586:
+        NCCIT:
+                mock: [SRR8261299,SRR8261300,SRR8261301]
+                miR-125b-5p: [SRR8261302,SRR8261303,SRR8261304]
+        all_runs: [SRR8261299,SRR8261300,SRR8261301,SRR8261302,SRR8261303,SRR8261304]
+
 #        HEK293:
 #        #                mock:  [SRR2031923]
 #        #                miR-603-3p: [SRR2031924]
