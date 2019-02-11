@@ -2,16 +2,56 @@
 
 #configfile: "config.yaml"
 
-rule run_fastqc:
-       input: "data/{accession}.fastq.gz"
+rule run_raw_fastqc:
+       input: "data/single_end/{accession}.fastq.gz"
        output:
-            "results/{accession}_fastqc.html",
-            "results/{accession}_fastqc.zip"
+            "reports/{accession}_fastqc.html",
+            "reports/{accession}_fastqc.zip"
+       wildcard_constraints:
+               accession="((?!(trim|val)).)*"
        conda: "envs/fastqc.yaml"
-       shell: "fastqc -o results {input}"
+       shell: "fastqc -o reports {input}"
 
-rule run_multiqc:
+rule run_trimmed_fastqc_se:
+       input: "results/trimmed_fastq/{accession}_trimmed.fq.gz"
+       output:
+            "reports/{accession}_trimmed_fastqc.html",
+            "reports/{accession}_trimmed_fastqc.zip"
+       conda: "envs/fastqc.yaml"
+       shell: "fastqc -o reports {input}"
+
+rule run_trimmed_fastqc_pe:
+       input: "results/trimmed_fastq/{accession}_1_val_1.fq.gz", "results/trimmed_fastq/{accession}_2_val_2.fq.gz"
+       output:
+            "reports/{accession}_1_val_1_fastqc.html",
+            "reports/{accession}_1_val_1_fastqc.zip",
+            "reports/{accession}_2_val_2_fastqc.html",
+            "reports/{accession}_2_val_2_fastqc.zip"
+       conda: "envs/fastqc.yaml"
+       shell: "fastqc -o reports {input}"
+
+rule multiqc:
+       input: 
+        #raw_fastqc=lambda wildcards: expand("reports/{accession}_fastqc.zip", accession=config[wildcards.project_accession]['all_runs']),
+        trimming_report=lambda wildcards: expand("results/trimmed_fastq/{accession}.fastq.gz_trimming_report.txt", accession=config[wildcards.project_accession]['all_runs']),
+        trimmed_fastqc=lambda wildcards: expand("reports/{accession}_trimmed_fastqc.zip", accession=config[wildcards.project_accession]['all_runs']),
+        hisat2=lambda wildcards: expand("reports/hisat2/{accession}.txt", accession=config[wildcards.project_accession]['all_runs']),
+        kallisto=lambda wildcards: expand("logs/{accession}_kallisto.out", accession=config[wildcards.project_accession]['all_runs']),
+        salmon=lambda wildcards: expand("results/salmon/runs/hsa/{accession}", accession=config[wildcards.project_accession]['all_runs'])
+       wildcard_constraints:
+               project_accession="((?!paired_end).)*"
+       output: "reports/{project_accession}.html"
+       shell: "multiqc {input.trimmed_fastqc} {input.trimming_report} {input.hisat2} {input.kallisto} {input.salmon} -n {output} -f"
+
+rule multiqc_pe:
        input:
-           expand("results/{accession}_trimmed.fq.gz", accession=config['all_runs'])
-       output: "results/multiqc_report.html"
-       shell: "multiqc -f -o results/ results/"
+        #raw_fastqc=lambda wildcards: expand("reports/{accession}_fastqc.zip", accession=config[wildcards.project_accession]['all_runs']),
+        trimming_report=lambda wildcards: expand("results/trimmed_fastq/{accession}_{mate}.fastq.gz_trimming_report.txt", accession=config[wildcards.project_accession]['all_runs'], mate=[1,2]),
+        trimmed_fastqc=lambda wildcards: expand("reports/{accession}_{mate}_val_{mate}_fastqc.zip", accession=config[wildcards.project_accession]['all_runs'], mate=[1,2]),
+        hisat2=lambda wildcards: expand("reports/hisat2/{accession}.txt", accession=config[wildcards.project_accession]['all_runs']),
+        kallisto=lambda wildcards: expand("logs/{accession}_kallisto.out", accession=config[wildcards.project_accession]['all_runs']),
+        salmon=lambda wildcards: expand("results/salmon/runs/hsa/{accession}", accession=config[wildcards.project_accession]['all_runs'])
+       output: "reports/paired_end/{project_accession}.html"
+       shell: "multiqc {input.trimming_report} {input.trimmed_fastqc} {input.hisat2} {input.kallisto} {input.salmon} -n {output} -f"
+
+
