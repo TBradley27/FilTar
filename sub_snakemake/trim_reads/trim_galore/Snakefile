@@ -6,6 +6,8 @@ rule trim_single_end_reads:
        output: 
            "results/trimmed_fastq/{accession}_trimmed.fq.gz",
            "results/trimmed_fastq/{accession}.fastq.gz_trimming_report.txt"
+       wildcard_constraints: 
+           accession="((?!_[1-2]).)*"
        conda: 
           "envs/trim-galore.yaml"
        benchmark:
