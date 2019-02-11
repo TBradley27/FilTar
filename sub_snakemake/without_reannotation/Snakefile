@@ -55,17 +55,55 @@ rule split_filtered_bed6:
 
 ## get_utr_and_cds & targetscan sites
 
-rule biopython_get_msa_nr:
+#rule biopython_get_msa_nr:
+#        input:
+#           maf="data/maf_{species}/chr{chrom}.maf",
+#           bed="results/bed/{species}_{feature}.chr{chrom}.nr.bed",
+#           maf_index="data/{species}_chr{chrom}.mafindex"
+#        output:
+#           "results/msa/{species}_chr{chrom}_{feature}_msa_nr.tsv"
+#        conda:
+#           "envs/biopython.yaml"
+#        script:
+#           "biopython_maf_processing2.py"
+
+### get_utr_and_cds without_conservation
+
+
+def get_dna_file(wildcards):
+        sci_species_name = config['sci_species_name'][wildcards.species]
+        genome_build = config['genome_build'][wildcards.species]
+
+        return('data/' + sci_species_name + '.' + genome_build + '.dna.chromosome.{}.fa'.format(wildcards.chrom))
+
+def get_NCBI_taxonomic_id(wildcards):
+        return(config['tax_ids'][wildcards.species])
+
+rule reformat_bed_file_for_bedtools_nr:
+        input: "results/bed/{species}_{feature}.chr{chrom}.nr.bed"
+        output: "results/bed/{species}_{feature}.chr{chrom}.bedtools.nr.bed"
+        shell: "exe/get_bedtools_bed.sh {input} {output}"
+
+rule get_single_species_seq_fa_nr:
         input:
-           maf="data/maf_{species}/chr{chrom}.maf",
-           bed="results/bed/{species}_{feature}.chr{chrom}.nr.bed",
-           maf_index="data/{species}_chr{chrom}.mafindex"
-        output:
-           "results/msa/{species}_chr{chrom}_{feature}_msa_nr.tsv"
-        conda:
-           "envs/biopython.yaml"
-        script:
-           "biopython_maf_processing2.py"
+                dna=get_dna_file,
+                bed="results/bed/{species}_{feature}.chr{chrom}.bedtools.nr.bed"
+        output: "results/msa/{species}_chr{chrom}_{feature}.tmp.nr.fa"
+        conda: 'envs/bedtools.yaml'
+        shell: "bedtools getfasta -name -s -fi {input.dna} -bed {input.bed} -fo {output}"
+
+rule merge_fasta_nr:
+        input: "results/msa/{species}_chr{chrom}_{feature}.tmp.nr.fa"
+        output: "results/msa/{species}_chr{chrom}_{feature}.tmp2.nr.fa"
+        script: "merge_fasta.R"
+
+rule convert_fasta_to_tsv_nr:
+        input: "results/msa/{species}_chr{chrom}_{feature}.tmp2.nr.fa"
+        output: "results/msa/{species}_chr{chrom}_{feature}_msa_nr.tsv"
+        params: get_NCBI_taxonomic_id
+        shell: "exe/convert_fa_to_tsv2.sh {input} {params} {output}"
+
+####
 
 rule targetscan_sites_nr:
         input:
