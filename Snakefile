@@ -25,6 +25,7 @@ for transcript in list(config['transcripts']):
 	else:
 		raise Exception('\nInvalid transcript identifier "{}". Identifiers must adhere to official Ensembl identifier patterns e.g. "ENSMUST00000189888.6". Please revise.\n'.format(transcript))
 
+include: "sub_snakemake/qc/Snakefile"
 include: "sub_snakemake/data_download/Snakefile"
 include: "sub_snakemake/trim_reads/trim_galore/Snakefile"
 include: "sub_snakemake/quant_reads/kallisto/Snakefile"
@@ -32,6 +33,7 @@ include: "sub_snakemake/quant_reads/salmon/Snakefile"
 include: "sub_snakemake/mirna/Snakefile"
 include: "sub_snakemake/target_prediction/targetscan/Snakefile"
 include: "sub_snakemake/cumulative_plots/Snakefile"
+include: "sub_snakemake/view_bams/Snakefile"
 
 wildcard_constraints:
     species="[a-z]{3,4}",
@@ -43,14 +45,25 @@ wildcard_constraints:
 
 rule all:
      input: 
-#             "results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_alt_utr.png",
-#             "results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_alt_utr.png",
-#             "results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_alt_utr.png",
-             #"results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_alt_utr.png",
-             #"results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_alt_utr.png",
-             #"results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_alt_utr.png",
-             #"results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_exp.png", "results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_alt_utr.png"
-             "results/plots/hsa_PRJNA231155_miR-137-3p_U343_exp.png", "results/plots/hsa_PRJNA231155_miR-137-3p_U343_alt_utr.png",
-             #"results/plots/hsa_PRJNA292016_miR-141-3p_Du145_exp.png", "results/plots/hsa_PRJNA292016_miR-141-3p_Du145_alt_utr.png",
+             #expand("results/bam/run/hsa/{accession}.sam", accession=config['PRJNA292016']['all_runs'])
+             #"results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_alt_utr.png",
+             #"results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_alt_utr.png",
+             #"results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_alt_utr.png",
+             #"results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_exp.png", i
+             #"results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_alt_utr_sleuth.png",
+             #"results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_exp.png",
+             #"results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_alt_utr_sleuth.png",
+             #"results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_exp.png", 
+             #"results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_alt_utr_sleuth.png",
+             #"results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_exp.png", 
+             # "results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_alt_utr_sleuth.png"
+             #"results/plots/hsa_PRJNA231155_miR-137-3p_U251_exp.png", "results/plots/hsa_PRJNA231155_miR-137-3p_U251_alt_utr.png",
+             #"results/plots/hsa_PRJNA231155_miR-137-3p_U343_exp.png", "results/plots/hsa_PRJNA231155_miR-137-3p_U343_alt_utr.png",
+             #"results/plots/hsa_PRJNA292016_miR-141-3p_Du145_exp.png",
+             #"results/plots/hsa_PRJNA292016_miR-141-3p_Du145_alt_utr.png",
              #"results/plots/hsa_PRJNA304643_miR-1343-3p_A549_exp.png", "results/plots/hsa_PRJNA304643_miR-1343-3p_A549_alt_utr.png",
-             #"results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_exp.png", "results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_alt_utr.png"
+             #"results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_exp.png",
+             #"results/plots/hsa_PRJNA304643_miR-1343-3p_A549_alt_utr_salmon.png"
+	     #expand("results/bed/mmu_ESCs_3UTR.chr{chrom}.bed", chrom=config['chromosomes']['mmu']),
+             #"SRR2968576.bam.bai", "SRR2968577.bam.bai", "SRR2968578.bam.bai","SRR2968579.bam.bai"
+              "SRR2968584.bam.bai", "SRR2968586.bam.bai","SRR2968588.bam.bai","SRR2968590.bam.bai"
