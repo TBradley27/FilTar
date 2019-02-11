@@ -43,6 +43,7 @@ rule kallisto_quant:
         log:   "logs/{accession}_kallisto.out"
         params:
                frag_length_mean=180,
-               frag_length_sd=20
+               frag_length_sd=20,
+               num_bootstraps=1
 	threads: 5
         script: "kallisto_quant.py"
