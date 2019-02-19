@@ -4,8 +4,11 @@ library(plyr)
 library(tidyverse)
 library(DESeq2)
 library(tximport)
+library(BiocParallel)
 
-# read in the data
+register(MulticoreParam(10))
+
+## read in and preprocess target data
 
 cl_targets = read_tsv(	# read in targets derived from cell-line or tissue-specific annotations
 	file = snakemake@input$cl_targets,
@@ -14,8 +17,6 @@ cl_targets = read_tsv(	# read in targets derived from cell-line or tissue-specif
 	trim_ws = FALSE
 	)
 
-print(cl_targets)
-
 canon_targets = read_tsv( # read in targets derived from canonical UTR annotations
         file = snakemake@input$canon_targets,
         col_names = TRUE,
@@ -23,43 +24,7 @@ canon_targets = read_tsv( # read in targets derived from canonical UTR annotatio
         trim_ws = FALSE
         )
 
-# retrieve run accessions
-
-mock1 = strsplit(snakemake@input$quant_mock[1], split='/')[[1]][3] 
-mock2 = strsplit(snakemake@input$quant_mock[2], split='/')[[1]][3]
-#mock3 = strsplit(snakemake@input$quant_mock[3], split='/')[[1]][3]
-#mock4 = strsplit(snakemake@input$quant_mock[4], split='/')[[1]][3]
-real1 = strsplit(snakemake@input$quant_real[1], split='/')[[1]][3]
-real2 = strsplit(snakemake@input$quant_real[2], split='/')[[1]][3]
-#real3 = strsplit(snakemake@input$quant_real[3], split='/')[[1]][3]
-#real4 = strsplit(snakemake@input$quant_real[4], split='/')[[1]][3]
-
-
-# create the experimental design matrix
-samples = data.frame(
-  run=c(mock1,mock2,real1,real2),
-  treatment = factor(rep(c("negative_control","miRNA"),each=2),
-                       ordered=FALSE)
-)
-
-print(samples)
-  
-rownames(samples) = samples$run
-
-# kallisto or salmon data to be read in
-files = c(
-  paste(snakemake@input$quant_mock[1]),
-  paste(snakemake@input$quant_mock[2]),
-#  paste(snakemake@input$quant_mock[3]),
-#  paste(snakemake@input$quant_mock[4]),
-  paste(snakemake@input$quant_real[1]),
-  paste(snakemake@input$quant_real[2])
-#  paste(snakemake@input$quant_real[3]),
-#  paste(snakemake@input$quant_real[4])
-)
-names(files) = samples$run
-
-# filter targets for 8mers and the correct miRNA
+## filter targets for the correct site types and the correct miRNA
 
 miRNA_table = readr::read_tsv(
         file = snakemake@input$miRNA_dict,
@@ -83,50 +48,93 @@ cl_targets = filter(cl_targets, Site_type %in% snakemake@params$nontarget_site_t
 cl_targets = filter(cl_targets, miRNA_family_ID == miRNA_family)
 cl_targets = filter(cl_targets, species_ID == species_tax_id)
 
-print(canon_targets)
-print(cl_targets)
+# retrieve run accessions
+
+mock = strsplit(snakemake@input$quant_mock, split='/')
+real = strsplit(snakemake@input$quant_real, split='/')
+mock_accessions = c()
+real_accessions = c()
+
+for (i in 1:length(mock)) {
+  mock_accessions = c(mock_accessions, mock[[i]][3])
+  real_accessions = c(real_accessions, real[[i]][3])
+}
+
+# create the experimental design matrix
+samples = data.frame(
+  run=c(mock_accessions, real_accessions),
+  treatment = factor(rep(c("negative_control","miRNA"),each=length(mock)),
+                       ordered=FALSE)
+)
+  
+rownames(samples) = samples$run
+
+# kallisto or salmon data to be read in
+files = c(snakemake@input$quant_mock, snakemake@input$quant_real)
+names(files) = samples$run
 
 ### DESeq2
 
 txi <- tximport(files, type="kallisto", txOut=TRUE)
   
-ddsTxi <- DESeqDataSetFromTximport(txi,
+ddsTxi <- DESeqDataSetFromTximport(txi, # big decision whether to use txi or txi$counts here - see the txi vignette
                                      colData = samples,
                                      design = ~ treatment)
+
+#ddsTxi <- DESeqDataSetFromMatrix(round(txi[['counts']]),
+#                                     colData = samples,
+#                                     design = ~ treatment)
   
 ddsTxi$treatment <- factor(ddsTxi$treatment, 
                           levels=c("negative_control","miRNA") )
-  
-dds <- DESeq(ddsTxi)
 
-print(resultsNames(dds))
+ddsTxi = estimateSizeFactors(ddsTxi)
+
+### filter by expression level
+
+keep <- rowMeans(counts(ddsTxi, normalized=TRUE)[,1:length(mock)]) >= 0 # filter by normalised count levels
+ddsTxi <- ddsTxi[keep,]
+dds <- DESeq(ddsTxi, parallel=TRUE)
+
+### PCA plot ###
+
+png('pca.png')
+vsd = vst(dds, blind=FALSE)
+plotPCA(vsd, intgroup=c("treatment"))
+dev.off()
+
+### shrink by log2 fold change
+
 x = "treatment_miRNA_vs_negative_control"
-print(x)
 
 resLFC <- lfcShrink(dds, coef=x, 
-                      type="normal")
+                      type="normal", parallel=TRUE)
   
-print(resLFC)
+results = cbind(resLFC@rownames, as_tibble(resLFC@listData))
   
-results = cbind(resLFC@rownames, as.tibble(resLFC@listData))
-  
-results = filter(results, is.na(log2FoldChange) == FALSE)
+exp_data = filter(results, is.na(log2FoldChange) == FALSE)
 
-# remove lowly expressed transcripts
+### expression filter by TPM
 
-exp_data = filter(results, baseMean >= snakemake@params$exp_threshold)
+#TPMs = as.data.frame(txi$abundance)
+#TPMs$average = rowMeans(TPMs)
+#TPMs$names = rownames(txi$abundance)
+#print(TPMs[1:10,])
+#TPMs = dplyr::filter(TPMs, average >= 0)
+#exp_data = filter(results, baseMean >= snakemake@params$exp_threshold)
 
-print(exp_data[1:100,])
+#print(dim(results))
+#exp_data = results[results$`resLFC@rownames` %in% TPMs$names,]
+#print(dim(exp_data))
 
-# subset the expression data
+#print(exp_data[1:100,])
+
+### Split the lfc data into distinct sets
 
 non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% cl_targets$a_Gene_ID]
-
 non_targets_exp = non_targets_exp - median(non_targets_exp)
 
-print(cl_targets)
 cl_targets = filter(cl_targets, Site_type %in%  snakemake@params$target_site_types)
-print(cl_targets) 
 cl_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% cl_targets$a_Gene_ID]
 
 cl_targets_exp = cl_targets_exp - median(non_targets_exp)
@@ -146,19 +154,13 @@ old_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% old_ta
 
 old_targets_exp = old_targets_exp - median(non_targets_exp)
 
-#print(length(exp_data$Name))
-
-# build ggplot df
+### build ggplot df
 
 nontargets = tibble(fc=non_targets_exp)
 nontargets$legend = stringr::str_interp("No seed binding (n=${length(non_targets_exp)})")
 
-print(cl_targets_exp)
-
 cl_targets = tibble(fc=cl_targets_exp)
 cl_targets$legend = stringr::str_interp("${snakemake@wildcards$cell_line} targets (n=${length(cl_targets_exp)})")
-
-print(cl_targets)
 
 canon_targets = tibble(fc=canon_targets_exp)
 canon_targets$legend = stringr::str_interp("canonical targets (n=${length(canon_targets_exp)})")
@@ -171,11 +173,9 @@ old_targets$legend = stringr::str_interp("old targets (n=${length(old_targets_ex
 
 ggplot_df = rbind(nontargets,canon_targets, new_targets, old_targets)
 
-print(ggplot_df)
-
 p_value = ks.test(new_targets_exp, non_targets_exp, alternative='less')
 
-# begin plotting
+### begin plotting
 
 ggplot(
   ggplot_df, aes(x=fc,color=legend)
