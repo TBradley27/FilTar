@@ -14,33 +14,6 @@ canon_targets = read_tsv(
         trim_ws = FALSE
         )
 
-mock1 = strsplit(snakemake@input$quant_mock[1], split='/')[[1]][3]
-mock2 = strsplit(snakemake@input$quant_mock[2], split='/')[[1]][3]
-#mock3 = strsplit(snakemake@input$quant_mock[3], split='/')[[1]][3]
-#mock4 = strsplit(snakemake@input$quant_mock[4], split='/')[[1]][3]
-real1 = strsplit(snakemake@input$quant_real[1], split='/')[[1]][3]
-real2 = strsplit(snakemake@input$quant_real[2], split='/')[[1]][3]
-#real3 = strsplit(snakemake@input$quant_real[3], split='/')[[1]][3]
-#real4 = strsplit(snakemake@input$quant_real[4], split='/')[[1]][3]
-
-samples = data.frame(
-  run=c(mock1,mock2,real1,real2),
-  treatment = factor(rep(c('negative_control',"miRNA"),each=2),
-                       ordered=FALSE)
-)
-
-rownames(samples) = samples$run
-
-print(samples)
-  
-files = c(
-  paste(snakemake@input$quant_mock[1]),
-  paste(snakemake@input$quant_mock[2]),
-  paste(snakemake@input$quant_real[1]),
-  paste(snakemake@input$quant_real[2])
-)
-names(files) = samples$run
-
 # filter targets for 8mers and the correct miRNA
 
 miRNA_table = readr::read_tsv(
@@ -63,7 +36,31 @@ canon_targets = filter(canon_targets, miRNA_family_ID == miRNA_family)
 print(canon_targets)
 canon_targets = filter(canon_targets, species_ID == species_tax_id)
 
-print(canon_targets)
+## kallisto data 
+
+mock = strsplit(snakemake@input$quant_mock, split='/')
+real = strsplit(snakemake@input$quant_real, split='/')
+mock_accessions = c()
+real_accessions = c()
+
+for (i in 1:length(mock)) {
+  mock_accessions = c(mock_accessions, mock[[i]][3])
+}
+
+for (i in 1:length(real)) {
+  real_accessions = c(real_accessions, real[[i]][3])
+}
+
+
+samples = data.frame(
+  run=c(mock_accessions, real_accessions),
+  treatment = factor(rep(c("negative_control","miRNA"),each=length(mock)),
+                       ordered=FALSE)
+)
+
+rownames(samples) = samples$run
+files = c(snakemake@input$quant_mock, snakemake@input$quant_real)  
+names(files) = samples$run
 
 #canon_targets$a_Gene_ID = gsub('\\..*','', canon_targets$a_Gene_ID)
 
@@ -97,23 +94,21 @@ results = filter(results, is.na(log2FoldChange) == FALSE)
 exp_data = results
 
 # subset the expression data
-print('exp_data')
-print(exp_data[1:100,])
-print(canon_targets[1:100,])
 
 non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
-
 non_targets_exp = non_targets_exp - median(non_targets_exp)
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$target_site_types)
 canon_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
-
 canon_targets_exp = canon_targets_exp - median(non_targets_exp)
 
 filt_results = filter(exp_data, baseMean > snakemake@params$exp_threshold)
-filt_targets_exp = filt_results$log2FoldChange[filt_results$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 
+filt_targets_exp = filt_results$log2FoldChange[filt_results$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 filt_targets_exp = filt_targets_exp - median(non_targets_exp)
+
+filt_non_targets_exp = filt_results$log2FoldChange[!filt_results$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
+filt_non_targets_exp = filt_non_targets_exp - median(non_targets_exp)
 
 #print(length(exp_data$Name))
 
@@ -126,9 +121,12 @@ canon_targets = tibble(fc=canon_targets_exp)
 canon_targets$legend = stringr::str_interp("seed targets (n=${length(canon_targets_exp)})")
 
 filt_targets = tibble(fc=filt_targets_exp)
-filt_targets$legend = stringr::str_interp("filtered seed targets (n=${length(filt_targets_exp)})")
+filt_targets$legend = stringr::str_interp("seed targets (filtered) (n=${length(filt_targets_exp)})")
 
-ggplot_df = rbind(nontargets,canon_targets, filt_targets)
+filt_non_targets = tibble(fc=filt_non_targets_exp)
+filt_non_targets$legend = stringr::str_interp("No seed binding (filtered) (n=${length(filt_non_targets_exp)})")
+
+ggplot_df = rbind(nontargets,canon_targets, filt_targets, filt_non_targets)
 
 p_value = ks.test(filt_targets_exp,canon_targets_exp, alternative='less')
 
@@ -136,7 +134,7 @@ print(ggplot_df)
 
 # begin plotting
 
-ggplot(
+ggplot_object = ggplot(
   ggplot_df, aes(x=fc,color=legend)
     ) +
   geom_step(aes(y=..y..), stat="ecdf") +
@@ -144,12 +142,18 @@ ggplot(
   labs(
         title=
         bquote(
-                .(str_interp("${snakemake@wildcards$miRNA}")) ~ .(substitute(italic(vs.))) ~ 'mock transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
+                .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
-        y="Cumulative Fraction",
-        x=expression('log'[2]*'(mRNA Fold Change)'), 
-        subtitle=as.expression(bquote(~ p %~~% .(format (p_value, nsmall=3, digits=3) ) ) )) +
-  theme(legend.title=element_blank()) +
+        y=NULL,
+	tag="F",
+        x=NULL) + 
+        #subtitle=as.expression(bquote(~ p %~~% .(format (p_value, nsmall=3, digits=3) ) ) )) +
+  theme(legend.title=element_blank(), legend.position=c(0.8,0.1)) +
+  scale_color_manual(values=c("grey75","black", "sienna2", "red")) +
   coord_cartesian(xlim = c(-snakemake@params$x_lim,snakemake@params$x_lim))
 
-ggsave(snakemake@output[[1]])
+## save ggplot object
+
+saveRDS(ggplot_object, file = snakemake@output[[1]])
+
+#ggsave(snakemake@output[[1]])
