@@ -4,6 +4,9 @@ library(plyr)
 library(tidyverse)
 library(DESeq2)
 library(tximport)
+library(BiocParallel)
+
+register(MulticoreParam(20))
 
 # read in the data
 
@@ -54,7 +57,8 @@ for (i in 1:length(real)) {
 
 samples = data.frame(
   run=c(mock_accessions, real_accessions),
-  treatment = factor(rep(c("negative_control","miRNA"),each=length(mock)),
+  #treatment = factor(c('negative_control','negative_control','negative_control','negative_control','miRNA','miRNA')
+  treatment = rep(c("negative_control","miRNA"),each=length(mock),
                        ordered=FALSE)
 )
 
@@ -75,16 +79,18 @@ ddsTxi <- DESeqDataSetFromTximport(txi,
 ddsTxi$treatment <- factor(ddsTxi$treatment, 
                           levels=c("negative_control","miRNA") )
   
-dds <- DESeq(ddsTxi)
+dds <- DESeq(ddsTxi, parallel=TRUE)
 
 print(resultsNames(dds))
 x = "treatment_miRNA_vs_negative_control"
 
 resLFC <- lfcShrink(dds, coef=x, 
-                      type="normal")
+                      type="normal", parallel=TRUE)
 
 results = cbind(resLFC@rownames, as_tibble(resLFC@listData))
-  
+ 
+#results$log2FoldChange[is.na(results$log2FoldChange)] <- 0
+ 
 results = filter(results, is.na(log2FoldChange) == FALSE)
 #results$`resLFC@rownames` = gsub('\\..*','',results$`resLFC@rownames`)
 
@@ -102,7 +108,13 @@ canon_targets = filter(canon_targets, Site_type %in% snakemake@params$target_sit
 canon_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 canon_targets_exp = canon_targets_exp - median(non_targets_exp)
 
-filt_results = filter(exp_data, baseMean > snakemake@params$exp_threshold)
+print('median baseMean')
+median_baseMean = median(exp_data$baseMean)
+print(median_baseMean)
+
+print(exp_data[1:100,])
+
+filt_results = filter(exp_data, baseMean > median_baseMean)
 
 filt_targets_exp = filt_results$log2FoldChange[filt_results$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 filt_targets_exp = filt_targets_exp - median(non_targets_exp)
@@ -126,9 +138,9 @@ filt_targets$legend = stringr::str_interp("seed targets (filtered) (n=${length(f
 filt_non_targets = tibble(fc=filt_non_targets_exp)
 filt_non_targets$legend = stringr::str_interp("No seed binding (filtered) (n=${length(filt_non_targets_exp)})")
 
-ggplot_df = rbind(nontargets,canon_targets, filt_targets, filt_non_targets)
+ggplot_df = rbind(nontargets,canon_targets, filt_targets)
 
-p_value = ks.test(filt_targets_exp,canon_targets_exp, alternative='less')
+p_value = ks.test(filt_targets_exp,canon_targets_exp, alternative='greater')
 
 print(ggplot_df)
 
@@ -145,11 +157,12 @@ ggplot_object = ggplot(
                 .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
         y=NULL,
-	tag="F",
-        x=NULL) + 
-        #subtitle=as.expression(bquote(~ p %~~% .(format (p_value, nsmall=3, digits=3) ) ) )) +
-  theme(legend.title=element_blank(), legend.position=c(0.8,0.1)) +
-  scale_color_manual(values=c("grey75","black", "sienna2", "red")) +
+	tag=expression(bold("A")),
+        x=NULL, 
+        subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) )
+	) +
+  theme(legend.title=element_blank(), legend.position=c(0.8,0.2)) +
+  scale_color_manual(values=c("black", "sienna2", "red")) +
   coord_cartesian(xlim = c(-snakemake@params$x_lim,snakemake@params$x_lim))
 
 ## save ggplot object

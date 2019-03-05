@@ -8,13 +8,11 @@ library(BiocParallel)
 
 register(MulticoreParam(20))
 
-## read in transcript data
-
 pc_transcripts = read_tsv(
-	file = snakemake@input$pc_transcripts,
-	col_names= c('tx_id'),
-	col_types= 'c'
-	)
+        file = snakemake@input$pc_transcripts,
+        col_names= c('tx_id'),
+        col_types= 'c'
+        )
 
 ## read in and preprocess target data
 
@@ -74,7 +72,7 @@ for (i in 1:length(real)) {
 # create the experimental design matrix
 samples = data.frame(
   run=c(mock_accessions, real_accessions),
-#  treatment = factor(c('negative_control','negative_control','negative_control','miRNA','miRNA'),
+ # treatment = factor(c('negative_control','negative_control','negative_control','miRNA','miRNA'),
   treatment = factor(rep(c("negative_control","miRNA"),each=length(mock)),
                        ordered=FALSE)
 )
@@ -104,6 +102,10 @@ ddsTxi = estimateSizeFactors(ddsTxi)
 
 ### filter by expression level
 
+#print ('median baseMean')
+#mean_expression = rowMeans(counts(ddsTxi, normalized=FALSE)[,1:length(mock)]) %>% quantile(c(0.95))
+#print(mean_expression)
+
 keep <- rowMeans(counts(ddsTxi, normalized=TRUE)[,1:length(mock)]) >= 0 # filter by normalised count levels
 ddsTxi <- ddsTxi[keep,]
 dds <- DESeq(ddsTxi, parallel=TRUE)
@@ -125,20 +127,18 @@ resLFC <- lfcShrink(dds, coef=x,
 results = cbind(resLFC@rownames, as_tibble(resLFC@listData))
   
 exp_data = dplyr::filter(results, is.na(log2FoldChange) == FALSE)
-
 exp_data = exp_data[exp_data$`resLFC@rownames` %in% pc_transcripts$tx_id,]
-
 ### expression filter by TPM
 
-#TPMs = as.data.frame(txi$abundance)
-#TPMs$average = rowMeans(TPMs)
-#TPMs$names = rownames(txi$abundance)
+TPMs = as.data.frame(txi$abundance)
+TPMs$average = rowMeans(TPMs[,1:length(mock)])
+TPMs$names = rownames(txi$abundance)
 #print(TPMs[1:10,])
-#TPMs = dplyr::filter(TPMs, average >= 0)
+TPMs = dplyr::filter(TPMs, average >= 5.0)
 #exp_data = filter(results, baseMean >= snakemake@params$exp_threshold)
 
 #print(dim(results))
-#exp_data = results[results$`resLFC@rownames` %in% TPMs$names,]
+exp_data = exp_data[exp_data$`resLFC@rownames` %in% TPMs$names,]
 #print(dim(exp_data))
 
 #print(exp_data[1:100,])
@@ -158,23 +158,40 @@ canon_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% cano
 
 canon_targets_exp = canon_targets_exp - median(non_targets_exp)
 
+#sixmers = filter(canon_targets, Site_type == '6mer')
+#sixmers_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% sixmers$a_Gene_ID]
+
+#sixmers_exp = sixmers_exp - median(non_targets_exp)
+
+#sevenmers = filter(canon_targets, Site_type %in% c('7mer-1a','7mer-m8'))
+#sevenmers_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% sevenmers$a_Gene_ID]
+
+#sevenmers_exp = sevenmers_exp - median(non_targets_exp)
+
+#eightmers = filter(canon_targets, Site_type == '8mer-1a')
+#eightmers_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% eightmers$a_Gene_ID]
+
+#eightmers_exp = eightmers_exp - median(non_targets_exp)
+
 new_targets_names = cl_targets[!cl_targets$a_Gene_ID %in% canon_targets$a_Gene_ID,]
 new_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% new_targets_names$a_Gene_ID]
 
 new_targets_exp = new_targets_exp - median(non_targets_exp)
-
-new_targets_names2 = new_targets_names$a_Gene_ID[new_targets_names$a_Gene_ID %in% exp_data$`resLFC@rownames`]
-print(new_targets_names2)
 
 old_targets_names = canon_targets[!canon_targets$a_Gene_ID %in% cl_targets$a_Gene_ID,]
 old_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% old_targets_names$a_Gene_ID]
 
 old_targets_exp = old_targets_exp - median(non_targets_exp)
 
+old_targets_names2 = old_targets_names$a_Gene_ID[old_targets_names$a_Gene_ID %in% exp_data$`resLFC@rownames`]
+print('old_targets_names')
+print(old_targets_names2)
+print(old_targets_exp)
+
 ### build ggplot df
 
 nontargets = tibble(fc=non_targets_exp2)
-nontargets$legend = stringr::str_interp("No seed binding (n=${length(non_targets_exp)})")
+nontargets$legend = stringr::str_interp("No seed binding (n=${length(non_targets_exp2)})")
 
 cl_targets = tibble(fc=cl_targets_exp)
 cl_targets$legend = stringr::str_interp("${snakemake@wildcards$cell_line} targets (n=${length(cl_targets_exp)})")
@@ -182,20 +199,24 @@ cl_targets$legend = stringr::str_interp("${snakemake@wildcards$cell_line} target
 canon_targets = tibble(fc=canon_targets_exp)
 canon_targets$legend = stringr::str_interp("canonical targets (n=${length(canon_targets_exp)})")
 
-new_targets = tibble(fc=new_targets_exp)
-new_targets$legend = stringr::str_interp("new targets (n=${length(new_targets_exp)})")
+#sixmers = tibble(fc=sixmers_exp)
+#sixmers$legend = stringr::str_interp("sixmers (n=${length(sixmers_exp)})")
 
+#sevenmers = tibble(fc=sevenmers_exp)
+#sevenmers$legend = stringr::str_interp("sevenmers (n=${length(sevenmers_exp)})")
 
-#old_targets = tibble(fc=old_targets_exp)
-#old_targets$legend = stringr::str_interp("old targets (n=${length(old_targets_exp)})")
+#eightmers = tibble(fc=eightmers_exp)
+#eightmers$legend = stringr::str_interp("eightmers (n=${length(eightmers_exp)})")
 
-ggplot_df = rbind(nontargets,canon_targets, new_targets)
+#new_targets = tibble(fc=new_targets_exp)
+#new_targets$legend = stringr::str_interp("new targets (n=${length(new_targets_exp)})")
 
-p_value = ks.test(new_targets_exp, non_targets_exp, alternative='greater')
+old_targets = tibble(fc=old_targets_exp)
+old_targets$legend = stringr::str_interp("old targets (n=${length(old_targets_exp)})")
 
-#wilcox.test(new_targets_exp, non_targets_exp, alternative='less')
+ggplot_df = rbind(nontargets,canon_targets, old_targets)
 
-#ks.test(new_targets_exp, non_targets_exp, alternative='less')
+p_value = ks.test(old_targets_exp, canon_targets_exp, alternative='less')
 
 ### begin plotting
 
@@ -207,15 +228,15 @@ ggplot_object = ggplot(
   labs(
         title=
         bquote(
-                .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
+                .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection'  ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
         y=NULL,
 	tag=expression(bold("")),
-        x=NULL,
-        subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) )
-	)  +
+        x=NULL, 
+        subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) ) 
+        )  +
   theme(legend.title=element_blank(), legend.position=c(0.8,0.25)) +
-  scale_color_manual(values=c("forestgreen","skyblue2", "black")) +
+  scale_color_manual(values=c("forestgreen","black","purple")) +
   coord_cartesian(xlim = c(-snakemake@params$x_lim,snakemake@params$x_lim))
 
 ## save
