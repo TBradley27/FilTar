@@ -1,7 +1,7 @@
 rule index_bam:
         input: "results/bam/run/hsa/{accession}.bam.sorted"
         output: "results/bam/run/hsa/{accession}.bam.sorted.bai"
-        conda: "sub_snakemake/with_reannotation/map_reads/hisat2/envs/hisat2.yaml"
+        conda: "../with_reannotation/map_reads/hisat2/envs/hisat2.yaml"
         shell: "samtools index {input}"
 
 rule samtools_view:
@@ -12,10 +12,10 @@ rule samtools_view:
         wildcard_constraints:
                 accession="^SRR.*"
         params:
-                chromosome='X',
-                start='53,234,110',
-                end='53,281,614'
-        conda: "sub_snakemake/with_reannotation/map_reads/hisat2/envs/hisat2.yaml"
+                chromosome='1',  
+                start='23,000,000',   # 103,398,635-103,415,104 
+                end='24,000,000'
+        conda: "../with_reannotation/map_reads/hisat2/envs/hisat2.yaml"
         shell: "samtools view -b {input.bam} '{params.chromosome}:{params.start}-{params.end}'  > {output}"
 
 rule index_bam2:
@@ -23,5 +23,5 @@ rule index_bam2:
         output: "{accession}.bam.bai"
         wildcard_constraints:
                 accession="^SRR.*"
-        conda: "sub_snakemake/with_reannotation/map_reads/hisat2/envs/hisat2.yaml"
+        conda: "../with_reannotation/map_reads/hisat2/envs/hisat2.yaml"
         shell: "samtools index {input}"

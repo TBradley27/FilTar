@@ -35,7 +35,7 @@ rule multiqc:
         #raw_fastqc=lambda wildcards: expand("reports/{accession}_fastqc.zip", accession=config[wildcards.project_accession]['all_runs']),
         trimming_report=lambda wildcards: expand("results/trimmed_fastq/{accession}.fastq.gz_trimming_report.txt", accession=config[wildcards.project_accession]['all_runs']),
         trimmed_fastqc=lambda wildcards: expand("reports/{accession}_trimmed_fastqc.zip", accession=config[wildcards.project_accession]['all_runs']),
-        hisat2=lambda wildcards: expand("reports/hisat2/{accession}.txt", accession=config[wildcards.project_accession]['all_runs']),
+        hisat2=lambda wildcards: expand("reports/hisat2/{accession}.txt", accession=config[wildcards.project_accession]['HeLa']['mock']),
         kallisto=lambda wildcards: expand("logs/{accession}_kallisto.out", accession=config[wildcards.project_accession]['all_runs']),
         salmon=lambda wildcards: expand("results/salmon/runs/hsa/{accession}", accession=config[wildcards.project_accession]['all_runs'])
        wildcard_constraints:

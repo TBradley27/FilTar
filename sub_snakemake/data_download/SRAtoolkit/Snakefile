@@ -20,7 +20,7 @@ rule compress_single_end_fastq_files:
        input: "data/single_end/{accession}.fastq"
        output: "data/single_end/{accession}.fastq.gz",
        benchmark: "benchmarks/pigz/{accession}.txt"
-       shell: "gzip {input}"
+       shell: "pigz -p 5 {input}"
 
 rule compress_paired_end_fastq_files:
        input: 
@@ -30,4 +30,4 @@ rule compress_paired_end_fastq_files:
             "data/paired_end/{accession}_1.fastq.gz",
             "data/paired_end/{accession}_2.fastq.gz"
        benchmark: "benchmarks/pigz/{accession}.txt"
-       shell: "gzip {input.file1} {input.file2}"
+       shell: "pigz -p 5 {input.file1} {input.file2}"

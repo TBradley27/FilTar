@@ -107,7 +107,7 @@ rule targetscan_context_scores:
             script="exe/targetscan7/targetscan_70_context_scores.patch.pl"
         output:
             "results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv"
-        conda: "envs/viennarna.yaml" 
+        #conda: "envs/viennarna.yaml" 
         params:
             RNAplfold_dir="results/targets/RNAplfold/{species}/{tissue}",
             tax_id = get_tax_id
