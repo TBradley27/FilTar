@@ -2,17 +2,17 @@ library(gridExtra)
 library(grid)
 library(ggplot2)
 
-HeLa = readRDS(file = "results/plots/hsa_PRJNA512378_let-7c-5p_HeLa_exp.rds")
+HeLa = readRDS(file = "results/plots/hsa_PRJNA512378_miR-16-5p_HeLa_exp.rds")
 A549 = readRDS(file = "results/plots/hsa_PRJNA304643_miR-1343-3p_A549_exp.rds")
-U343 = readRDS(file='results/plots/hsa_PRJNA231155_miR-137-3p_U343_exp.rds')
-CD4 = readRDS(file='results/plots/mmu_PRJNA309441_miR-23a-3p_CD4_exp.rds')
-NMuMG = readRDS(file='results/plots/mmu_PRJNA340017_miR-200b-3p_NMuMG_exp.rds')
+#U343 = readRDS(file='results/plots/hsa_PRJNA231155_miR-137-3p_U343_exp.rds')
+#CD4 = readRDS(file='results/plots/mmu_PRJNA309441_miR-23a-3p_CD4_exp.rds')
+NMuMG = readRDS(file='results/plots/mmu_PRJNA340017_miR-1199-5p_NMuMG_exp.rds')
 ESCs = readRDS(file='results/plots/mmu_PRJNA270999_miR-294-3p_ESCs_exp.rds')
 
-png('results/plots/figure_1.png', width=900, height=900)
+png('results/plots/figure_1.png', width=700, height=700)
 
-grid.arrange(HeLa, A549, U343, CD4, NMuMG, ESCs,
-             ncol=2, nrow=3,
+grid.arrange(A549, HeLa, NMuMG, ESCs,
+             ncol=2, nrow=2,
              bottom=textGrob(
                expression(bold('log'[2]*'(mRNA Fold Change)'))
                ), 
