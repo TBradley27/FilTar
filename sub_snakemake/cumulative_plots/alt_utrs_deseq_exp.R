@@ -8,6 +8,14 @@ library(BiocParallel)
 
 register(MulticoreParam(20))
 
+# read in protein-coding transcripts
+
+pc_transcripts = read_tsv(
+        file = snakemake@input$pc_transcripts,
+        col_names= c('tx_id'),
+        col_types= 'c'
+        )
+
 # read in the data
 
 canon_targets = read_tsv(
@@ -94,15 +102,15 @@ results = cbind(resLFC@rownames, as_tibble(resLFC@listData))
 results = filter(results, is.na(log2FoldChange) == FALSE)
 #results$`resLFC@rownames` = gsub('\\..*','',results$`resLFC@rownames`)
 
-
 # remove lowly expressed transcripts
 
 exp_data = results
+exp_data = exp_data[exp_data$`resLFC@rownames` %in% pc_transcripts$tx_id,]
 
 # subset the expression data
 
 non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
-non_targets_exp = non_targets_exp - median(non_targets_exp)
+non_targets_exp2 = non_targets_exp - median(non_targets_exp)
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$target_site_types)
 canon_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
@@ -122,11 +130,14 @@ filt_targets_exp = filt_targets_exp - median(non_targets_exp)
 filt_non_targets_exp = filt_results$log2FoldChange[!filt_results$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 filt_non_targets_exp = filt_non_targets_exp - median(non_targets_exp)
 
+#x = filt_targets_exp - filt_nontargets_exp
+#y = canon_targets_exp - non_targets_exp
+
 #print(length(exp_data$Name))
 
 # build ggplot df
 
-nontargets = tibble(fc=non_targets_exp)
+nontargets = tibble(fc=non_targets_exp2)
 nontargets$legend = stringr::str_interp("No seed binding (n=${length(non_targets_exp)})")
 
 canon_targets = tibble(fc=canon_targets_exp)
@@ -137,6 +148,13 @@ filt_targets$legend = stringr::str_interp("seed targets (filtered) (n=${length(f
 
 filt_non_targets = tibble(fc=filt_non_targets_exp)
 filt_non_targets$legend = stringr::str_interp("No seed binding (filtered) (n=${length(filt_non_targets_exp)})")
+
+#filtered = tibble(fc=x)
+#filtered$legend = stringr::str_interp("No seed binding (n=${length(x)})")
+
+#not_filtered = tibble(fc=y)
+#not_filtered$legend = stringr::str_interp("No seed binding (n=${length(y)})")
+
 
 ggplot_df = rbind(nontargets,canon_targets, filt_targets)
 
@@ -156,13 +174,13 @@ ggplot_object = ggplot(
         bquote(
                 .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
-        y=NULL,
-	tag=expression(bold("A")),
-        x=NULL, 
+        y="Cumulative Proportion",
+	tag=expression(bold("")),
+        x=expression('log'[2]*'(mRNA Fold Change)'), 
         subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) )
 	) +
-  theme(legend.title=element_blank(), legend.position=c(0.8,0.2)) +
-  scale_color_manual(values=c("black", "sienna2", "red")) +
+  theme(legend.title=element_blank(), legend.position=c(0.8,0.25)) +
+  scale_color_manual(values=c("black", "sienna2","red")) +
   coord_cartesian(xlim = c(-snakemake@params$x_lim,snakemake@params$x_lim))
 
 ## save ggplot object
