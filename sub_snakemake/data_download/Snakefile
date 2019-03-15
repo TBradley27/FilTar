@@ -14,7 +14,7 @@ def get_gtf_file(wildcards):
         sci_species_name = config['sci_species_name'][wildcards.species]
         genome_build = config['genome_build'][wildcards.species]
 
-        return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.mod.chr.gtf'.format(config['ensembl_release'])  )
+        return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.mod2.chr.gtf'.format(config['ensembl_release'])  )
 
 #rule download_mirna_data:
 #       input:
@@ -32,8 +32,10 @@ rule get_gtf_file:
 
 rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
         input: "data/{species_prefix}.{ensembl_release}.chr.gtf"
-        output: "data/{species_prefix}.{ensembl_release}.mod.chr.gtf"
-        shell: "sed -r 's/^MT//g' {input} | sed '/^\t/d'  > {output}" # delete mitochondiral records and records not assigned to a chromosome
+        output: "data/{species_prefix}.{ensembl_release}.mod2.chr.gtf"
+        shell: "sed -r 's/^MT//g' {input} | sed '/^\t/d' > {output}" # delete mitochondiral records and records not assigned to a chromosome
+
+# "sed -r 's/^MT//g' {input} | sed '/^\t/d' | grep 'protein_coding' | grep -v -E 'processed_transcript|nonsense_mediated_decay|transcribed_unprocessed_pseudogene|retained_intron|3prime_overlapping_ncRNA|antisense|bidirectional_promoter_lncRNA|cds_end_NF|cds_start_NF|lincRNA|misc_RNA|mRNA_end_NF|mRNA_start_NF|non_stop_decay|seleno|transcribed_unitary_pseudogene|pseudogene'  > {output}"
 
 rule get_transcript_ids:
         input:

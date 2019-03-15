@@ -2,7 +2,7 @@ def get_gtf_file(wildcards):
         sci_species_name = config['sci_species_name'][wildcards.species]
         genome_build = config['genome_build'][wildcards.species]
 
-        return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.mod.chr.gtf'.format(config['ensembl_release'])  )
+        return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.mod2.chr.gtf'.format(config['ensembl_release'])  )
 
 def get_bed_file(wildcards):
         sci_species_name = config['sci_species_name'][wildcards.species]
@@ -39,7 +39,7 @@ rule split_bed6_file:
 
 rule convert_gtf_to_genepred:
      input:
-         gtf="data/{species_prefix}.{ensembl_release}.mod.chr.gtf"
+         gtf="data/{species_prefix}.{ensembl_release}.mod2.chr.gtf"
      output:
          "results/{species_prefix}.{ensembl_release}.genePred"
      conda: "envs/ucsc.yaml"
@@ -138,8 +138,8 @@ rule reannotate_3utrs:
     output:
        "results/bed/{species}_{cell_line}_chr{chrom}.utr.bed"
     params:
-        percentage_cutoff=0.70,
-        coverage_cutoff=0.01,
+        percentage_cutoff=0.80,
+        coverage_cutoff=0.05,
         window_size=100
     shell:
        "{input.script} -i {input.bedgraphs} -p {params.percentage_cutoff} -c {params.coverage_cutoff} -w {params.window_size}  -m {input.bed} -o {output}"
@@ -213,7 +213,7 @@ rule filter_CDS:
 
 rule split_CDS:
         input: "results/bed/{species}_{tissue}_CDS.filtered.bed"
-        output: "results/bed/{species}_{tissue}_CDS.chr{chrom}.filtered.bed"
+        output: "results/bed/{species}_{tissue}_CDS.chr{chrom}.bed"
         shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
 
 # get_utr_and_cds - with_conservation
@@ -288,6 +288,13 @@ rule aggregate_targetscan_sites:
         input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
         output: "results/targets/{species}_{tissue}_msa.sites.tsv"
         shell: "cat {input} | sed '1b;/Gene/d' > {output}"
+
+##### aggregate all transcripts
+
+#rule aggregrate_all_transcripts:
+#	input: lambda wildcards: expand("results/bed/{species}_chr{chrom}_all_transcripts.txt", species=wildcards.species, chrom=config['chromosomes'][wildcards.species])
+#	output: "results/bed/{species}_all_protein_coding_transcripts.txt"
+#	shell: "cat {input} > {output}"
 
 
 
