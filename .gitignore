@@ -33,3 +33,6 @@ reports/multiqc_salmon_single_end.html
 archives/
 import.sql
 my_data.rds
+*.html
+*.png
+*.pdf
