@@ -1,0 +1,60 @@
+#!/bin/bash
+
+rule sample_reads_pe:
+	input:
+		"data/paired_end/{accession}_{mate}.fastq.gz",
+	output:
+		"data/paired_end/{accession}_{mate}.fastq.tmp",
+	shell: "seqtk sample -s100 {input} 60000000 > {output}"
+
+rule sample_reads_se:
+        input:
+                "data/single_end/{accession}.fastq.gz",
+        output:
+                "data/single_end/{accession}.fastq.tmp",
+        shell: "seqtk sample -s100 {input} 60000000 > {output}"
+
+rule compress_fastq_pe:
+	input: "data/paired_end/{accession}_{mate}.fastq.tmp"
+	output: "data/paired_end/{accession}_{mate}.fastq.tmp.gz"
+	shell: "gzip {input}"
+
+rule compress_fastq_se:
+        input: "data/single_end/{accession}.fastq.tmp"
+        output: "data/single_end/{accession}.fastq.tmp.gz"
+        shell: "gzip {input}"
+
+rule trim_single_end_reads:
+	input: "data/single_end/{accession}.fastq.tmp.gz"
+	output: "results/trimmed_fastq/{accession}.fastq.tmp.gz_trimmed.fq.gz","results/trimmed_fastq/{accession}.fastq.tmp.gz_trimming_report.txt"
+        conda: "envs/trim-galore.yaml"
+	shell: "trim_galore --output_dir results/trimmed_fastq/  --length 35 --stringency 4 {input}"
+
+rule trim_paired_end_reads:
+       input:
+          file1="data/paired_end/{accession}_1.fastq.tmp.gz",
+          file2="data/paired_end/{accession}_2.fastq.tmp.gz"
+       output:
+           "results/trimmed_fastq/{accession}_1.fastq.tmp.gz_val_1.fq.gz",
+           "results/trimmed_fastq/{accession}_2.fastq.tmp.gz_val_2.fq.gz",
+           "results/trimmed_fastq/{accession}_1.fastq.tmp.gz_trimming_report.txt",
+           "results/trimmed_fastq/{accession}_2.fastq.tmp.gz_trimming_report.txt"
+       conda:
+          "envs/trim-galore.yaml"
+       benchmark:
+          "benchmarks/trim_galore/{accession}.log"
+       shell:
+          "trim_galore --output_dir results/trimmed_fastq/ --length 35 --stringency 4 --paired {input.file1} {input.file2}"
+
+rule rename_files_pe:
+	input: "results/trimmed_fastq/{accession}_{mate}.fastq.tmp.gz_val_{mate}.fq.gz"
+	output: "results/trimmed_fastq/{accession}_{mate}_val_{mate}.fq.gz"
+	shell: "mv {input} {output}"
+
+rule rename_files_se:
+	input: "results/trimmed_fastq/{accession}.fastq.tmp.gz_trimmed.fq.gz"
+	output: "results/trimmed_fastq/{accession}_trimmed.fq.gz"
+	wildcard_constraints:
+		accession="((?!gz).)*"
+	shell: "mv {input} {output}"
+
