@@ -22,3 +22,8 @@ reports/fastqc/
 *.gtf
 *.bed
 *.db
+*.sql
+*.html
+*.png
+*.pdf
+*.rds
