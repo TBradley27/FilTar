@@ -13,5 +13,4 @@ if ( num_lines  == 1 ) { # test if the file contains any records
 	sep="\t",
 	row.names=FALSE,
 	quote=FALSE)
-
 }
