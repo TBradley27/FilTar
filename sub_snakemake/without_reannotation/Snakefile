@@ -38,4 +38,52 @@ rule aggregate_chromosomal_AIR_files:
 rule split_bed6:
         input: "results/bed/{species}_3UTR.bed"
         output: "results/bed/{species}_3UTR.chr{chrom}.bed"
-        shell: 'grep -E "^{wildcards.chrom}" {input} > {output}'
+        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
+
+rule filter_bed6_file_no_reannotation:
+        input: "results/bed/{species}_{feature}.bed"
+        output: "results/bed/{species}_nr_{feature}.bed"
+        script: 'filter_bed6.R'
+
+rule split_filtered_bed6:
+	input: rules.filter_bed6_file_no_reannotation.output
+	output: "results/bed/{species}_nr_{feature}.chr{chrom}.bed"
+	shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
+
+### filter by expression level
+
+rule expression_filter_contextpp_scores_chr_no_reannotation:
+        input:
+                contextpp_scores="results/targets/{species}_nr_chr{chrom}_msa.contextpp.tsv",
+                expression_values="results/salmon/{species}/{tissue}.sf"
+        params:
+                tpm_expression_threshold=0
+        output: protected("results/targets/{species}/nr_{tissue}_chr{chrom}.contextpp.filt.tsv")
+        script: 'filter_contextpp_scores.R'
+
+rule expression_filter_contextpp_scores_no_reannotatin:
+        input:
+            contextpp_scores="results/targets/{species}/nr.contextpp.tsv",
+            expression_values="results/salmon/{species}/{tissue}.sf"
+        params:
+            tpm_expression_threshold=0
+        output: protected("results/targets/{species}/nr_{tissue}.contextpp.filt.tsv")
+        script: 'filter_contextpp_scores.R'
+
+rule expression_filter_miRanda_nr_chr:
+        input:
+            miRanda_scores="results/targets/miRanda/{species}/nr_chr{chrom}.tsv",
+            expression_values="results/salmon/{species}/{tissue}.sf"
+        params:
+            tpm_expression_threshold=0
+        output: protected("results/targets/miRanda/{species}/nr_{tissue}/chr{chrom}.filt.tsv")
+        script: 'filter_miRanda_scores.R'
+
+rule expression_filter_miRanda_nr:
+        input:
+            miRanda_scores="results/targets/miRanda/{species}/nr.tsv",
+            expression_values="results/salmon/{species}/{tissue}.sf"
+        params:
+            tpm_expression_threshold=0
+        output: protected("results/targets/miRanda/{species}/nr_{tissue}.filt.tsv")
+        script: 'filter_miRanda_scores.R'

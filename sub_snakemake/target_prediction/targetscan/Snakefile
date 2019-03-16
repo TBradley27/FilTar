@@ -133,6 +133,11 @@ rule aggregate_contextpp_scores:
        output: protected("results/targets/{species}/{tissue}.contextpp.tsv")
        shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
+rule aggregate_targetscan_sites:
+       input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
+       output: protected("results/targets/{species}/{tissue}.sites.tsv")
+       shell: "cat {input} | sed '1b;/Gene/d' > {output}"
+
 ### other ###
 
 #rule delete_RNAplfold_output:
