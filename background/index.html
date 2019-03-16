@@ -5,14 +5,14 @@ title: Background
 
 <h1>Background & Motivation</h1>
 
-<p> The primary motivation behind FilTar is to increase the specificty of existing computational miRNA target prediction methods in animals by integrating context-specific (i.e. tissue or cell-line) expression information derived from RNA-Sequencing experiments. More specifically, by using this information we achieve the following:</p>
+<p> The primary motivation behind FilTar is to increase the specificty of existing computational miRNA target prediction methods in animals by integrating context-specific (<i>i.e.</i> tissue or cell-line) expression information derived from RNA-Sequencing experiments. More specifically, by using this information we achieve the following:</p>
 
 <ol>
 	<li>Filtering of putative miRNA target transcripts according to expression of those transcripts</li>
 	<li>Context-specific reannotation of 3'UTR (three prime untranslated regions) of mRNA transcripts</li>
 </ol>
 
-<p>By doing this, we a) ensure that predicted target transcripts are actually expressed within a given biological context and b) when making target predicting, we have an accurate model of the 3'UTR within that given biological context</p>
+<p>By doing this, we a) ensure that predicted target transcripts are actually expressed within a given biological context and b) when making target predictions, we have an accurate model of the 3'UTR within that given biological context</p>
 
 <h2>Use of existing animal miRNA target prediction methods</h2>
 
@@ -22,7 +22,7 @@ title: Background
 
 <strong>DOI:</strong> <a href="https://elifesciences.org/articles/05005">10.7554/eLife.05005</a>
 
-<p>Targetscan7 is the latest iteration of the targetscan family of algorithms, all of which require a seed match between a miRNA and a given subsequence the target transcript. A seed match exists when there is full complementarity between the miRNA seed region (i.e. nucleotides 2-7 of the miRNA) and the putative target. Seed matching is the first step of the targetscan algorithm. In the next steps, the conservation of the 3'UTRs is calculated amongst 84 vertebrate species (including the reference species), which in addition with the output of the seed matching algorithm is used to calculate the probability of conserved targeting (P<sub>CT</sub>) of each candidate interaction. The P<sub>CT</sub> is one feature of 14 of a linear regression model trained on miRNA transfection data, used to compute the context++ score which is predictive of the efficacy of each candidate interaction. More negative context++ scores indicate greater predicted downregulation of targets.</p>
+<p>Targetscan7 is the latest iteration of the targetscan family of algorithms, all of which require a seed match between a miRNA and a given subsequence the target transcript. A seed match exists when there is full complementarity between the miRNA seed region (<i>i.e.</i> nucleotides 2-7 of the miRNA) and the putative target. Seed matching is the first step of the targetscan algorithm. In the next steps, the conservation of the 3'UTRs is calculated amongst 84 vertebrate species (including the reference species), which in addition with the output of the seed matching algorithm is used to calculate the probability of conserved targeting (P<sub>CT</sub>) of each candidate interaction. The P<sub>CT</sub> is one feature of 14 of a linear regression model trained on miRNA transfection data, used to compute the context++ score which is predictive of the efficacy of each candidate interaction. More negative context++ scores indicate greater predicted downregulation of targets.</p>
 
 <h3>miRanda (v3.3a)</h3>
 

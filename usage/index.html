@@ -16,58 +16,79 @@ title: Usage
 
 <p>As a result of this emphasis on directory structure, the user must ensure that they are located at the directory root when invoking snakemake.</p>
 
+<p>Most parameters can be invoked by passing the <code>--config</code> option to snakemake and setting individual parameter values. ALternatively, the workflow can be configured by editing the <code>config/config.yaml</code> file. See the 'configurations' page for more detail on this.
+
 <h2>Standard Usage</h2>
 
-<p>Standard usage refers to usage of the tool in which the user reannotates 3'UTRs, filters mRNA targets by expression level, and uses targetscan7 with multiple sequence alignment data:</p>
+<p>Standard and default usage refers to usage of the tool in which the user reannotates 3'UTRs, filters mRNA targets by expression level, and uses targetscan7 with multiple sequence alignment data:</p>
 
-<code>snakemake results/targets/{species}_{tissue}_msa.contextpp.filtered.tsv</code>
+<code>snakemake results/targets/{species}/{tissue}.contextpp.filt.tsv</code>
 
 <p>The <code>species</code> and <code>tissue</code> wildcards will evaluate to the the species and biological context of interest. The three letter prefix of the species using the first letter of the genus name, and the first two letters of the species name must be used e.g.:<p>
 
-<code>snakemake results/targets/hsa_liver_msa.contextpp.filtered.tsv</code>
+<code>snakemake results/targets/hsa/liver.contextpp.filt.tsv</code>
 
 <p>Whilst this usage option will invoke the most rules, and therefore use the most resources, we believe it will produce the most accurate set of target predictions</p>
 
 <h2>Option: no 3'UTR reannotation</h2>
 
-<p>If the user does not want to reannotate 3'UTR, but still wishes to produce target predictions, then they can run the following command:<p>
+<p>If the user does not want to reannotate 3'UTRs, but still wishes to produce target predictions, then they can run the following command:<p>
 
-<code>snakemake results/targets/no_reannotation/{species}_msa.contextpp.filtered.tsv</code>
+<code>snakemake results/targets/{species}/nr_{tissue}.contextpp.filt.tsv --config reannotation=False</code>
 
-<p>In this case, FilTar will default to using 3'UTR annotations from the latest release of Ensembl/ENCODE</p> 
+<p>Alternatively, the <code>reannotation</code> option can be set to <code>False</code> in <code>config/config.yaml</code> </p>
+
+<p>In this case, FilTar will default to using 3'UTR annotations from the latest release of Ensembl</p> 
 
 <h2>Option: no mRNA expression filtering</h2>
 
-If the user does not wish filter predicted targets by normalised expression levels, then they should remove the suffix 'filtered.tsv' from the ususal file name pattern like so:</p>
+If the user does not wish filter predicted targets by normalised expression levels, then they should remove the substring 'filt' from the ususal file name pattern like so:</p>
 
-<code>snakemake results/targets/no_reannotation/{species}_msa.sites.filtered.tsv</code>
+<code>snakemake results/targets/hsa/liver.contextpp.tsv</code>
+
+or, in the 'no reannotation' usage case, 'nr' replaces the name of the tissue like so:
+
+<code>snakemake results/targets/hsa/nr.contextpp.tsv</code>
 
 <h2>Option: no 3'UTR conservation information</h2>
 
 <p>When using Filtar to run targetscan7, the user can choose not to incorporate conservation information by running the algorithm on single 3'UTR sequences rather than multiple sequence alignments. Running targetscan with conservation information requires the download of large 100-way genome-wide alignment MAF files (totalling >500GB of information) - as a result, running the algorithm without 3'UTR conservation information would be appropriate when storage space is limited.</p>
 
-<p>In order to run FilTar in no conservation mode, the user must open <code>Snakefile</code> and edit line 16 to substitute the string <code>with conservation</code> with <code>no conservation</code></p>
+<p>The FilTar workflow can be executed without the use of 3'UTR conservation information by passing <code>--config conservation=False</code> when attemtpting to build targets. Alternatively, this option can be set using the configuration page (<code>config/config.yaml</code>)
 
 <h2>Option: Use other target prediction algorithms</h2>
 
-<p>As mentioned previously, targetscan7 is the defauly miRNA target prediction algorithm used for FilTar. However, users can also choose to use the miRanda algorithm using the following target pattern:</p>
+<p>As mentioned previously, targetscan7 is the default miRNA target prediction algorithm used for FilTar. However, users can also choose to use the miRanda algorithm using the following target pattern:</p>
 
-<code>snakemake results/targets/miRanda/{species}/{tissue}.filtered.txt</code>
+<code>snakemake results/targets/miRanda/{species}/{tissue}.filt.tsv</code>
+
+<p>Similar patterns are used for miRanda target files as targetscan target files when the user wishes to generate 'no reannotation' and 'no filtering' variants</p>
 
 <h2>Intermediate files</h2>
 
 <p>Many intermediate files are generated when executing the canonical FilTar workflow. These files can be useful in their own right, and the user may wish to generate these files without expending resources creating downstream files. For example, with targetscan, if the user wishes to identify miRNA target sites, without computing a context++ scor for each target site, then the substring 'contextpp' in the target file name should be substituted for 'sites' like so:<p>
 
-<code>snakemake results/targets/{species}_{tissue}_msa.contextpp.filtered.tsv</code>
+<code>snakemake results/targets/{species}/{tissue}.sites.tsv</code>
+
+<p>Note that the above file presents targetscan for given miRNA families rather than individual mature miRNA families. For the Filtar workflow, each miRNA family is given a numeric value. The mapping between this code and mature miRNA identifiers can be found in <code>results/{species}_mir_for_context_scores.tsv</code>
 
 <p>To get a comprehensive view of intermediate files generated, the user will have to inspect relevant Snakefiles manually. Alternatively, the user can inspect the stdout from a conventional snakemake run to determine intermediate files generated for various targets</p>
+
+<h2>Rerunning workflows</h2>
+
+<p>Rerunning workflows using different input data or parameters can be problematic because snakemake uses the existence and time stamps of intermediate and target files to determine which rules to execute when a a particular target file is specified by the user. For example, attemtping to rerun the FilTar workflow after changing the <code>mirnas</code> parameter without making any further alterations will not work as the intermediate miRNA data files have already been generated in a previous run. Snakemake determines that downstream target files have a later timestamp than the intermediate miRNA files, and therefore does not attemtp to regenerate these files.</p>
+
+<p>A work-around is to use the UNIX <code>touch</code> utility to update the time stamps of relevant files so they are ahead in time of their downstream targets. This will trigger snakemake to regenerate downstream target files. For example, when wanting to rerun a workflow using a different miRNA or combination of miRNAs, the following command would be appropriate:</p>
+
+<code>touch data/mature.fa</code>
+
+<p>This will update the time stamp on the full mature miRNA data file upstream of the point of miRNA selection, which will cause the triggering of miRNA selection steps</p>
 
 <h2>Modulating snakemake behaviour</h2>
 
 <p>Many options can be passed to the snakemake command in order modulate behaviour, reference should be made to the official Snakemake <a href="https://snakemake.readthedocs.io/en/stable/">Snakemake documentation</a> as an exhaustive reference</p>
 
-<p>Of particular importance, is to note that Snakemake has its own built-in scheduling to manage the execution of different rules. Many rules can be executed in parallel using the <code>--cores {num_cores}</code> option.
-Combined use of this option and execution within high-performance computing environments enable the execution of rules across many different cores.</p>
+<p>Of particular importance, is to note that Snakemake has its own built-in job scheduling system to manage the execution of different rules. Many rules can be executed in parallel using the <code>--cores {num_cores}</code> option. Combined use of this option and execution within high-performance computing environments enable the execution of rules across many different cores.</p>
 
 <h2>Warnings</h2>
 <ol>
