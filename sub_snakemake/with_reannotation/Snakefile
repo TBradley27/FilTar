@@ -148,7 +148,8 @@ rule get_extended_bed_file:
          input:
             normal_bed= get_bed6_file,
             extended_bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed",
-            all_transcripts="results/bed/{species}_chr{chrom}_all_transcripts.txt"
+            all_transcripts="results/bed/{species}_chr{chrom}_all_transcripts.txt",
+            tx_quant="results/salmon/{species}/{tissue}.sf"
          output:
             "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"
          log:
