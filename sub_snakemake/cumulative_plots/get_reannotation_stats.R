@@ -30,9 +30,9 @@ TPMs = as.data.frame(txi$abundance)
 TPMs$average = rowMeans(TPMs)
 TPMs$names = rownames(txi$abundance)
 
-TPMs = dplyr::filter(TPMs, average >= 5.0)
+high_expression = dplyr::filter(TPMs, average >= 5.0)
 
-merged_filtered = merged[merged$tx_id %in% TPMs$names,]
+merged_filtered = merged[merged$tx_id %in% high_expression$names,]
 
 print(merged)
 print(merged_filtered)
@@ -59,12 +59,18 @@ percent_bases_minus = ( num_old_bases / sum(merged$utr_length.x) ) * 100 %>% abs
 percent_tx_elongated = ( num_tx_elongated / length(merged$tx_id ) ) * 100
 percent_tx_truncated = ( num_tx_truncated / length(merged$tx_id ) ) * 100
 
-data = tibble(sample=snakemake@wildcards$tissue, 
-                num_new_bases = num_new_bases, num_old_bases = num_old_bases, 
-                percent_bases_gained = signif(percent_bases_plus,3), percent_bases_lost = signif(percent_bases_minus,3), 
-                num_tx_elongated = num_tx_elongated, num_tx_truncated = num_tx_truncated,
-                percent_tx_elongated = signif(percent_tx_elongated,3), percent_tx_truncated = signif(percent_tx_truncated,3)
-                )
+
+data = tibble(
+	sample=snakemake@wildcards$tissue, 
+	num_new_bases = num_new_bases, 
+	num_old_bases = num_old_bases, 
+	percent_bases_gained = signif(percent_bases_plus,3),
+	percent_bases_lost = signif(percent_bases_minus,3), 
+	num_tx_elongated = num_tx_elongated, 
+	num_tx_truncated = num_tx_truncated,
+	percent_tx_elongated = signif(percent_tx_elongated,3),
+	percent_tx_truncated = signif(percent_tx_truncated,3)
+	)
 
 write.table(
 	x=data,
