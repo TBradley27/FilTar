@@ -11,9 +11,9 @@ A549 = readRDS(file = "results/plots/hsa_PRJNA304643_miR-1343-3p_A549_alt_utr.rd
 NMuMG = readRDS(file='results/plots/mmu_PRJNA340017_miR-1199-5p_NMuMG_alt_utr.rds')
 ESCs = readRDS(file='results/plots/mmu_PRJNA270999_miR-294-3p_ESCs_alt_utr.rds')
 
-png('results/plots/figure2.png', width=700, height=700)
+#png('results/plots/figure2.png', width=700, height=700)
 
-grid.arrange(A549, HeLa, NMuMG, ESCs,
+g = arrangeGrob(A549, HeLa, NMuMG, ESCs,
              ncol=2, nrow=2,
              bottom=textGrob(
                expression(bold('log'[2]*'(mRNA Fold Change)'))
@@ -24,4 +24,4 @@ grid.arrange(A549, HeLa, NMuMG, ESCs,
                gp=gpar(fontface="bold")
                )
              )
-dev.off()
+ggsave('results/plots/figure_2_alt.png',plot = g, scale=1.50)
