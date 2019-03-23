@@ -60,22 +60,22 @@ def get_read_files (wildcards):
 rule get_splice_sites_for_hisat2:
         input:
           gtf=get_gtf_file,
-          py_script='exe/hisat2_extract_splice_sites.py'
+          py_script=ancient('exe/hisat2_extract_splice_sites.py')
         output: "results/{species}_hisat2_splice_sites.txt"
         shell: "python {input.py_script} {input.gtf} > {output}"
 
 rule get_exons_for_hisat2:
         input:
           gtf=get_gtf_file,
-          py_script='exe/hisat2_extract_exons.py'
+          py_script=ancient('exe/hisat2_extract_exons.py')
         output: "results/{species}_hisat2_exons.txt"
         shell: "python {input.py_script} {input.gtf} > {output}"
 
 rule create_index:
         input:
            assembly=get_assembly,
-           splice_sites="results/{species}_hisat2_splice_sites.txt",
-           exons="results/{species}_hisat2_exons.txt"
+           splice_sites=ancient("results/{species}_hisat2_splice_sites.txt"),
+           exons=ancient("results/{species}_hisat2_exons.txt")
         conda:
            "envs/hisat2.yaml"
         output: "data/{species}.1.ht2"
@@ -87,7 +87,7 @@ rule map_reads:
 	input: 
 		reads=get_read_files,
 		lib_type_file='results/salmon/runs/{species}/{accession}_lib_type.txt',
-                index="data/{species}.1.ht2"
+                index=ancient("data/{species}.1.ht2")
 	conda:
 		"envs/hisat2.yaml"
 	params: get_lib_type

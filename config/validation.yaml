@@ -3,10 +3,10 @@ PRJNA229375: # Nam et al. 2014 - The effect of different cellular contexts on mi
            miR-124-3p: [SRR1032873,SRR1032874]
            miR-155-5p: [SRR1032875,SRR1032876]
            mock:    [SRR1032877,SRR1032878]
-#      HEK293:
-#           miR-124-3p: [SRR1032879,SRR1032880]
-#           miR-155-5p: [SRR1032881,SRR1032882]
-#           mock:    [SRR1032883,SRR1032884]
+      HEK293:
+           miR-124-3p: [SRR1032879,SRR1032880]
+           miR-155-5p: [SRR1032881,SRR1032882]
+           mock:    [SRR1032883,SRR1032884]
       Huh7:
            miR-124-3p: [SRR1032885,SRR1032886]
            miR-155-5p: [SRR1032887,SRR1032888]
@@ -109,7 +109,7 @@ PRJNA512378:
                    SRR8382232,SRR8382233,SRR8382234,SRR8382235,SRR8382236,SRR8382237,SRR8382238,SRR8382239,
                    SRR8382240,SRR8382241,SRR8382242,SRR8382243]
 
-# transfection
+# antagomir transfection
 
 PRJNA308287:
         CD34:
@@ -144,12 +144,6 @@ PRJNA270999: # technical replicates
                 miR-294-3p: [SRR1734393,SRR1734395] #SRR1734394,SRR1734396
         all_runs: [SRR1734389,SRR1734391,SRR1734393,SRR1734395]
 
-## transfection
-
-PRJNA325124:
-        kidney:
-                mock: [SRR3655008,SRR3655009,SRR3655010]
-                miR-17-5p: [SRR3655014,SRR3655015,SRR3655016]
 
 ####
 

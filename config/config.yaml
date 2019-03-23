@@ -145,7 +145,7 @@ paired_end: [SRR2146408,SRR2146409,SRR2146410,SRR2146411,SRR2968576,SRR2968577,
              ERR030880,ERR315404,ERR315406,ERR315358,ERR315422,ERR579142,
              ERR579143]
 
-mirnas: [] #if this configuration is left blank - processing is performed for all miRNAs of a given species as default
+mirnas: [mmu-miR-294-3p] #if this configuration is left blank - processing is performed for all miRNAs of a given species as default
 transcripts: []
 
 sequence_data_source: SRA
