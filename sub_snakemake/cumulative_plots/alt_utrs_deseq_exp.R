@@ -65,9 +65,10 @@ for (i in 1:length(real)) {
 
 samples = data.frame(
   run=c(mock_accessions, real_accessions),
-  #treatment = factor(c('negative_control','negative_control','negative_control','negative_control','miRNA','miRNA')
+#  treatment = factor(c('negative_control','negative_control','negative_control','miRNA','miRNA')
   treatment = rep(c("negative_control","miRNA"),each=length(mock),
-                       ordered=FALSE)
+                       ordered=FALSE
+	)
 )
 
 rownames(samples) = samples$run
@@ -116,13 +117,21 @@ canon_targets = filter(canon_targets, Site_type %in% snakemake@params$target_sit
 canon_targets_exp = exp_data$log2FoldChange[exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 canon_targets_exp = canon_targets_exp - median(non_targets_exp)
 
-print('median baseMean')
-median_baseMean = median(exp_data$baseMean)
-print(median_baseMean)
+#print('median baseMean')
+#median_baseMean = median(exp_data$baseMean)
+#print(median_baseMean)
 
-print(exp_data[1:100,])
+#print(exp_data[1:100,])
 
-filt_results = filter(exp_data, baseMean > median_baseMean)
+TPMs = as.data.frame(txi$abundance)
+TPMs$average = rowMeans(TPMs[,1:length(mock)])
+TPMs$names = rownames(txi$abundance)
+
+TPMs = dplyr::filter(TPMs, average >= snakemake@params$exp_threshold)
+
+#filt_results = filter(exp_data, baseMean > median_baseMean)
+
+filt_results = exp_data[exp_data$`resLFC@rownames` %in% TPMs$names,]
 
 filt_targets_exp = filt_results$log2FoldChange[filt_results$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 filt_targets_exp = filt_targets_exp - median(non_targets_exp)
@@ -174,13 +183,13 @@ ggplot_object = ggplot(
         bquote(
                 .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
-        y="Cumulative Proportion",
+        y=NULL,
 	tag=expression(bold("")),
-        x=expression('log'[2]*'(mRNA Fold Change)'), 
+        x=NULL, 
         subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) )
 	) +
-  theme(legend.title=element_blank(), legend.position=c(0.8,0.25)) +
-  scale_color_manual(values=c("black", "sienna2","red")) +
+  theme(legend.title=element_blank(), legend.position=c(0.8,0.20)) +
+  scale_color_manual(values=c("black","sienna2","red")) +
   coord_cartesian(xlim = c(-snakemake@params$x_lim,snakemake@params$x_lim))
 
 ## save ggplot object

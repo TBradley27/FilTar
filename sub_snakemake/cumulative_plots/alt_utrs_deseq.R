@@ -214,7 +214,7 @@ ggplot_object = ggplot(
         x=NULL,
         subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) )
 	)  +
-  theme(legend.title=element_blank(), legend.position=c(0.8,0.25)) +
+  theme(legend.title=element_blank(), legend.position=c(0.8,0.20)) +
   scale_color_manual(values=c("forestgreen","skyblue2", "black")) +
   coord_cartesian(xlim = c(-snakemake@params$x_lim,snakemake@params$x_lim))
 

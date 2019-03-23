@@ -44,7 +44,7 @@ rule get_cumulative_plot_expression:
         params:
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
-                #exp_threshold=5,
+                exp_threshold=0.1,
                 x_lim=2.00
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_exp.rds"
         script: "alt_utrs_deseq_exp.R"
@@ -149,12 +149,14 @@ rule get_cumulative_plot_alt_utrs_sup_fig: # UTR reannotation analysis
 
 rule get_target_stats:
 	input:
-		tissue='results/targets/hsa_{tissue}_msa.sites.tsv',
-                control='results/targets/hsa_msa_nr.sites.tsv',
-		quant= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.tissue]['mock'])
-	output: "results/targets/{project}_{tissue}_stats.txt"
+		tissue='results/targets/{species}_{tissue}_msa.sites.tsv',
+                control='results/targets/{species}_msa_nr.sites.tsv',
+		quant= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.tissue]['mock']),
+                pc_transcripts='results/bed/{species}_all_protein_coding_transcripts.txt'
+	output: "results/targets/{species}_{project}_{tissue}_stats.txt"
 	wildcard_constraints:
-		tissue="((?!SRR).)*"
+		tissue="((?!SRR).)*",
+                project="((?!ske).)*"
 	script: 'get_stats.R'
 
 rule get_reannotation_stats:
@@ -167,5 +169,21 @@ rule get_reannotation_stats:
         wildcard_constraints:
                 project="((?!hsa).)*"
 	script: "get_reannotation_stats.R"
+
+rule get_expression_filtering_stats:
+        input:
+                canonical="results/targets/{species}.utr.lengths.tsv",
+                pc_transcripts='results/bed/{species}_all_protein_coding_transcripts.txt',
+                quant= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.tissue]['mock'])
+        output: 'results/utrs/{project}_{species}_{tissue}_expression_stats.tsv'
+        wildcard_constraints:
+                project="((?!hsa).)*"
+        script: "get_expression_stats.R"
+
+
+
+
+
+
 
 
