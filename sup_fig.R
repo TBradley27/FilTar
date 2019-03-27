@@ -24,4 +24,4 @@ g = arrangeGrob(U343, HeLa, HeLa2, HeLa3,
                gp=gpar(fontface="bold")
                )
              )
-ggsave('results/plots/sup_fig.png',plot = g, scale=1.50)
+ggsave('results/plots/sup_fig.png',plot = g, scale=1.25)

@@ -127,7 +127,7 @@ TPMs = as.data.frame(txi$abundance)
 TPMs$average = rowMeans(TPMs[,1:length(mock)])
 TPMs$names = rownames(txi$abundance)
 #print(TPMs[1:10,])
-TPMs = dplyr::filter(TPMs, average >= 5.0)
+TPMs = dplyr::filter(TPMs, average >= 0.0)
 #exp_data = filter(results, baseMean >= snakemake@params$exp_threshold)
 
 #print(dim(results))

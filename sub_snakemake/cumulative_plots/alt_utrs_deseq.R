@@ -108,13 +108,6 @@ keep <- rowMeans(counts(ddsTxi, normalized=TRUE)[,1:length(mock)]) >= 0 # filter
 ddsTxi <- ddsTxi[keep,]
 dds <- DESeq(ddsTxi, parallel=TRUE)
 
-### PCA plot ###
-
-png('pca.png')
-vsd = vst(dds, blind=FALSE)
-plotPCA(vsd, intgroup=c("treatment"))
-dev.off()
-
 ### shrink by log2 fold change
 
 x = "treatment_miRNA_vs_negative_control"
@@ -145,7 +138,7 @@ exp_data = exp_data[exp_data$`resLFC@rownames` %in% pc_transcripts$tx_id,]
 
 ### Split the lfc data into distinct sets
 
-non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% cl_targets$a_Gene_ID]
+non_targets_exp = exp_data$log2FoldChange[!exp_data$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 non_targets_exp2 = non_targets_exp - median(non_targets_exp)
 
 cl_targets = filter(cl_targets, Site_type %in%  snakemake@params$target_site_types)
@@ -174,22 +167,29 @@ old_targets_exp = old_targets_exp - median(non_targets_exp)
 ### build ggplot df
 
 nontargets = tibble(fc=non_targets_exp2)
-nontargets$legend = stringr::str_interp("No seed binding (n=${length(non_targets_exp)})")
+nontargets$legend = stringr::str_interp("No seed site (n=${length(non_targets_exp)})")
 
 cl_targets = tibble(fc=cl_targets_exp)
 cl_targets$legend = stringr::str_interp("${snakemake@wildcards$cell_line} targets (n=${length(cl_targets_exp)})")
 
 canon_targets = tibble(fc=canon_targets_exp)
-canon_targets$legend = stringr::str_interp("canonical targets (n=${length(canon_targets_exp)})")
+canon_targets$legend = stringr::str_interp("Seed site (n=${length(canon_targets_exp)})")
 
 new_targets = tibble(fc=new_targets_exp)
-new_targets$legend = stringr::str_interp("new targets (n=${length(new_targets_exp)})")
+new_targets$legend = stringr::str_interp("Added seed site (n=${length(new_targets_exp)})")
 
 
 #old_targets = tibble(fc=old_targets_exp)
 #old_targets$legend = stringr::str_interp("old targets (n=${length(old_targets_exp)})")
 
 ggplot_df = rbind(nontargets,canon_targets, new_targets)
+
+#ggplot_df$legend = factor(ggplot_df$legend, levels = c(
+#	stringr::str_interp("Added seed site (n=${length(new_targets_exp)})"),
+#        stringr::str_interp("Seed site (n=${length(canon_targets_exp)})"),
+#	stringr::str_interp("No seed site (n=${length(non_targets_exp)})")					
+#	)	
+#)
 
 p_value = ks.test(new_targets_exp, non_targets_exp, alternative='greater')
 
@@ -210,12 +210,19 @@ ggplot_object = ggplot(
                 .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
         y=NULL,
-	tag=expression(bold("")),
+	tag=expression(bold("A")),
         x=NULL,
         subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) )
 	)  +
-  theme(legend.title=element_blank(), legend.position=c(0.8,0.20)) +
-  scale_color_manual(values=c("forestgreen","skyblue2", "black")) +
+  theme(legend.title=element_blank(), legend.position=c(0.75,0.20)) +
+  scale_color_manual(
+		values=c("dodgerblue","black","darkorange"),
+                breaks=c(    # change legend order
+                        stringr::str_interp("Added seed site (n=${length(new_targets_exp)})"),
+                        stringr::str_interp("Seed site (n=${length(canon_targets_exp)})"),
+                        stringr::str_interp("No seed site (n=${length(non_targets_exp)})")
+                        )    
+	            ) +
   coord_cartesian(xlim = c(-snakemake@params$x_lim,snakemake@params$x_lim))
 
 ## save

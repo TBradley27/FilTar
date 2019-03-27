@@ -1,6 +1,8 @@
 library(tidyverse)
 library(tximport)
 
+## read in the data
+
 original = read_tsv(snakemake@input[['canonical']])
 new = read_tsv(snakemake@input[['new']])
 pc_transcripts = read_tsv(snakemake@input[['pc_transcripts']], col_names='tx_id')
@@ -8,10 +10,9 @@ pc_transcripts = read_tsv(snakemake@input[['pc_transcripts']], col_names='tx_id'
 merged = merge(original,new, by = 'tx_id') %>% as_tibble()
 merged = merged[merged$tx_id %in% pc_transcripts$tx_id,]
 
-merged$diff = merged$utr_length.y - merged$utr_length.x
+merged$diff = merged$utr_length.y - merged$utr_length.x # get change in 3UTR length
 
-
-####
+### read in the transcript quant data
 real = strsplit(snakemake@input$quant, split='/')
 real_accessions = c()
 
@@ -32,7 +33,7 @@ TPMs$names = rownames(txi$abundance)
 
 high_expression = dplyr::filter(TPMs, average >= 5.0)
 
-merged_filtered = merged[merged$tx_id %in% high_expression$names,]
+merged_filtered = merged[merged$tx_id %in% high_expression$names,] # remove lowly expressed transcripts
 
 print(merged)
 print(merged_filtered)

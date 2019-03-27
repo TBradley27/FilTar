@@ -1,7 +1,7 @@
 library(tidyverse)
 library(tximport)
 
-###
+### Read in transcript quant data
 
 real = strsplit(snakemake@input$quant, split='/')
 real_accessions = c()
@@ -38,16 +38,16 @@ pc_transcripts = read_tsv(
   col_names=FALSE
   )
 
-cerebellum_targets_names = 
+cerebellum_targets_names = # get new protein-coding target names 
   cerebellum_targets_names[cerebellum_targets_names %in% pc_transcripts$X1]
-cerebellum_targets = cerebellum_targets[cerebellum_targets$a_Gene_ID %in% pc_transcripts$X1,]
+cerebellum_targets = cerebellum_targets[cerebellum_targets$a_Gene_ID %in% pc_transcripts$X1,] # get new protein-coding targets
 
 
 canonical_targets = read_tsv(snakemake@input[['control']])
-canonical_targets_names = canonical_targets$a_Gene_ID %>% unique()
+canonical_targets_names = canonical_targets$a_Gene_ID %>% unique() 
 
-canonical_targets_names = canonical_targets_names[canonical_targets_names %in% pc_transcripts$X1]
-canonical_targets = canonical_targets[canonical_targets$a_Gene_ID %in% pc_transcripts$X1,]
+canonical_targets_names = canonical_targets_names[canonical_targets_names %in% pc_transcripts$X1] # get unique protein-coding canonical target names
+canonical_targets = canonical_targets[canonical_targets$a_Gene_ID %in% pc_transcripts$X1,] # get protein-coding canonical targets
 
 # gained target transcripts
 
@@ -57,7 +57,7 @@ a=cerebellum_targets_names[!cerebellum_targets_names %in% canonical_targets_name
 
 old_targets=canonical_targets_names[!canonical_targets_names %in% cerebellum_targets_names]
 
-b=old_targets[old_targets %in% high_expression$names] %>% length() #%>% print()
+b=old_targets[old_targets %in% high_expression$names] %>% length() # TPM > 5 only
 
 # expression filtered targets
 

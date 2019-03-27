@@ -110,13 +110,6 @@ keep <- rowMeans(counts(ddsTxi, normalized=TRUE)[,1:length(mock)]) >= 0 # filter
 ddsTxi <- ddsTxi[keep,]
 dds <- DESeq(ddsTxi, parallel=TRUE)
 
-### PCA plot ###
-
-png('pca.png')
-vsd = vst(dds, blind=FALSE)
-plotPCA(vsd, intgroup=c("treatment"))
-dev.off()
-
 ### shrink by log2 fold change
 
 x = "treatment_miRNA_vs_negative_control"
@@ -216,7 +209,7 @@ eightmers$legend = stringr::str_interp("Eightmers (n=${length(eightmers_exp)})")
 #new_targets$legend = stringr::str_interp("new targets (n=${length(new_targets_exp)})")
 
 old_targets = tibble(fc=old_targets_exp)
-old_targets$legend = stringr::str_interp("Old targets (n=${length(old_targets_exp)})")
+old_targets$legend = stringr::str_interp("Removed seed site (n=${length(old_targets_exp)})")
 
 ggplot_df = rbind(nontargets,old_targets,sixmers,sevenmers,eightmers)
 
@@ -237,12 +230,20 @@ ggplot_object = ggplot(
                 .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection'  ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
         y=NULL,
-	tag=expression(bold("D")),
+	tag=expression(bold("A")),
         x=NULL, 
         subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) ) 
         )  +
-  theme(legend.title=element_blank(), legend.position=c(0.8,0.25)) +
-  scale_color_manual(values=c("red","black","purple","orange","blue")) +
+  theme(legend.title=element_blank(), legend.position=c(0.75,0.215)) +
+  scale_color_manual(values=c("purple","black","firebrick1","blue","green2"),
+                       breaks=c(    # change legend order
+                        stringr::str_interp("Eightmers (n=${length(eightmers_exp)})"),
+                        stringr::str_interp("Sevenmers (n=${length(sevenmers_exp)})"),
+                        stringr::str_interp("Sixmers (n=${length(sixmers_exp)})"),
+                        stringr::str_interp("Removed seed site (n=${length(old_targets_exp)})"),
+                        stringr::str_interp("No seed binding (n=${length(non_targets_exp2)})")
+                        )
+	) +
   coord_cartesian(xlim = c(-snakemake@params$x_lim,snakemake@params$x_lim))
 
 ## save

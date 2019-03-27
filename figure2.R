@@ -24,4 +24,4 @@ g = arrangeGrob(A549, HeLa, NMuMG, ESCs,
                gp=gpar(fontface="bold")
                )
              )
-ggsave('results/plots/figure_2_alt.png',plot = g, scale=1.50)
+ggsave('results/plots/figure_2_alt.png',plot = g, scale=1.25)

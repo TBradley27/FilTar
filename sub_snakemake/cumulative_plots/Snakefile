@@ -75,7 +75,7 @@ rule get_cumulative_plot_alt_utrs: # UTR reannotation analysis
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=0,
-                x_lim=1.5
+                x_lim=1.2
         threads: 20
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr.rds"
         script: "alt_utrs_deseq.R"
@@ -92,10 +92,29 @@ rule get_cumulative_plot_alt_utrs_old_targets: # UTR reannotation analysis
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=0,
-                x_lim=1.5
+                x_lim=1.50
 	threads: 20
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr_old.rds"
         script: "alt_utrs_deseq_old_targets.R"
+
+rule get_cumulative_plot_alt_utrs_old_targets_no_filt: # UTR reannotation analysis
+        input:
+                quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
+                quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
+                cl_targets= "results/targets/{species}_{cell_line}_msa.sites.tsv",
+                canon_targets ="results/targets/{species}_msa_nr.sites.tsv",
+                miRNA_dict= "results/{species}_mir_for_context_scores.tsv",
+                pc_transcripts="results/bed/{species}_all_protein_coding_transcripts.txt"
+        params:
+                nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+                target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+                exp_threshold=0,
+                x_lim=1.20
+        threads: 20
+        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr_old_no_filt.rds"
+        script: "alt_utrs_deseq_old_targets_no_filt.R"
+
+
 
 rule get_cumulative_plot_alt_utrs_sup_fig: # UTR reannotation analysis
         input:
@@ -109,7 +128,7 @@ rule get_cumulative_plot_alt_utrs_sup_fig: # UTR reannotation analysis
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=0,
-                x_lim=1.5
+                x_lim=2.2
 	threads: 20
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr_sup_fig.rds"
         script: "alt_utrs_deseq_sup_fig.R"

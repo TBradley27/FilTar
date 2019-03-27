@@ -147,13 +147,13 @@ filt_non_targets_exp = filt_non_targets_exp - median(non_targets_exp)
 # build ggplot df
 
 nontargets = tibble(fc=non_targets_exp2)
-nontargets$legend = stringr::str_interp("No seed binding (n=${length(non_targets_exp)})")
+nontargets$legend = stringr::str_interp("No seed site (n=${length(non_targets_exp)})")
 
 canon_targets = tibble(fc=canon_targets_exp)
-canon_targets$legend = stringr::str_interp("seed targets (n=${length(canon_targets_exp)})")
+canon_targets$legend = stringr::str_interp("Seed site (n=${length(canon_targets_exp)})")
 
 filt_targets = tibble(fc=filt_targets_exp)
-filt_targets$legend = stringr::str_interp("seed targets (filtered) (n=${length(filt_targets_exp)})")
+filt_targets$legend = stringr::str_interp("Seed site (filtered) (n=${length(filt_targets_exp)})")
 
 filt_non_targets = tibble(fc=filt_non_targets_exp)
 filt_non_targets$legend = stringr::str_interp("No seed binding (filtered) (n=${length(filt_non_targets_exp)})")
@@ -184,12 +184,19 @@ ggplot_object = ggplot(
                 .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
         y=NULL,
-	tag=expression(bold("")),
+	tag=expression(bold("C")),
         x=NULL, 
         subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) )
 	) +
-  theme(legend.title=element_blank(), legend.position=c(0.8,0.20)) +
-  scale_color_manual(values=c("black","sienna2","red")) +
+  theme(legend.title=element_blank(), legend.position=c(0.77,0.18)) +
+  scale_color_manual(
+	values=c("black","limegreen","darkorange"),
+        breaks=c(    # change legend order
+                        stringr::str_interp("Seed site (filtered) (n=${length(filt_targets_exp)})"),
+                        stringr::str_interp("Seed site (n=${length(canon_targets_exp)})"),
+                        stringr::str_interp("No seed site (n=${length(non_targets_exp)})")
+                        )
+	) +
   coord_cartesian(xlim = c(-snakemake@params$x_lim,snakemake@params$x_lim))
 
 ## save ggplot object
