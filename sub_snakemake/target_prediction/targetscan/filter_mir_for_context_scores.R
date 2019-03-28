@@ -1,2 +1,2 @@
 
-filtar::filter_mature_mirs(snakemake@input[[1]], snakemake@config[["mirnas"]], snakemake@output[[1]])
+filtar::filter_mature_mirs(snakemake@input[[1]], paste(snakemake@wildcards[["species"]],snakemake@wildcards[["miRNA"]],sep='-'), snakemake@output[[1]])

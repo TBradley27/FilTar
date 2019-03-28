@@ -6,7 +6,7 @@ library(DESeq2)
 library(tximport)
 library(BiocParallel)
 
-register(MulticoreParam(20))
+register(MulticoreParam(snakemake@threads[[1]]))
 
 pc_transcripts = read_tsv(
         file = snakemake@input$pc_transcripts,
@@ -32,26 +32,19 @@ canon_targets = read_tsv( # read in targets derived from canonical UTR annotatio
 
 ## filter targets for the correct site types and the correct miRNA
 
-miRNA_table = readr::read_tsv(
-        file = snakemake@input$miRNA_dict,
-        col_names = c('family_code','tax_id','mature_miRNA_name','mature_miRNA_sequence'),
-        col_types = 'cccc',
-        )
-
-
 species_three_letters = snakemake@wildcards$species
 species_tax_id = snakemake@config$tax_ids[[species_three_letters]]
 
-miRNA_name_with_prefix = paste(species_three_letters,snakemake@wildcards$miRNA,sep='-')
-miRNA_family = dplyr::filter(miRNA_table, mature_miRNA_name == miRNA_name_with_prefix)
-miRNA_family = miRNA_family$family_code[1]
+#miRNA_name_with_prefix = paste(species_three_letters,snakemake@wildcards$miRNA,sep='-')
+#miRNA_family = dplyr::filter(miRNA_table, mature_miRNA_name == miRNA_name_with_prefix)
+#miRNA_family = miRNA_family$family_code[1]
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$nontarget_site_types)
-canon_targets = filter(canon_targets, miRNA_family_ID == miRNA_family)
+#canon_targets = filter(canon_targets, miRNA_family_ID == miRNA_family)
 canon_targets = filter(canon_targets, species_ID == species_tax_id)
 
 cl_targets = filter(cl_targets, Site_type %in% snakemake@params$nontarget_site_types) 
-cl_targets = filter(cl_targets, miRNA_family_ID == miRNA_family)
+#cl_targets = filter(cl_targets, miRNA_family_ID == miRNA_family)
 cl_targets = filter(cl_targets, species_ID == species_tax_id)
 
 # retrieve run accessions

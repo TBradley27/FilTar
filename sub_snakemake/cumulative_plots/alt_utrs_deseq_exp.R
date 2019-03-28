@@ -6,7 +6,7 @@ library(DESeq2)
 library(tximport)
 library(BiocParallel)
 
-register(MulticoreParam(20))
+register(MulticoreParam(snakemake@threads[[1]]))
 
 # read in protein-coding transcripts
 
@@ -27,24 +27,24 @@ canon_targets = read_tsv(
 
 # filter targets for 8mers and the correct miRNA
 
-miRNA_table = readr::read_tsv(
-        file = snakemake@input$miRNA_dict,
-        col_names = c('family_code','tax_id','mature_miRNA_name','mature_miRNA_sequence'),
-        col_types = 'cccc',
-        )
+#miRNA_table = readr::read_tsv(
+#        file = snakemake@input$miRNA_dict,
+#        col_names = c('family_code','tax_id','mature_miRNA_name','mature_miRNA_sequence'),
+#        col_types = 'cccc',
+#        )
 
 
 species_three_letters = snakemake@wildcards$species
 species_tax_id = snakemake@config$tax_ids[[species_three_letters]]
 
-miRNA_name_with_prefix = paste(species_three_letters,snakemake@wildcards$miRNA,sep='-')
-miRNA_family = dplyr::filter(miRNA_table, mature_miRNA_name == miRNA_name_with_prefix)
-miRNA_family = miRNA_family$family_code[1]
+#miRNA_name_with_prefix = paste(species_three_letters,snakemake@wildcards$miRNA,sep='-')
+#miRNA_family = dplyr::filter(miRNA_table, mature_miRNA_name == miRNA_name_with_prefix)
+#miRNA_family = miRNA_family$family_code[1]
 
 canon_targets = filter(canon_targets, Site_type %in% snakemake@params$nontarget_site_types)
 print(canon_targets)
-canon_targets = filter(canon_targets, miRNA_family_ID == miRNA_family)
-print(canon_targets)
+#canon_targets = filter(canon_targets, miRNA_family_ID == miRNA_family)
+#print(canon_targets)
 canon_targets = filter(canon_targets, species_ID == species_tax_id)
 
 ## kallisto data 
@@ -183,9 +183,9 @@ ggplot_object = ggplot(
         bquote(
                 .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
-        y=NULL,
-	tag=expression(bold("C")),
-        x=NULL, 
+        y="Cumulative Proportion",
+	tag=expression(bold("")),
+        x=expression('log'[2]*'(mRNA Fold Change)'), 
         subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) )
 	) +
   theme(legend.title=element_blank(), legend.position=c(0.77,0.18)) +

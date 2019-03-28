@@ -1,172 +1,198 @@
-rule get_utr_lengths2:
-	input:	'results/bed/{species}_{cell_line}.utr.full.bed'
-	output: 'results/utrs/{species}_{cell_line}.utr.lengths.tsv'
-	script: 'get_utr_lengths.R'
+## A Snakefile for the testing the biological validity of FilTar's approach. Generates plots found in FilTar manuscript.
 
-rule get_utr_lengths_canonical:
-        input:  'results/bed/canonical/{species}_3UTR.chr{chrom}.bed'
-        output: 'results/targets/canonical/{species}_chr{chrom}.utr.lengths.tsv'
-        script: 'get_utr_lengths.R'
+### Cumulative Plots
 
-rule aggregate_utr_lengths:
-       input: lambda wildcards: expand("results/targets/canonical/{species}_chr{chrom}.utr.lengths.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
-       output: "results/targets/canonical/{species}.utr.lengths.tsv"
-       shell: "cat {input} | sed '1b;/tx/d' > {output}"
+rule figure1:
+	input:
+		A549="results/plots/hsa_PRJNA304643_miR-1343-3p_A549_exp.rds",
+		HeLa="results/plots/hsa_PRJNA512378_miR-16-5p_HeLa_exp.rds",
+		NMuMG="results/plots/mmu_PRJNA340017_miR-1199-5p_NMuMG_exp.rds",
+		ESCs='results/plots/mmu_PRJNA270999_miR-294-3p_ESCs_exp.rds'
+	output: 'results/plots/figure1.png'
+	script: 'cumulative_plots.R'
 
+rule figure2:
+	input:
+		A549="results/plots/hsa_PRJNA304643_miR-1343-3p_A549_alt_utr.rds",
+		HeLa="results/plots/hsa_PRJNA512378_miR-16-5p_HeLa_alt_utr.rds",
+		NMuMG="results/plots/mmu_PRJNA340017_miR-1199-5p_NMuMG_alt_utr.rds",
+		ESCs='results/plots/mmu_PRJNA270999_miR-294-3p_ESCs_alt_utr.rds'
+	output: 'results/plots/figure2.png'
+	script: 'cumulative_plots.R'
 
-#rule get_cell_line_targets:
-#	input:
-#		targets='results/{species}_msa_sites.tsv',
-#		utr_lens='results/utrs/{species}_{cell_line}.utr.lengths.tsv'
-#	output: 'results/targets/specific/{species}_{cell_line}.sites.tsv'
-#	script: 'alt_sites.R'
+rule figure3:
+	input:
+		A549="results/plots/hsa_PRJNA304643_miR-1343-3p_A549_alt_utr_old.rds",
+		HeLa="results/plots/hsa_PRJNA512378_miR-16-5p_HeLa_alt_utr_old.rds",
+		NMuMG="results/plots/mmu_PRJNA340017_miR-1199-5p_NMuMG_alt_utr_old.rds",
+		ESCs='results/plots/mmu_PRJNA270999_miR-294-3p_ESCs_alt_utr_old.rds'
+	output: 'results/plots/figure3.png'
+	script: 'cumulative_plots.R'
 
-#rule get_canon_targets: # we do it this way, as inheriting from main workflow would trigger execution of targetscan job for ALL miRNAs, instead of a few miRNAs, taking a much longer time
-#	input:          # Maybe it is just easier to create the canonical target set by creating a dummy tissue called 'canonical'? in which case we will not need extra rules
-#           msa="results/msa/canonical/{species}_chr{chrom}_3UTR_msa.tsv",
-#           mirna_families="results/{species}_mirna_family.tsv",
-#           script="exe/targetscan7/targetscan_70.pl"
-#	output: "results/targets/canonical/{species}_chr{chrom}_msa.sites.tsv"
-#	shell: '{input.script} {input.mirna_families} {input.msa} {output}'
+rule supplementary_figure9:
+	input:
+		A343="results/plots/hsa_PRJNA304643_miR-1343-3p_A549_alt_utr_old_no_filt.rds",
+		HeLa="results/plots/hsa_PRJNA512378_miR-16-5p_HeLa_alt_utr_old_no_filt.rds",
+		NMuMG="results/plots/mmu_PRJNA340017_miR-1199-5p_NMuMG_alt_utr_old_no_filt.rds",
+		ESCs='results/plots/mmu_PRJNA270999_miR-294-3p_ESCs_alt_utr_old_no_filt.rds'
+	output: 'results/plots/supplementary_figure9.png'
+	script: 'cumulative_plots.R'
 
-#rule aggregate_canon_targets:
-#	input: lambda wildcards: expand("results/targets/canonical/{species}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
-#	output: "results/targets/canonical/{species}_msa.sites.tsv"
-#	shell: "cat {input} | sed '1b;/Gene/d'  > {output}"
+rule supplementary_figure1:
+	input:
+		U343="results/plots/hsa_PRJNA231155_miR-137-3p_U343_alt_utr_sup_fig.rds",
+		HeLa_9="results/plots/hsa_PRJNA512378_miR-145-5p_alt_utr_sup_fig.rds",
+		HeLa_11="results/plots/hsa_PRJNA512378_miR-155-5p_HeLa_alt_utr_sup_fig.rds",
+		HeLa_1='results/plots/hsa_PRJNA512378_miR-155-5p_HeLa_alt_utr.rds'
+	output: 'results/plots/supplementary_figure1.png'
+	script: 'supplementary_figure1.R'
 
-rule get_cumulative_plot_expression:
+## Supplementary Data
+
+rule supplementary_data3:
+	input:
+		U251='results/plots/hsa_PRJNA231155_miR-137-3p_U251_exp.rds',
+		U343="results/plots/hsa_PRJNA231155_miR-137-3p_U343_exp.rds",
+		Du145="results/plots/hsa_PRJNA292016_miR-141-3p_Du145_exp.rds",
+		HBE14o="results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_exp.rds",
+		U20S_1="results/plots/hsa_PRJNA223608_miR-155-5p_U20S_exp.rds",U20S_2="results/plots/hsa_PRJNA223608_miR-1-3p_U20S_exp.rds",
+		NMuMG_1="results/plots/mmu_PRJNA340017_miR-200b-3p_NMuMG_exp.rds",NMuMG_2="results/plots/mmu_PRJNA340017_miR-429-3p_NMuMG_exp.rds",
+		CD4_1='results/plots/mmu_PRJNA309441_miR-24-3p_CD4_exp.rds',CD4_2='results/plots/mmu_PRJNA309441_miR-27a-3p_CD4_exp.rds',
+                CD4_3='results/plots/mmu_PRJNA309441_miR-23a-3p_CD4_exp.rds',
+		HeLa_1="results/plots/hsa_PRJNA512378_let-7c-5p_HeLa_exp.rds",HeLa_2="results/plots/hsa_PRJNA512378_miR-107_HeLa_exp.rds",
+                HeLa_3="results/plots/hsa_PRJNA512378_miR-10a-5p_HeLa_exp.rds",HeLa_4="results/plots/hsa_PRJNA512378_miR-124-3p_HeLa_exp.rds",
+                HeLa_5="results/plots/hsa_PRJNA512378_miR-126-3p_HeLa_exp.rds",HeLa_6="results/plots/hsa_PRJNA512378_miR-126-5p_HeLa_exp.rds",
+		HeLa_7="results/plots/hsa_PRJNA512378_miR-133b_HeLa_exp.rds",HeLa_8="results/plots/hsa_PRJNA512378_miR-142-3p_HeLa_exp.rds",
+                HeLa_9="results/plots/hsa_PRJNA512378_miR-145-5p_HeLa_exp.rds",HeLa_10="results/plots/hsa_PRJNA512378_miR-146a-5p_HeLa_exp.rds",
+                HeLa_11="results/plots/hsa_PRJNA512378_miR-155-5p_HeLa_exp.rds",HeLa_12="results/plots/hsa_PRJNA512378_miR-15a-5p_HeLa_exp.rds",
+		HeLa_13="results/plots/hsa_PRJNA512378_miR-17-5p_HeLa_exp.rds",HeLa_14="results/plots/hsa_PRJNA512378_miR-193b-3p_HeLa_exp.rds",
+                HeLa_15="results/plots/hsa_PRJNA512378_miR-200a-3p_HeLa_exp.rds",HeLa_16="results/plots/hsa_PRJNA512378_miR-200b-3p_HeLa_exp.rds",
+                HeLa_17="results/plots/hsa_PRJNA512378_miR-200c-3p_HeLa_exp.rds",HeLa_18="results/plots/hsa_PRJNA512378_miR-206_HeLa_exp.rds",
+		HeLa_19="results/plots/hsa_PRJNA512378_miR-210-3p_HeLa_exp.rds",HeLa_20="results/plots/hsa_PRJNA512378_miR-21-5p_HeLa_exp.rds",
+                HeLa_21="results/plots/hsa_PRJNA512378_miR-31-5p_HeLa_exp.rds",HeLa_22="results/plots/hsa_PRJNA512378_miR-34a-5p_HeLa_exp.rds",
+                HeLa_23="results/plots/hsa_PRJNA512378_miR-9-3p_HeLa_exp.rds",HeLa_24="results/plots/hsa_PRJNA512378_miR-9-5p_HeLa_exp.rds"
+	output: 'results/plots/supplementary_data3.pdf'
+	script: 'supplementary_data.R'
+
+rule supplementary_data4:
+        input:
+                NMuMG_1="results/plots/mmu_PRJNA340017_miR-200b-3p_NMuMG_alt_utr.rds",NMuMG_2="results/plots/mmu_PRJNA340017_miR-429-3p_NMuMG_alt_utr.rds",
+                CD4_1='results/plots/mmu_PRJNA309441_miR-24-3p_CD4_alt_utr.rds',CD4_2='results/plots/mmu_PRJNA309441_miR-27a-3p_CD4_alt_utr.rds',
+                CD4_3='results/plots/mmu_PRJNA309441_miR-23a-3p_CD4_alt_utr.rds',
+                HeLa_2="results/plots/hsa_PRJNA512378_miR-107_HeLa_alt_utr.rds",HeLa_3="results/plots/hsa_PRJNA512378_miR-10a-5p_HeLa_alt_utr.rds",
+                HeLa_6="results/plots/hsa_PRJNA512378_miR-126-5p_HeLa_alt_utr.rds",HeLa_12="results/plots/hsa_PRJNA512378_miR-15a-5p_HeLa_alt_utr.rds"
+        output: 'results/plots/supplementary_data4.pdf'
+        script: 'supplementary_data4.R'
+
+rule supplementary_data5:
+	input:
+		U251='results/plots/hsa_PRJNA231155_miR-137-3p_U251_alt_utr_old.rds',
+		U343="results/plots/hsa_PRJNA231155_miR-137-3p_U343_alt_utr_old.rds",
+		Du145="results/plots/hsa_PRJNA292016_miR-141-3p_Du145_alt_utr_old.rds",
+		HBE14o="results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_alt_utr_old.rds",
+		U20S_1="results/plots/hsa_PRJNA223608_miR-155-5p_U20S_alt_utr_old.rds",U20S_2="results/plots/hsa_PRJNA223608_miR-1-3p_U20S_alt_utr_old.rds",
+		NMuMG_1="results/plots/mmu_PRJNA340017_miR-200b-3p_NMuMG_alt_utr_old.rds",NMuMG_2="results/plots/mmu_PRJNA340017_miR-429-3p_NMuMG_alt_utr_old.rds",
+		CD4_1='results/plots/mmu_PRJNA309441_miR-24-3p_CD4_alt_utr_old.rds',CD4_2='results/plots/mmu_PRJNA309441_miR-27a-3p_CD4_alt_utr_old.rds',
+                CD4_3='results/plots/mmu_PRJNA309441_miR-23a-3p_CD4_alt_utr_old.rds',
+		HeLa_1="results/plots/hsa_PRJNA512378_let-7c-5p_HeLa_alt_utr_old.rds",HeLa_2="results/plots/hsa_PRJNA512378_miR-107_HeLa_alt_utr_old.rds",
+                HeLa_3="results/plots/hsa_PRJNA512378_miR-10a-5p_HeLa_alt_utr_old.rds",HeLa_4="results/plots/hsa_PRJNA512378_miR-124-3p_HeLa_alt_utr_old.rds",
+                HeLa_5="results/plots/hsa_PRJNA512378_miR-126-3p_HeLa_alt_utr_old.rds",HeLa_6="results/plots/hsa_PRJNA512378_miR-126-5p_HeLa_alt_utr_old.rds",
+		HeLa_7="results/plots/hsa_PRJNA512378_miR-133b_HeLa_alt_utr_old.rds",HeLa_8="results/plots/hsa_PRJNA512378_miR-142-3p_HeLa_alt_utr_old.rds",
+                HeLa_9="results/plots/hsa_PRJNA512378_miR-145-5p_HeLa_alt_utr_old.rds",HeLa_10="results/plots/hsa_PRJNA512378_miR-146a-5p_HeLa_alt_utr_old.rds",
+                HeLa_11="results/plots/hsa_PRJNA512378_miR-155-5p_HeLa_alt_utr_old.rds",HeLa_12="results/plots/hsa_PRJNA512378_miR-15a-5p_HeLa_alt_utr_old.rds",
+		HeLa_13="results/plots/hsa_PRJNA512378_miR-17-5p_HeLa_alt_utr_old.rds",HeLa_14="results/plots/hsa_PRJNA512378_miR-193b-3p_HeLa_alt_utr_old.rds",
+                HeLa_15="results/plots/hsa_PRJNA512378_miR-200a-3p_HeLa_alt_utr_old.rds",HeLa_16="results/plots/hsa_PRJNA512378_miR-200b-3p_HeLa_alt_utr_old.rds",
+                HeLa_17="results/plots/hsa_PRJNA512378_miR-200c-3p_HeLa_alt_utr_old.rds",HeLa_18="results/plots/hsa_PRJNA512378_miR-206_HeLa_alt_utr_old.rds",
+		HeLa_19="results/plots/hsa_PRJNA512378_miR-210-3p_HeLa_alt_utr_old.rds",HeLa_20="results/plots/hsa_PRJNA512378_miR-21-5p_HeLa_alt_utr_old.rds",
+                HeLa_21="results/plots/hsa_PRJNA512378_miR-31-5p_HeLa_alt_utr_old.rds",HeLa_22="results/plots/hsa_PRJNA512378_miR-34a-5p_HeLa_alt_utr_old.rds",
+                HeLa_23="results/plots/hsa_PRJNA512378_miR-9-3p_HeLa_alt_utr_old.rds",HeLa_24="results/plots/hsa_PRJNA512378_miR-9-5p_HeLa_alt_utr_old.rds"
+	output: 'results/plots/supplementary_data5.pdf'
+	script: 'supplementary_data.R'
+
+### Cumulative Plots
+
+rule get_cumulative_plot_expression_filtering: # Figure 1 & Supplementary Data file 3
         input:
                 quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
                 quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-                canon_targets = "results/targets/{species}_msa_nr.sites.tsv",
-                miRNA_dict = "results/{species}_mir_for_context_scores.tsv",
+                canon_targets = "results/targets/{species}_msa_nr_{miRNA}.sites.tsv",
                 pc_transcripts="results/bed/{species}_all_protein_coding_transcripts.txt"
         params:
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=0.1,
                 x_lim=2.00
+        threads: 2
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_exp.rds"
         script: "alt_utrs_deseq_exp.R"
 
-#rule get_cumulative_plot_expression_salmon:
-#        input:
-#                quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
-#                quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-#                canon_targets = "results/targets/{species}_msa_nr.sites.tsv",
-#                miRNA_dict = "results/{species}_mir_for_context_scores.tsv"
-#        params:
-#                nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
-#                target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
-#                exp_threshold=30,
-#                x_lim=2.0
-#        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_exp_salmon.png"
-#        script: "alt_utrs_deseq_exp.R"
-
-rule get_cumulative_plot_alt_utrs: # UTR reannotation analysis
+rule get_cumulative_plot_alt_utrs_added_targets: # Figure 2 & Supplementary Data file 4
         input:
                 quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
                 quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-                cl_targets= "results/targets/{species}_{cell_line}_msa.sites.tsv",
-                canon_targets ="results/targets/{species}_msa_nr.sites.tsv",
-                miRNA_dict= "results/{species}_mir_for_context_scores.tsv",
+                cl_targets= "results/targets/{species}_{cell_line}_msa_{miRNA}.sites.tsv",
+                canon_targets ="results/targets/{species}_msa_nr_{miRNA}.sites.tsv",
                 pc_transcripts="results/bed/{species}_all_protein_coding_transcripts.txt"
         params:
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=0,
                 x_lim=1.2
-        threads: 20
+        threads: 2
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr.rds"
         script: "alt_utrs_deseq.R"
 
-rule get_cumulative_plot_alt_utrs_old_targets: # UTR reannotation analysis
+rule get_cumulative_plot_alt_utrs_removed_targets: # Figure 3 & Supplementary Data file 5
         input:
                 quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
                 quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-                cl_targets= "results/targets/{species}_{cell_line}_msa.sites.tsv",
-                canon_targets ="results/targets/{species}_msa_nr.sites.tsv",
-                miRNA_dict= "results/{species}_mir_for_context_scores.tsv",
+                cl_targets= "results/targets/{species}_{cell_line}_msa_{miRNA}.sites.tsv",
+                canon_targets ="results/targets/{species}_msa_nr_{miRNA}.sites.tsv",
                 pc_transcripts="results/bed/{species}_all_protein_coding_transcripts.txt"
         params:
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=0,
                 x_lim=1.50
-	threads: 20
+	threads: 2
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr_old.rds"
         script: "alt_utrs_deseq_old_targets.R"
 
-rule get_cumulative_plot_alt_utrs_old_targets_no_filt: # UTR reannotation analysis
+rule supplementary_figure_1: # Supplementary Figure 1
         input:
                 quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
                 quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-                cl_targets= "results/targets/{species}_{cell_line}_msa.sites.tsv",
-                canon_targets ="results/targets/{species}_msa_nr.sites.tsv",
-                miRNA_dict= "results/{species}_mir_for_context_scores.tsv",
-                pc_transcripts="results/bed/{species}_all_protein_coding_transcripts.txt"
-        params:
-                nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
-                target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
-                exp_threshold=0,
-                x_lim=1.20
-        threads: 20
-        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr_old_no_filt.rds"
-        script: "alt_utrs_deseq_old_targets_no_filt.R"
-
-
-
-rule get_cumulative_plot_alt_utrs_sup_fig: # UTR reannotation analysis
-        input:
-                quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
-                quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-                cl_targets= "results/targets/{species}_{cell_line}_msa.sites.tsv",
-                canon_targets ="results/targets/{species}_msa_nr.sites.tsv",
-                miRNA_dict= "results/{species}_mir_for_context_scores.tsv",
+                cl_targets= "results/targets/{species}_{cell_line}_msa_{miRNA}.sites.tsv",
+                canon_targets ="results/targets/{species}_msa_nr_{miRNA}.sites.tsv",
                 pc_transcripts="results/bed/{species}_all_protein_coding_transcripts.txt"
         params:
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=0,
                 x_lim=2.2
-	threads: 20
+	threads: 10
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr_sup_fig.rds"
         script: "alt_utrs_deseq_sup_fig.R"
 
+rule supplementary_figure_9: # Supplementary Figure 9
+        input:
+                quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
+                quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
+                cl_targets= "results/targets/{species}_{cell_line}_msa_{miRNA}.sites.tsv",
+                canon_targets ="results/targets/{species}_msa_nr_{miRNA}.sites.tsv",
+                pc_transcripts="results/bed/{species}_all_protein_coding_transcripts.txt"
+        params:
+                nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+                target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+                exp_threshold=0,
+                x_lim=1.20
+        threads: 5
+        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr_old_no_filt.rds"
+        script: "alt_utrs_deseq_old_targets_no_filt.R"
 
+### Other plots and data tables
 
-#rule get_cumulative_plot_alt_utrs_salmon: # UTR reannotation analysis
-#        input:
-#                quant_mock= lambda wildcards: expand("results/salmon/runs/hsa/{run_accession}", run_accession=config[wildcards.project][wildcards.cell_line]['mock']),
-#                quant_real= lambda wildcards: expand("results/salmon/runs/hsa/{run_accession}", run_accession=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-#                cl_targets= "results/targets/{species}_{cell_line}_msa.sites.tsv",
-#                canon_targets ="results/targets/{species}_msa_nr.sites.tsv",
-#                miRNA_dict= "results/{species}_mir_for_context_scores.tsv"
-#        params:
-#                nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
-#                target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
-#                exp_threshold=0,
-#                x_lim=2.0
-#        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr_salmon.png"
-#        script: "alt_utrs_deseq_salmon.R"
-
-#rule sleuth:
-#        input: 
-#                quant_mock = lambda wildcards: expand("results/kallisto/{run_accession}/abundance.tsv", run_accession=config[wildcards.project][wildcards.cell_line]['mock']),
-#                quant_real = lambda wildcards: expand("results/kallisto/{run_accession}/abundance.tsv", run_accession=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
-#                cl_targets= "results/targets/{species}_{cell_line}_msa.sites.tsv",
-#                canon_targets ="results/targets/{species}_msa_nr.sites.tsv",
-#                miRNA_dict= "results/{species}_mir_for_context_scores.tsv"
-#        params:
-#                nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
-#                target_site_types = ['8mer-1a','7mer-m8','7mer-1a'], #'6mer'],
-#                exp_threshold=0,
-#                x_lim=1.0
-#        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr_sleuth.png"
-#        script: "sleuth.R"
-
-
-rule get_target_stats:
+rule get_target_stats: # Figure 4, supplementary figure 6,7 & 8, supplementary table 4 
 	input:
 		tissue='results/targets/{species}_{tissue}_msa.sites.tsv',
                 control='results/targets/{species}_msa_nr.sites.tsv',
@@ -175,10 +201,33 @@ rule get_target_stats:
 	output: "results/targets/{species}_{project}_{tissue}_stats.txt"
 	wildcard_constraints:
 		tissue="((?!SRR).)*",
-                project="((?!ske).)*"
+                project="((?!ske|bone).)*"
 	script: 'get_stats.R'
 
-rule get_reannotation_stats:
+rule supplementary_table_4: # supplementary_table_4
+	input:
+		U251='results/targets/hsa_PRJNA231155_U251_stats.txt',
+		U343='results/targets/hsa_PRJNA231155_U343_stats.txt',
+		Du145='results/targets/hsa_PRJNA292016_Du145_stats.txt',
+		A549='results/targets/hsa_PRJNA304643_A549_stats.txt',
+		HBE14o='results/targets/hsa_PRJNA304643_16HBE14o_stats.txt',
+		HeLa='results/targets/hsa_PRJNA512378_HeLa_stats.txt',
+		U20S='results/targets/hsa_PRJNA223608_U20S_stats.txt',
+		Kidney='results/targets/hsa_PRJEB2445_kidney2_stats.txt',
+		Lung='results/targets/hsa_PRJEB2445_lung_stats.txt',
+		Skeletal_muscle='results/targets/hsa_PRJEB6971_skeletal_muscle_stats.txt',
+		Thyroid='results/targets/hsa_PRJEB6971_thyroid_stats.txt',
+		Bone_marrow='results/targets/hsa_PRJEB6971_bone_marrow_stats.txt',
+		NMuMG='results/targets/mmu_PRJNA340017_NMuMG_stats.txt',
+		ESCs='results/targets/mmu_PRJNA309441_CD4_stats.txt',
+		CD4='results/targets/mmu_PRJNA270999_ESCs_stats.txt'
+	output: 'results/plots/supplementary_table4.tsv'
+	wildcard_constraints:
+		project="((?!bone).)*"
+	script: 'sup_table4.R'
+
+
+rule get_reannotation_stats: # Supplementary figure 2,3,4,5 and supplementary tables 1 and 3
 	input:
 		canonical="results/targets/{species}.utr.lengths.tsv",
 		new='results/utrs/{species}_{tissue}.utr.lengths.tsv',
@@ -189,7 +238,7 @@ rule get_reannotation_stats:
                 project="((?!hsa).)*"
 	script: "get_reannotation_stats.R"
 
-rule get_expression_filtering_stats:
+rule get_expression_filtering_stats: # Supplementary tables 2 and 3
         input:
                 canonical="results/targets/{species}.utr.lengths.tsv",
                 pc_transcripts='results/bed/{species}_all_protein_coding_transcripts.txt',
@@ -199,10 +248,19 @@ rule get_expression_filtering_stats:
                 project="((?!hsa).)*"
         script: "get_expression_stats.R"
 
+### Auxillary Rules ###
 
+rule get_utr_lengths2: # get sequence lengths of reannotated 3'UTRs
+	input:	'results/bed/{species}_{cell_line}.utr.full.bed'
+	output: 'results/utrs/{species}_{cell_line}.utr.lengths.tsv'
+	script: 'get_utr_lengths.R'
 
+rule get_utr_lengths_canonical: # get sequence lengths of original 3'UTRs
+        input:  'results/bed/canonical/{species}_3UTR.chr{chrom}.bed'
+        output: 'results/targets/canonical/{species}_chr{chrom}.utr.lengths.tsv'
+        script: 'get_utr_lengths.R'
 
-
-
-
-
+rule aggregate_utr_lengths: # aggregate by chromosome
+       input: lambda wildcards: expand("results/targets/canonical/{species}_chr{chrom}.utr.lengths.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
+       output: "results/targets/canonical/{species}.utr.lengths.tsv"
+       shell: "cat {input} | sed '1b;/tx/d' > {output}"

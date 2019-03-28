@@ -42,14 +42,14 @@ rule prep_mir_for_context_scores:
 
 rule filter_mir_for_context_scores:
        input: "results/{species}_mir_for_context_scores_tmp.tsv"
-       output: "results/{species}_mir_for_context_scores.tsv"
+       output: "results/{species}_{miRNA}_mir_for_context_scores.tsv"
        script: "filter_mir_for_context_scores.R"
 
 rule filter_mir_families:
        input: 
                mirna_families="results/{species}_mirna_family_tmp.tsv",
-               mature_mirnas="results/{species}_mir_for_context_scores.tsv"
-       output: "results/{species}_mirna_family.tsv"
+               mature_mirnas="results/{species}_{miRNA}_mir_for_context_scores.tsv"
+       output: "results/{species}_{miRNA}_mirna_family.tsv"
        script: "filter_mir_families.R"
 
 ### main ###

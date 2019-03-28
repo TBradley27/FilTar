@@ -44,26 +44,6 @@ wildcard_constraints:
     genus_species="[A-Z][a-z]+_[a-z]+"
 
 rule all:
-     input: 
-             #expand("results/bam/run/hsa/{accession}.sam", accession=config['PRJNA292016']['all_runs'])
-             #"results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HeLa_alt_utr.png",
-             #"results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_HEK293_alt_utr.png",
-             #"results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_exp.png", "results/plots/hsa_PRJNA229375_miR-155-5p_Huh7_alt_utr.png",
-             #"results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_exp.png", i
-             #"results/plots/hsa_PRJNA229375_miR-124-3p_HeLa_alt_utr_sleuth.png",
-             #"results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_exp.png",
-             #"results/plots/hsa_PRJNA229375_miR-124-3p_HEK293_alt_utr_sleuth.png",
-             #"results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_exp.png", 
-             #"results/plots/hsa_PRJNA229375_miR-124-3p_Huh7_alt_utr_sleuth.png",
-             #"results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_exp.png", 
-             # "results/plots/hsa_PRJNA229375_miR-124-3p_IMR90_alt_utr_sleuth.png"
-             #"results/plots/hsa_PRJNA231155_miR-137-3p_U251_exp.png", "results/plots/hsa_PRJNA231155_miR-137-3p_U251_alt_utr.png",
-             #"results/plots/hsa_PRJNA231155_miR-137-3p_U343_exp.png", "results/plots/hsa_PRJNA231155_miR-137-3p_U343_alt_utr.png",
-             #"results/plots/hsa_PRJNA292016_miR-141-3p_Du145_exp.png",
-             #"results/plots/hsa_PRJNA292016_miR-141-3p_Du145_alt_utr.png",
-             #"results/plots/hsa_PRJNA304643_miR-1343-3p_A549_exp.png", "results/plots/hsa_PRJNA304643_miR-1343-3p_A549_alt_utr.png",
-             #"results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_exp.png",
-             #"results/plots/hsa_PRJNA304643_miR-1343-3p_A549_alt_utr_salmon.png"
-	     #expand("results/bed/mmu_ESCs_3UTR.chr{chrom}.bed", chrom=config['chromosomes']['mmu']),
-             #"SRR2968576.bam.bai", "SRR2968577.bam.bai", "SRR2968578.bam.bai","SRR2968579.bam.bai"
-              "SRR2968584.bam.bai", "SRR2968586.bam.bai","SRR2968588.bam.bai","SRR2968590.bam.bai"
+     input:
+             "results/plots/supplementary_data3.pdf","results/plots/supplementary_data4.pdf",
+             "results/plots/supplementary_data5.pdf" 
