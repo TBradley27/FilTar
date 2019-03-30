@@ -41,4 +41,4 @@ script:
    - touch results/bed/mmu_nr_3UTR.chrY.bed # in order to retrigger target build
    - snakemake --use-conda -p results/targets/mmu/nr_oocyte_chrY.contextpp.filt.tsv --config conservation=True reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']"
    - head results/targets/mmu/nr_oocyte_chrY.contextpp.filt.tsv
-   - Rscript -e 'testthat::test_file("targetscan_test.R")'
+   - Rscript -e 'testthat::test_file("exe/targetscan_test.R")'
