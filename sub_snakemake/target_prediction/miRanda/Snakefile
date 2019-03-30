@@ -34,7 +34,7 @@ rule miRanda:
 rule convert_miRanda_to_tsv:
         input: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt"
         output: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.tsv"
-        shell: "exe/convert_miRanda_to_tsv.sh {input} {output}"
+        shell: "scripts/convert_miRanda_to_tsv.sh {input} {output}"
 
 rule aggregate_miRanda_output_no_reannotation:
         input: lambda wildcards: expand("results/targets/miRanda/{species}/{tissue}_chr{chrom}.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)

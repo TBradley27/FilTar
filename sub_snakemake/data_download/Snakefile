@@ -56,7 +56,7 @@ rule get_transcript_ids:
         input:
                 gtf=get_gtf_file
         output: "results/bed/{species}_chr{chrom}_all_transcripts.txt"
-        shell: "exe/get_all_transcripts.sh {input} {wildcards.chrom} > {output}"
+        shell: "scripts/get_all_transcripts.sh {input} {wildcards.chrom} > {output}"
 
 # Genome assemblies
 
