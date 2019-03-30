@@ -18,7 +18,7 @@ def get_bed6_file(wildcards):
 
 rule get_bed6_file: #three_prime_utrs only
         input:
-            script="exe/gtf_to_bed.sh",
+            script="scripts/gtf_to_bed.sh",
             gtf="data/{genus_species}.{build}.{ensembl_release}.chr.gtf"
         output:
             "results/{genus_species}.{build}.{ensembl_release}.bed6"
@@ -131,7 +131,7 @@ rule filter_bed12:
 
 rule reannotate_3utrs:
     input:
-       script="exe/identifyDistal3UTR.pl",
+       script="scripts/identifyDistal3UTR.pl",
        bed=get_bed_file,
        bedgraphs= 'results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph'
     benchmark: "benchmarks/APAtrap/{species}_{cell_line}_chrom{chrom}.log"
@@ -176,7 +176,7 @@ rule aggregrate_extended_bed_files:
 
 rule identify_APA_sites:
      input:
-        script="exe/predictAPA.pl",
+        script="scripts/predictAPA.pl",
         bedgraphs= "results/bam/tissue/{species}/{tissue}_chr{chrom}.bedgraph",
         bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed"
      output:
@@ -209,7 +209,7 @@ rule get_AIR_file:
 rule gtf_to_bed_CDS:
         input:
             gtf=get_gtf_file,
-            script="exe/pre-processing/gtf_to_bed.sh"
+            script="scripts/pre-processing/gtf_to_bed.sh"
         output:
             "results/bed/{species}_{tissue}_CDS.tmp.bed"
         shell:
