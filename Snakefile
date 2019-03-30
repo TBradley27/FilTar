@@ -17,7 +17,7 @@
 import re
 
 configfile: "config/config.yaml"
-configfile: "config/species_basic.yaml"
+configfile: "config/species.yaml"
 configfile: "config/validation.yaml"
 
 include: "sub_snakemake/with_reannotation/Snakefile"

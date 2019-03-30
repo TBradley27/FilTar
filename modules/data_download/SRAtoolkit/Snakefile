@@ -20,7 +20,6 @@ rule download_single_end_fastq:
        input:
        output: "data/single_end/{accession}.fastq"
        conda: "envs/sra-tools.yaml"
-       benchmark: "benchmarks/SRAtoolkit/{accession}.txt"
        threads: 20
        shell: "fasterq-dump -O data/single_end/ --threads {threads} {wildcards.accession}"
 
@@ -28,7 +27,6 @@ rule download_paired_end_fastq:
        input:
        output: "data/paired_end/{accession}_1.fastq", "data/paired_end/{accession}_2.fastq"
        conda: "envs/sra-tools.yaml"
-       benchmark: "benchmarks/SRAtoolkit/{accession}.txt"
        threads: 20
        shell: "fasterq-dump -O data/paired_end/ --threads {threads} {wildcards.accession}"
 

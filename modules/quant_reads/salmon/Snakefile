@@ -22,7 +22,7 @@ def get_cDNA_file (wildcards):
 
 rule salmon_index:
         input:
-             get_cDNA_file   #"data/{genus_species}.{build}.cdna.all.fa"
+             get_cDNA_file
         output:
             directory("results/salmon/indexes/{species}")
         threads: 8
@@ -32,7 +32,7 @@ rule salmon_index:
 
 rule salmon_index_for_lib_types:
         input:
-             get_cDNA_file   #"data/{genus_species}.{build}.cdna.all.fa"
+             get_cDNA_file
         output:
             directory("results/salmon/indexes/lib_type_identification/{species}")
         threads: 8
@@ -76,7 +76,7 @@ rule salmon_quant:
 	conda:
 		"envs/salmon.yaml"
 	wildcard_constraints:
-		run_accession="((?!lib_type).)*" # excludes substring 'lib_type'
+		run_accession="((?!lib_type).)*"
 	threads: 4
 	script:
 		"quant_salmon.py"
@@ -84,9 +84,9 @@ rule salmon_quant:
 
 rule salmon_get_lib_type:
 	input: "results/salmon/runs/{species}/lib_type_identification/{run_accession}" 
-	output: "results/salmon/runs/{species}/{run_accession}_lib_type.txt" # like this because you cannot create files inside snakemake created directories
+	output: "results/salmon/runs/{species}/{run_accession}_lib_type.txt" # written this way because you cannot create files inside snakemake created directories
 	wildcard_constraints:
-		run_accession="((?!lib_type).)*" # excludes substring 'lib_type'
+		run_accession="((?!lib_type).)*"
 	shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
 
 rule salmon_quantmerge_by_run:

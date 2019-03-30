@@ -37,3 +37,6 @@ my_data.rds
 *.png
 *.pdf
 *.html
+*.rds
+*.pl
+PCT_parameters

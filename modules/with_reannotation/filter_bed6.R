@@ -16,8 +16,6 @@
 
 input = readr::read_tsv(snakemake@input[[1]], col_names=FALSE, col_types='ciiic')
 
-print(snakemake@config[['transcripts']])
-
 if (length(snakemake@config[['transcripts']]) == 0) {
 
 	file.copy(from=snakemake@input[[1]],to=snakemake@output[[1]])
@@ -37,7 +35,6 @@ if (length(snakemake@config[['transcripts']]) == 0) {
 		quit(save="no", status=1)
 	}
 
-	print(filtered_input)
 	write.table(filtered_input,snakemake@output[[1]], col.names=FALSE, row.names=FALSE, quote=FALSE, sep="\t")
 }
 

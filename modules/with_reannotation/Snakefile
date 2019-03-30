@@ -42,7 +42,7 @@ rule get_bed6_file: #three_prime_utrs only
             "{input.script} {input.gtf} {output}"
 
 rule filter_bed6_file:
-        input:  'results/{genus_species}.{build}.{ensembl_release}.bed6' #'results/{prefix}.chr{chrom}.bed6'
+        input:  'results/{genus_species}.{build}.{ensembl_release}.bed6'
         output:  'results/{genus_species}.{build}.{ensembl_release}.filtered.bed6'
         script: 'filter_bed6.R'
 
@@ -83,8 +83,6 @@ rule get_bedgraph:
     wildcard_constraints:
                accession="((?!_chr).)*"
     priority: 10
-    benchmark:
-        "benchmarks/genomeCoverageBed/{species}/{accession}.txt"
     shell:
         "genomeCoverageBed -bg -ibam {input.sorted_bam} -split > {output}"
 
@@ -131,7 +129,7 @@ rule avg_merged_bedgraph_by_sample:
         output:
                 "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph"
         wildcard_constraints:
-               cell_line="((?!chr).)*" # anything not containing chr
+               cell_line="((?!chr).)*" 
         script:
                 "get_average_bedgraph.R"
 
@@ -150,7 +148,6 @@ rule reannotate_3utrs:
        script="scripts/identifyDistal3UTR.pl",
        bed=get_bed_file,
        bedgraphs= 'results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph'
-    benchmark: "benchmarks/APAtrap/{species}_{cell_line}_chrom{chrom}.log"
     output:
        "results/bed/{species}_{cell_line}_chr{chrom}.utr.bed"
     params:
@@ -167,8 +164,6 @@ rule get_extended_bed_file:
             all_transcripts="results/bed/{species}_chr{chrom}_all_transcripts.txt"
          output:
             "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"
-         log:
-            "{species}_{tissue}_chr{chrom}.log"
          script:
              "extend_bed2.R"
 

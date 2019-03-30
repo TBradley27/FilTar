@@ -10,8 +10,6 @@ rule trim_single_end_reads:
            accession="((?!_[1-2]).)*"
        conda: 
           "envs/trim-galore.yaml"
-       benchmark:
-          "benchmarks/trim_galore/{accession}.log"
        shell:
           "trim_galore --output_dir results/trimmed_fastq/  --length 35 --stringency 4 {input}"
 
@@ -26,7 +24,5 @@ rule trim_paired_end_reads:
            "results/trimmed_fastq/{accession}_2.fastq.gz_trimming_report.txt"
        conda:
           "envs/trim-galore.yaml"
-       benchmark:
-          "benchmarks/trim_galore/{accession}.log"
        shell:
           "trim_galore --output_dir results/trimmed_fastq/ --length 35 --stringency 4 --paired {input.file1} {input.file2}"
