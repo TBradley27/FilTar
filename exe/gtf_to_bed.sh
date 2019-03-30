@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+# Copyright (C) 2019 Thomas Bradley
+# License summary: https://github.com/TBradley27/FilTar/LICENSE_NOTICE
+
 # Convert a file from GTF format to BED format for use by either BedTools
 # or biopython. 
 

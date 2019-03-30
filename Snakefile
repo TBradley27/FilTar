@@ -1,3 +1,7 @@
+#	FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#	Copyright (C) 2019 Thomas Bradley
+#	License summary: https://github.com/TBradley27/FilTar/LICENSE_NOTICE
+
 import re
 
 configfile: "config/config.yaml"
