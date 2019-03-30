@@ -1,6 +1,18 @@
-#	FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
-#	Copyright (C) 2019 Thomas Bradley
-#	License summary: https://github.com/TBradley27/FilTar/LICENSE_NOTICE
+#FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#Copyright (C) 2019 Thomas Bradley
+#
+#This program is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import re
 
@@ -8,25 +20,25 @@ configfile: "config/config.yaml"
 configfile: "config/species_basic.yaml"
 
 if config['reannotation'] == True:
-	include: "sub_snakemake/with_reannotation/Snakefile"
-	include: "sub_snakemake/with_reannotation/map_reads/hisat2/Snakefile"
+	include: "modules/with_reannotation/Snakefile"
+	include: "modules/with_reannotation/map_reads/hisat2/Snakefile"
 elif config['reannotation'] == False:
-	include: "sub_snakemake/without_reannotation/Snakefile"
+	include: "modules/without_reannotation/Snakefile"
 else:
 	raise Exception("\nPlease enter a value of either 'True' or 'False' for the 'reannotation' key. Default values can be set in config/config.yaml\n")
 
 if config['conservation'] == True:
-	include: "sub_snakemake/get_utr_and_cds/with_conservation/Snakefile"
+	include: "modules/get_utr_and_cds/with_conservation/Snakefile"
 elif config['conservation'] == False:
-	include: "sub_snakemake/get_utr_and_cds/without_conservation/Snakefile"
-	include: "sub_snakemake/target_prediction/miRanda/Snakefile"
+	include: "modules/get_utr_and_cds/without_conservation/Snakefile"
+	include: "modules/target_prediction/miRanda/Snakefile"
 else:
 	raise Exception("\nPlease enter a value of either 'True' or 'False' for the 'conservation' key. Default values can be set in config/config.yaml\n")
 
 if config['sequence_data_source'] == 'ENA':
-	include: "sub_snakemake/data_download/ENA/Snakefile"
+	include: "modules/data_download/ENA/Snakefile"
 elif config['sequence_data_source'] == 'SRA':
-	include: "sub_snakemake/data_download/SRAtoolkit/Snakefile"
+	include: "modules/data_download/SRAtoolkit/Snakefile"
 elif config['sequence_data_source'] == 'N/A':
 	pass
 else:
@@ -38,11 +50,11 @@ for transcript in list(config['transcripts']):
 	else:
 		raise Exception('\nInvalid transcript identifier "{}". Identifiers must adhere to official Ensembl identifier patterns e.g. "ENSMUST00000189888.6". Please revise.\n'.format(transcript))
 
-include: "sub_snakemake/data_download/Snakefile"
-include: "sub_snakemake/trim_reads/trim_galore/Snakefile"
-include: "sub_snakemake/quant_reads/salmon/Snakefile"
-include: "sub_snakemake/mirna/Snakefile"
-include: "sub_snakemake/target_prediction/targetscan/Snakefile"
+include: "modules/data_download/Snakefile"
+include: "modules/trim_reads/trim_galore/Snakefile"
+include: "modules/quant_reads/salmon/Snakefile"
+include: "modules/mirna/Snakefile"
+include: "modules/target_prediction/targetscan/Snakefile"
 
 wildcard_constraints:
     species="[a-z]{3,4}",
