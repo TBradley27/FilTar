@@ -58,9 +58,9 @@ rule targetscan_sites:
 	input:
            msa="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
            mirna_families="results/{species}_mirna_family.tsv",
-           script="exe/targetscan7/targetscan_70.patch.pl"
+           script="exe/targetscan7/targetscan_70.pl"
 	output:
-           "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"
+           "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv"
 	benchmark:
            "benchmarks/{species}_{tissue}_chr{chrom}_msa.sites.log"
 	shell:
@@ -84,8 +84,8 @@ rule targetscan_PCTs:
             mirna_family="results/{species}_mirna_family.tsv",
             mirna_sites="results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv",
             branch_lengths="results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv",
-            script="exe/targetscan7/targetscan_70_BL_PCT.patch.pl",
-            PCT_param="exe/targetscan7/PCT_parameters"
+            script="exe/targetscan7/targetscan_70_BL_PCT.pl",
+            PCT_param="PCT_parameters"
         output:
             "results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
              temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv.sort.txt") # it is important that this file is deleted
@@ -150,7 +150,45 @@ rule get_all_transcripts:
 	output: "results/bed/{species}_{tissue}_all_transcripts.txt"
 	shell: "awk '{{ print $5}}' {input} | sort | uniq > {output}"
 
-rule fix_targetscan_sites_output:
-        input: "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"
-        output: protected("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv")
-        script: "fix_ts_output.R"
+rule download_targetscan_data1:
+        input:
+        output:
+            "exe/targetscan7/targetscan_70.pl"
+        shell:
+            "cd exe/targetscan7 && wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70.zip && unzip targetscan_70.zip && rm UTR_Sequences_sample.txt miR_Family_info_sample.txt\
+ targetscan_70_output.txt README_70.txt targetscan_70.zip"
+
+rule download_targetscan_data2:
+        input:
+        output:
+            bins_script="exe/targetscan7/targetscan_70_BL_bins.pl",
+            PCT_script="exe/targetscan7/targetscan_70_BL_PCT.pl",
+            PCT_parameters=directory("PCT_parameters")
+        shell:
+            "wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70_BL_PCT.zip && unzip targetscan_70_BL_PCT.zip && mv\
+  TargetScan7_BL_PCT/PCT_parameters . && mv TargetScan7_BL_PCT/targetscan_70_BL_bins.pl TargetScan7_BL_PCT/targetscan_70_BL_PCT.pl exe/targetscan7 && rm -rf targetscan_70_BL_PCT.zip TargetScan7_BL_PCT/"
+
+rule download_targetscan_data3: # fix this
+         input:
+         output:
+             agarwal_par="exe/targetscan7/Agarwal_2015_parameters.txt",
+             contextpp_script="exe/targetscan7/targetscan_70_context_scores.pl",
+             eightmer_script="exe/targetscan7/targetscan_count_8mers.pl",
+             TA_pars="exe/targetscan7/TA_SPS_by_seed_region.txt"
+         shell:
+           "wget http://www.targetscan.org/vert_72/vert_72_data_download/TargetScan7_context_scores.zip && unzip TargetScan7_context_scores.zip && mv TargetScan7_context_scores/Agarwal_2015_parameters.txt TargetScan7_context_scores/TA_SPS_by_seed_region.txt TargetScan7_context_scores/targetscan_count_8mers.pl TargetScan7_context_scores/targetscan_70_context_scores.pl exe/targetscan7/ && rm -rf TargetScan7_context_scores/ TargetScan7_context_scores.zip"
+
+rule patch_bin_lengths_script:
+	input: 'exe/targetscan7/targetscan_70_BL_bins.pl'
+	output: 'exe/targetscan7/targetscan_70_BL_bins.patch.pl'
+	shell: "sed -e '40 s/9606/$ARGV[1]/g' {input} > {output} && chmod +x {output}"
+
+rule patch_contextpp_script:
+        input:
+           contextpp="exe/targetscan7/targetscan_70_context_scores.pl",
+           patch="exe/targetscan7/patch_context_scores.sh"
+        output:
+          "exe/targetscan7/targetscan_70_context_scores.patch.pl"
+        shell:
+          "{input.patch} {input.contextpp} {output} && chmod +x {output}" # force reference species as a parameter
+
