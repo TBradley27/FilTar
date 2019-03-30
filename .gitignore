@@ -27,3 +27,5 @@ reports/fastqc/
 *.png
 *.pdf
 *.rds
+*.pl
+PCT_parameters/
