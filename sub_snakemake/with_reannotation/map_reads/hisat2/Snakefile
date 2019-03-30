@@ -1,3 +1,19 @@
+#FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#Copyright (C) 2019 Thomas Bradley
+#
+#This program is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import os
 
 def get_gtf_file(wildcards):
@@ -60,14 +76,14 @@ def get_read_files (wildcards):
 rule get_splice_sites_for_hisat2:
         input:
           gtf=get_gtf_file,
-          py_script='exe/hisat2_extract_splice_sites.py'
+          py_script='scripts/hisat2_extract_splice_sites.py'
         output: "results/{species}_hisat2_splice_sites.txt"
         shell: "python {input.py_script} {input.gtf} > {output}"
 
 rule get_exons_for_hisat2:
         input:
           gtf=get_gtf_file,
-          py_script='exe/hisat2_extract_exons.py'
+          py_script='scripts/hisat2_extract_exons.py'
         output: "results/{species}_hisat2_exons.txt"
         shell: "python {input.py_script} {input.gtf} > {output}"
 
