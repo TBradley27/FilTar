@@ -24,7 +24,7 @@ def get_tax_id(wildcards):
 rule prep_mirna_seeds:
         input:                      
            data="data/mature.fa",
-           script="exe/get_mirna_seeds.sh"
+           script="scripts/get_mirna_seeds.sh"
         output:
            "results/mature_mirna_seed.tsv"
         shell:
@@ -41,7 +41,7 @@ rule prep_mirna_family_file:
 rule prep_mirna_mature_alt:
         input:
            data="data/mature.fa",
-           script="exe/prep_mirna_mature_alt.sh"
+           script="scripts/prep_mirna_mature_alt.sh"
         output: "results/{species}_mature_mirna.tsv"
 	params: get_tax_id
         shell:
@@ -74,7 +74,7 @@ rule targetscan_sites:
 	input:
            msa="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
            mirna_families="results/{species}_mirna_family.tsv",
-           script="exe/targetscan7/targetscan_70.pl"
+           script="scripts/targetscan7/targetscan_70.pl"
 	output:
            "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv"
 	benchmark:
@@ -85,7 +85,7 @@ rule targetscan_sites:
 rule targetscan_branch_lengths:
         input:
            msa_3UTR="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
-           script="exe/targetscan7/targetscan_70_BL_bins.patch.pl"
+           script="scripts/targetscan7/targetscan_70_BL_bins.patch.pl"
         output:
              "results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv"
         params: 
@@ -100,7 +100,7 @@ rule targetscan_PCTs:
             mirna_family="results/{species}_mirna_family.tsv",
             mirna_sites="results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv",
             branch_lengths="results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv",
-            script="exe/targetscan7/targetscan_70_BL_PCT.pl",
+            script="scripts/targetscan7/targetscan_70_BL_PCT.pl",
             PCT_param="PCT_parameters"
         output:
             "results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
@@ -114,7 +114,7 @@ rule targetscan_eightmers:
         input:
             mirna_seeds="results/{species}_mirna_family.tsv",
             CDS="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv",
-            script="exe/targetscan7/targetscan_count_8mers.pl"
+            script="scripts/targetscan7/targetscan_count_8mers.pl"
         output:
             eightmer_counts="results/targets/{species}_{tissue}_chr{chrom}_msa.eightmers.tsv",
             CDS_lengths="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv.lengths.txt"
@@ -128,11 +128,11 @@ rule targetscan_context_scores:
             PCTs="results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
             CDS_lengths="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv.lengths.txt",
             eightmer_counts="results/targets/{species}_{tissue}_chr{chrom}_msa.eightmers.tsv",
-            contextpp_script="exe/targetscan7/targetscan_70_context_scores.patch.pl",
-            agarwal_param="exe/targetscan7/Agarwal_2015_parameters.txt",
-            AIRs="results/targets/{species}_{tissue}_chr{chrom}.AIRs.txt", #exe/targetscan7/All_cell_lines.AIRs.txt",
-            TA_SPS_param="exe/targetscan7/TA_SPS_by_seed_region.txt",
-            script="exe/targetscan7/targetscan_70_context_scores.patch.pl"
+            contextpp_script="scripts/targetscan7/targetscan_70_context_scores.patch.pl",
+            agarwal_param="scripts/targetscan7/Agarwal_2015_parameters.txt",
+            AIRs="results/targets/{species}_{tissue}_chr{chrom}.AIRs.txt", #scripts/targetscan7/All_cell_lines.AIRs.txt",
+            TA_SPS_param="scripts/targetscan7/TA_SPS_by_seed_region.txt",
+            script="scripts/targetscan7/targetscan_70_context_scores.patch.pl"
         output:
             "results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv"
         conda: "envs/viennarna.yaml" 
@@ -169,42 +169,42 @@ rule get_all_transcripts:
 rule download_targetscan_data1:
         input:
         output:
-            "exe/targetscan7/targetscan_70.pl"
+            "scripts/targetscan7/targetscan_70.pl"
         shell:
-            "cd exe/targetscan7 && wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70.zip && unzip targetscan_70.zip && rm UTR_Sequences_sample.txt miR_Family_info_sample.txt\
+            "cd scripts/targetscan7 && wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70.zip && unzip targetscan_70.zip && rm UTR_Sequences_sample.txt miR_Family_info_sample.txt\
  targetscan_70_output.txt README_70.txt targetscan_70.zip"
 
 rule download_targetscan_data2:
         input:
         output:
-            bins_script="exe/targetscan7/targetscan_70_BL_bins.pl",
-            PCT_script="exe/targetscan7/targetscan_70_BL_PCT.pl",
+            bins_script="scripts/targetscan7/targetscan_70_BL_bins.pl",
+            PCT_script="scripts/targetscan7/targetscan_70_BL_PCT.pl",
             PCT_parameters=directory("PCT_parameters")
         shell:
             "wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70_BL_PCT.zip && unzip targetscan_70_BL_PCT.zip && mv\
-  TargetScan7_BL_PCT/PCT_parameters . && mv TargetScan7_BL_PCT/targetscan_70_BL_bins.pl TargetScan7_BL_PCT/targetscan_70_BL_PCT.pl exe/targetscan7 && rm -rf targetscan_70_BL_PCT.zip TargetScan7_BL_PCT/"
+  TargetScan7_BL_PCT/PCT_parameters . && mv TargetScan7_BL_PCT/targetscan_70_BL_bins.pl TargetScan7_BL_PCT/targetscan_70_BL_PCT.pl scripts/targetscan7 && rm -rf targetscan_70_BL_PCT.zip TargetScan7_BL_PCT/"
 
 rule download_targetscan_data3: # fix this
          input:
          output:
-             agarwal_par="exe/targetscan7/Agarwal_2015_parameters.txt",
-             contextpp_script="exe/targetscan7/targetscan_70_context_scores.pl",
-             eightmer_script="exe/targetscan7/targetscan_count_8mers.pl",
-             TA_pars="exe/targetscan7/TA_SPS_by_seed_region.txt"
+             agarwal_par="scripts/targetscan7/Agarwal_2015_parameters.txt",
+             contextpp_script="scripts/targetscan7/targetscan_70_context_scores.pl",
+             eightmer_script="scripts/targetscan7/targetscan_count_8mers.pl",
+             TA_pars="scripts/targetscan7/TA_SPS_by_seed_region.txt"
          shell:
-           "wget http://www.targetscan.org/vert_72/vert_72_data_download/TargetScan7_context_scores.zip && unzip TargetScan7_context_scores.zip && mv TargetScan7_context_scores/Agarwal_2015_parameters.txt TargetScan7_context_scores/TA_SPS_by_seed_region.txt TargetScan7_context_scores/targetscan_count_8mers.pl TargetScan7_context_scores/targetscan_70_context_scores.pl exe/targetscan7/ && rm -rf TargetScan7_context_scores/ TargetScan7_context_scores.zip"
+           "wget http://www.targetscan.org/vert_72/vert_72_data_download/TargetScan7_context_scores.zip && unzip TargetScan7_context_scores.zip && mv TargetScan7_context_scores/Agarwal_2015_parameters.txt TargetScan7_context_scores/TA_SPS_by_seed_region.txt TargetScan7_context_scores/targetscan_count_8mers.pl TargetScan7_context_scores/targetscan_70_context_scores.pl scripts/targetscan7/ && rm -rf TargetScan7_context_scores/ TargetScan7_context_scores.zip"
 
 rule patch_bin_lengths_script:
-	input: 'exe/targetscan7/targetscan_70_BL_bins.pl'
-	output: 'exe/targetscan7/targetscan_70_BL_bins.patch.pl'
+	input: 'scripts/targetscan7/targetscan_70_BL_bins.pl'
+	output: 'scripts/targetscan7/targetscan_70_BL_bins.patch.pl'
 	shell: "sed -e '40 s/9606/$ARGV[1]/g' {input} > {output} && chmod +x {output}"
 
 rule patch_contextpp_script:
         input:
-           contextpp="exe/targetscan7/targetscan_70_context_scores.pl",
-           patch="exe/targetscan7/patch_context_scores.sh"
+           contextpp="scripts/targetscan7/targetscan_70_context_scores.pl",
+           patch="scripts/targetscan7/patch_context_scores.sh"
         output:
-          "exe/targetscan7/targetscan_70_context_scores.patch.pl"
+          "scripts/targetscan7/targetscan_70_context_scores.patch.pl"
         shell:
           "{input.patch} {input.contextpp} {output} && chmod +x {output}" # force reference species as a parameter
 
