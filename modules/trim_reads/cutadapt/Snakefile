@@ -7,11 +7,8 @@ rule run_cutadapt:
         fastq1="results/{sample}_trimmed.1.fastq.gz",
         fastq2="results/{sample}_trimmed.2.fastq.gz",
         qc="logs/{sample}.qc.txt"
-    benchmark: "benchmarks/cutadapt/{sample}.log"
     params:
         "-a AGATCGGAAGAGC -q 20 --cores=16" # illumina adapter
-    log:
-        "logs/cutadapt/{sample}.log"
     shell:
         "cutadapt {params} -o {output.fastq1} -p {output.fastq2} {input} > {output.qc}"
 

@@ -4,11 +4,8 @@ if (length(snakemake@config[['transcripts']]) == 0) {
         file.copy(from=snakemake@input[[1]],to=snakemake@output[[1]])
 } else {
 	transcripts = gsub('\\..*','', snakemake@config[['transcripts']])
-	print(transcripts)
 
 	filtered_input = input[input$X4 %in% transcripts,]
-
-	print(filtered_input)
 
 	write.table(filtered_input,snakemake@output[[1]], col.names=FALSE, row.names=FALSE, quote=FALSE, sep="\t")
 }

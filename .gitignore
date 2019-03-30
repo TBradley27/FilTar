@@ -28,4 +28,4 @@ reports/fastqc/
 *.pdf
 *.rds
 *.pl
-PCT_parameters/
+PCT_parameters

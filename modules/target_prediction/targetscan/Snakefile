@@ -1,4 +1,18 @@
-#!/bin/bash
+#    FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#    Copyright (C) 2019 Thomas Bradley
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 def get_tax_id(wildcards):
 	return(config['tax_ids'][wildcards.species])
@@ -58,15 +72,9 @@ rule targetscan_sites:
 	input:
            msa="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
            mirna_families="results/{species}_mirna_family.tsv",
-<<<<<<< HEAD
-           script="exe/targetscan7/targetscan_70.patch.pl"
-=======
            script="scripts/targetscan7/targetscan_70.pl"
->>>>>>> 2b6b59f... change name of script directory
 	output:
-           "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"
-	benchmark:
-           "benchmarks/{species}_{tissue}_chr{chrom}_msa.sites.log"
+           "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv"
 	shell:
            "{input.script} {input.mirna_families} {input.msa} {output}"
 
@@ -78,8 +86,6 @@ rule targetscan_branch_lengths:
              "results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv"
         params: 
               tax_id=get_tax_id
-        benchmark:
-             "benchmarks/branch_lengths_{species}_{tissue}_chr{chrom}.log"
         shell:
             "{input.script} {input.msa_3UTR} {params.tax_id}  > {output}"
 
@@ -88,18 +94,11 @@ rule targetscan_PCTs:
             mirna_family="results/{species}_mirna_family.tsv",
             mirna_sites="results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv",
             branch_lengths="results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv",
-<<<<<<< HEAD
-            script="exe/targetscan7/targetscan_70_BL_PCT.patch.pl",
-            PCT_param="exe/targetscan7/PCT_parameters"
-=======
             script="scripts/targetscan7/targetscan_70_BL_PCT.pl",
             PCT_param="PCT_parameters"
->>>>>>> 2b6b59f... change name of script directory
         output:
             "results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
              temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv.sort.txt") # it is important that this file is deleted
-        benchmark:
-            "benchmarks/{species}_{tissue}_chr{chrom}_msa.PCTs.log"
         shell:
             "{input.script} {input.mirna_family} {input.mirna_sites} {input.branch_lengths} > {output}"
 
@@ -123,7 +122,7 @@ rule targetscan_context_scores:
             eightmer_counts="results/targets/{species}_{tissue}_chr{chrom}_msa.eightmers.tsv",
             contextpp_script="scripts/targetscan7/targetscan_70_context_scores.patch.pl",
             agarwal_param="scripts/targetscan7/Agarwal_2015_parameters.txt",
-            AIRs="results/targets/{species}_{tissue}_chr{chrom}.AIRs.txt", #scripts/targetscan7/All_cell_lines.AIRs.txt",
+            AIRs="results/targets/{species}_{tissue}_chr{chrom}.AIRs.txt",
             TA_SPS_param="scripts/targetscan7/TA_SPS_by_seed_region.txt",
             script="scripts/targetscan7/targetscan_70_context_scores.patch.pl"
         output:
@@ -132,8 +131,6 @@ rule targetscan_context_scores:
         params:
             RNAplfold_dir="results/targets/RNAplfold/{species}/{tissue}",
             tax_id = get_tax_id
-        benchmark:
-            "benchmarks/{species}_{tissue}_chr{chrom}_msa.contextpp.log"
         shell:
             "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {params.tax_id} {input.AIRs} {params.RNAplfold_dir}"
 
@@ -148,11 +145,6 @@ rule aggregate_targetscan_sites:
        shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
 ### other ###
-
-#rule delete_RNAplfold_output:
-#	input:
-#	output: temp("results/clean_RNAplfold_directory_{species}_{tissue}.txt")
-#	shell: "rm -f results/targets/RNAplfold/{wildcards.species}/{wildcards.tissue}/*.fa && rm -f results/targets/RNAplfold/{wildcards.species}/{wildcards.tissue}/*.fa && touch {output}" 
 
 rule get_all_transcripts:
 	input: "results/bed/{species}_{tissue}.utr.full.bed"
@@ -177,7 +169,7 @@ rule download_targetscan_data2:
             "wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70_BL_PCT.zip && unzip targetscan_70_BL_PCT.zip && mv\
   TargetScan7_BL_PCT/PCT_parameters . && mv TargetScan7_BL_PCT/targetscan_70_BL_bins.pl TargetScan7_BL_PCT/targetscan_70_BL_PCT.pl scripts/targetscan7 && rm -rf targetscan_70_BL_PCT.zip TargetScan7_BL_PCT/"
 
-rule download_targetscan_data3: # fix this
+rule download_targetscan_data3:
          input:
          output:
              agarwal_par="scripts/targetscan7/Agarwal_2015_parameters.txt",
