@@ -20,8 +20,6 @@ rule index_maf_files:
         output:
            protected("data/{species}_chr{chrom}.mafindex")
         conda: 'envs/biopython.yaml'
-        benchmark:
-           "benchmarks/{species}_chr{chrom}.mafindex.log"
         script:
            "biopython_maf_processing.py"
 

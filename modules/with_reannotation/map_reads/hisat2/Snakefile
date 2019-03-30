@@ -1,18 +1,18 @@
-#FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
-#Copyright (C) 2019 Thomas Bradley
+#   FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#   Copyright (C) 2019 Thomas Bradley
 #
-#This program is free software: you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation, either version 3 of the License, or
-#(at your option) any later version.
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
 #
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
 #
-#You should have received a copy of the GNU General Public License
-#along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
 
@@ -63,15 +63,6 @@ def get_read_files (wildcards):
 	else:
 		raise Exception("\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(wildcards.accession))
 		return
-#def get_index_files(wildcards):
-#	return
-#
-#	if wildcards.accession in config['human']['runs']:
-#		return ('data/hsa.1.ht2')
-#	elif wildcards.accession in config['mouse']['runs']:
-#		return ('data/mmu.1.ht2')
-#	else:
-#		return ('accession not found in config file')
 
 rule get_splice_sites_for_hisat2:
         input:
@@ -95,7 +86,6 @@ rule create_index:
         conda:
            "envs/hisat2.yaml"
         output: "data/{species}.1.ht2"
-        benchmark: "benchmarks/hisat2/{species}_index.log"
         threads: 16
         shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} data/{wildcards.species}"
 
@@ -128,6 +118,5 @@ rule samtools_sort:
     params:
         "-m 2G"
     threads: 8
-    benchmark: "benchmarks/samtools_sort/{species}/{accession}.log"
     wrapper:
         "0.27.0/bio/samtools/sort"

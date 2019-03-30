@@ -16,8 +16,8 @@
 
 import re
 
-configfile: "config/config.yaml"
-configfile: "config/species_basic.yaml"
+configfile: "config/basic.yaml"
+configfile: "config/species.yaml"
 
 if config['reannotation'] == True:
 	include: "modules/with_reannotation/Snakefile"

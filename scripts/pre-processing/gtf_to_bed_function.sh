@@ -31,7 +31,6 @@ gtf_to_bed () {
 	grep "${tx_feature_long}" "$input" |
 	grep -E "\s${tx_feature_long}\s"|         # Braces needed for correct search - test for white space either side of the pattern
 	sed 's/^chr//g' |
-#	grep '^'$chromosome'\s' |  # CCDS match confounds CDS search - warning: mmu and hsa have different prefixes for this
 	awk '{print $1,$4,$5,$7,$14$16}' |
 	sed 's/+/1/g'   |
 	sed 's/-/-1/g'  |
@@ -39,8 +38,7 @@ gtf_to_bed () {
 	sed 's/;/./g'   |
 	sed 's/\.//2'   |
 	tr ' '  \\t     |
-	#awk '$2!=$3'    |  # the next line converts from 1 to 0-based indexing
-	awk '{ OFS="\t" }{print $1,$2-1,$3,$4,$5}'   > "$output" # $6
+	awk '{ OFS="\t" }{print $1,$2-1,$3,$4,$5}'   > "$output"
 	    
 	if [[ "$?" -ne 0 ]]; then
 	   err "Unable to complete biopython formatting" >&2

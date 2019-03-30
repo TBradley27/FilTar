@@ -14,8 +14,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>
 
-#!/bin/env Rscript
-
 united_quant = readr::read_tsv(
         file=snakemake@input[[1]],
         col_types=readr::cols(.default = 'd', Name = 'c')

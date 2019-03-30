@@ -25,13 +25,6 @@ def get_gtf_file(wildcards):
 
         return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.mod.chr.gtf'.format(config['ensembl_release'])  )
 
-#rule download_mirna_data:
-#       input:
-#       output:
-#          "data/mature.fa"
-#       shell:
-#          "wget --directory-prefix=data/ ftp://mirbase.org/pub/mirbase/CURRENT/mature.fa.gz && gunzip {output}"
-
 ### GTF
 
 rule get_gtf_file:

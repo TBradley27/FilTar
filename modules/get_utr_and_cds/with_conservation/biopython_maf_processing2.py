@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/env python3
 
 #    FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
 #    Copyright (C) 2019 Thomas Bradley
@@ -83,7 +83,7 @@ else:
              end_pos.append(int(parts[2]))
              strand = (int(parts[3]))
              accession = parts[4]
-       else: #Not sure, but I think this is for transcripts with only one 'exon', which are not the first transcript in the bed record.
+       else:
 
          add_alignment()     
 
