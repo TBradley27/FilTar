@@ -94,8 +94,8 @@ rule targetscan_PCTs:
             mirna_family="results/{species}_mirna_family.tsv",
             mirna_sites="results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv",
             branch_lengths="results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv",
-            script="scripts/targetscan7/targetscan_70_BL_PCT.pl",
-            PCT_param="PCT_parameters"
+            script="scripts/targetscan7/targetscan_70_BL_PCT.patch.pl",
+            PCT_param="data/PCT_parameters"
         output:
             "results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
              temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv.sort.txt") # it is important that this file is deleted
@@ -164,10 +164,10 @@ rule download_targetscan_data2:
         output:
             bins_script="scripts/targetscan7/targetscan_70_BL_bins.pl",
             PCT_script="scripts/targetscan7/targetscan_70_BL_PCT.pl",
-            PCT_parameters=directory("PCT_parameters")
+            PCT_parameters=directory("data/PCT_parameters")
         shell:
             "wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70_BL_PCT.zip && unzip targetscan_70_BL_PCT.zip && mv\
-  TargetScan7_BL_PCT/PCT_parameters . && mv TargetScan7_BL_PCT/targetscan_70_BL_bins.pl TargetScan7_BL_PCT/targetscan_70_BL_PCT.pl scripts/targetscan7 && rm -rf targetscan_70_BL_PCT.zip TargetScan7_BL_PCT/"
+  TargetScan7_BL_PCT/PCT_parameters data/ && mv TargetScan7_BL_PCT/targetscan_70_BL_bins.pl TargetScan7_BL_PCT/targetscan_70_BL_PCT.pl scripts/targetscan7 && rm -rf targetscan_70_BL_PCT.zip TargetScan7_BL_PCT/"
 
 rule download_targetscan_data3:
          input:
@@ -182,7 +182,12 @@ rule download_targetscan_data3:
 rule patch_bin_lengths_script:
 	input: 'scripts/targetscan7/targetscan_70_BL_bins.pl'
 	output: 'scripts/targetscan7/targetscan_70_BL_bins.patch.pl'
-	shell: "sed -e '40 s/9606/$ARGV[1]/g' {input} > {output} && chmod +x {output}"
+	shell: "sed -e '40 s/9606/$ARGV[1]/g' {input} | sed -e '38 s;PCT_parameters;data\/PCT_parameters;g' > {output} && chmod +x {output}"
+
+rule patch_PCT_script:
+        input: 'scripts/targetscan7/targetscan_70_BL_PCT.pl'
+        output: 'scripts/targetscan7/targetscan_70_BL_PCT.patch.pl'
+        shell: "sed -e '55 s;PCT_parameters;data\/PCT_parameters;g' {input} > {output} && chmod +x {output}"
 
 rule patch_contextpp_script:
         input:
