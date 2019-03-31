@@ -16,15 +16,15 @@
 
 import re
 
-configfile: "config/config.yaml"
+configfile: "config/basic.yaml"
 configfile: "config/species.yaml"
 configfile: "config/validation.yaml"
 
-include: "sub_snakemake/with_reannotation/Snakefile"
-include: "sub_snakemake/with_reannotation/map_reads/hisat2/Snakefile"
-include: "sub_snakemake/without_reannotation/Snakefile"
+include: "modules/with_reannotation/Snakefile"
+include: "modules/with_reannotation/map_reads/hisat2/Snakefile"
+include: "modules/without_reannotation/Snakefile"
 
-include: "sub_snakemake/target_prediction/miRanda/Snakefile"
+include: "modules/target_prediction/miRanda/Snakefile"
 
 if config['sequence_data_source'] == 'ENA':
 	include: "modules/data_download/ENA/Snakefile"
@@ -41,15 +41,15 @@ for transcript in list(config['transcripts']):
 	else:
 		raise Exception('\nInvalid transcript identifier "{}". Identifiers must adhere to official Ensembl identifier patterns e.g. "ENSMUST00000189888.6". Please revise.\n'.format(transcript))
 
-include: "sub_snakemake/qc/Snakefile"
-include: "sub_snakemake/data_download/Snakefile"
-include: "sub_snakemake/trim_reads/trim_galore/Snakefile"
-include: "sub_snakemake/quant_reads/kallisto/Snakefile"
-include: "sub_snakemake/quant_reads/salmon/Snakefile"
-include: "sub_snakemake/mirna/Snakefile"
-include: "sub_snakemake/target_prediction/targetscan/Snakefile"
-include: "sub_snakemake/cumulative_plots/Snakefile"
-include: "sub_snakemake/view_bams/Snakefile"
+include: "modules/qc/Snakefile"
+include: "modules/data_download/Snakefile"
+include: "modules/trim_reads/trim_galore/Snakefile"
+include: "modules/quant_reads/kallisto/Snakefile"
+include: "modules/quant_reads/salmon/Snakefile"
+include: "modules/mirna/Snakefile"
+include: "modules/target_prediction/targetscan/Snakefile"
+include: "modules/cumulative_plots/Snakefile"
+include: "modules/view_bams/Snakefile"
 
 wildcard_constraints:
     species="[a-z]{3,4}",
@@ -60,6 +60,15 @@ wildcard_constraints:
     genus_species="[A-Z][a-z]+_[a-z]+"
 
 rule all:
-     input:
-             "results/plots/supplementary_data3.pdf","results/plots/supplementary_data4.pdf",
-             "results/plots/supplementary_data5.pdf" 
+        input:
+                "results/plots/supplementary_data1.pdf","results/plots/supplementary_data3.pdf",
+                "results/plots/supplementary_data4.pdf","results/plots/supplementary_data4.pdf",
+                'results/plots/figure1.png','results/plots/supplementary_figure1.png',
+                'results/plots/figure2.png','results/plots/figure3.png',
+                'results/plots/supplementary_figure7.png','results/plots/supplementary_figure2.png',
+                "results/plots/supplementary_figure3a.png","results/plots/supplementary_figure3b.png",
+                'results/plots/supplementary_table4.tsv','results/plots/figure4.png',
+                'results/plots/supplementary_figure5.png','results/plots/supplementary_figure5a.png',
+                'results/plots/supplementary_figure5b.png','results/plots/supplementary_table1.tsv',
+                'results/plots/supplementary_table2.tsv','results/plots/supplementary_table3.tsv',
+                'results/plots/supplementary_figure4a.png','results/plots/supplementary_figure4b.png'

@@ -67,14 +67,14 @@ def get_read_files (wildcards):
 rule get_splice_sites_for_hisat2:
         input:
           gtf=get_gtf_file,
-          py_script=ancient('exe/hisat2_extract_splice_sites.py')
+          py_script='scripts/hisat2_extract_splice_sites.py'
         output: "results/{species}_hisat2_splice_sites.txt"
         shell: "python {input.py_script} {input.gtf} > {output}"
 
 rule get_exons_for_hisat2:
         input:
           gtf=get_gtf_file,
-          py_script=ancient('exe/hisat2_extract_exons.py')
+          py_script='scripts/hisat2_extract_exons.py'
         output: "results/{species}_hisat2_exons.txt"
         shell: "python {input.py_script} {input.gtf} > {output}"
 
@@ -99,7 +99,8 @@ rule map_reads:
 	params: get_lib_type
         threads: 8
         output: 
-		sam_file="results/bam/run/{species}/{accession}.sam"
+		sam_file="results/bam/run/{species}/{accession}.sam",
+                report_file="reports/hisat2/{species}/{accession}.txt"
 	script:
 		"map_reads.py"
 

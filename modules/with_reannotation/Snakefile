@@ -282,18 +282,13 @@ rule targetscan_sites:
         input:
            msa="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
            mirna_families="results/{species}_{miRNA}_mirna_family.tsv",
-           script="exe/targetscan7/targetscan_70.patch.pl"
+           script="scripts/targetscan7/targetscan_70.pl"
         output:
-           "results/targets/{species}_{tissue}_chr{chrom}_msa_{miRNA}.sites.tmp.tsv"
+           "results/targets/{species}_{tissue}_chr{chrom}_msa_{miRNA}.sites.tsv"
 #        benchmark:
 #           "benchmarks/{species}_{tissue}_chr{chrom}_msa.sites.log"
         shell:
            "{input.script} {input.mirna_families} {input.msa} {output}"
-
-rule fix_targetscan_sites_output:
-        input: "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tmp.tsv"
-        output: protected("results/targets/{species}_{tissue}_chr{chrom}_msa_{miRNA}.sites.tsv")
-        script: "fix_ts_output.R"
 
 rule aggregate_targetscan_sites:
         input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}_msa_{miRNA}.sites.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue, miRNA=wildcards.miRNA)
@@ -302,10 +297,10 @@ rule aggregate_targetscan_sites:
 
 ##### aggregate all transcripts
 
-#rule aggregrate_all_transcripts:
-#	input: lambda wildcards: expand("results/bed/{species}_chr{chrom}_all_transcripts.txt", species=wildcards.species, chrom=config['chromosomes'][wildcards.species])
-#	output: "results/bed/{species}_all_protein_coding_transcripts.txt"
-#	shell: "cat {input} > {output}"
+rule aggregrate_all_transcripts:
+	input: lambda wildcards: expand("results/bed/{species}_chr{chrom}_all_transcripts.txt", species=wildcards.species, chrom=config['chromosomes'][wildcards.species])
+	output: "results/bed/{species}_all_protein_coding_transcripts.txt"
+	shell: "cat {input} > {output}"
 
 
 

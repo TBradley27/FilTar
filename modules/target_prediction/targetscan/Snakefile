@@ -138,7 +138,7 @@ rule get_all_transcripts:
 	shell: "awk '{{ print $5}}' {input} | sort | uniq > {output}"
 
 rule download_targetscan_data1:
-	input:
+        input:
         output:
             "scripts/targetscan7/targetscan_70.pl"
         shell:
@@ -148,7 +148,7 @@ rule download_targetscan_data1:
 rule download_targetscan_data2:
         input:
         output:
-	    bins_script="scripts/targetscan7/targetscan_70_BL_bins.pl",
+            bins_script="scripts/targetscan7/targetscan_70_BL_bins.pl",
             PCT_script="scripts/targetscan7/targetscan_70_BL_PCT.pl",
             PCT_parameters=directory("data/PCT_parameters")
         shell:

@@ -35,12 +35,12 @@ rule multiqc:
         #raw_fastqc=lambda wildcards: expand("reports/{accession}_fastqc.zip", accession=config[wildcards.project_accession]['all_runs']),
         trimming_report=lambda wildcards: expand("results/trimmed_fastq/{accession}.fastq.gz_trimming_report.txt", accession=config[wildcards.project_accession]['all_runs']),
         trimmed_fastqc=lambda wildcards: expand("reports/{accession}_trimmed_fastqc.zip", accession=config[wildcards.project_accession]['all_runs']),
-        hisat2=lambda wildcards: expand("reports/hisat2/{accession}.txt", accession=config[wildcards.project_accession]['HeLa']['mock']),
+        hisat2=lambda wildcards: expand("reports/hisat2/{accession}.txt", accession=config[wildcards.project_accession]['all_runs']),
         kallisto=lambda wildcards: expand("logs/{accession}_kallisto.out", accession=config[wildcards.project_accession]['all_runs']),
         salmon=lambda wildcards: expand("results/salmon/runs/hsa/{accession}", accession=config[wildcards.project_accession]['all_runs'])
        wildcard_constraints:
                project_accession="((?!paired_end).)*"
-       output: "reports/{project_accession}.html"
+       output: "reports/{project_accession}.html", "reports/{project_accession}_data/multiqc_hisat2.txt"
        shell: "multiqc {input.trimmed_fastqc} {input.trimming_report} {input.hisat2} {input.kallisto} {input.salmon} -n {output} -f"
 
 rule multiqc_pe:
@@ -51,7 +51,7 @@ rule multiqc_pe:
         hisat2=lambda wildcards: expand("reports/hisat2/{accession}.txt", accession=config[wildcards.project_accession]['all_runs']),
         kallisto=lambda wildcards: expand("logs/{accession}_kallisto.out", accession=config[wildcards.project_accession]['all_runs']),
         salmon=lambda wildcards: expand("results/salmon/runs/hsa/{accession}", accession=config[wildcards.project_accession]['all_runs'])
-       output: "reports/paired_end/{project_accession}.html"
+       output: "reports/paired_end/{project_accession}.html", "reports/paired_end/{project_accession}_data/multiqc_hisat2.txt"
        shell: "multiqc {input.trimming_report} {input.trimmed_fastqc} {input.hisat2} {input.kallisto} {input.salmon} -n {output} -f"
 
 
