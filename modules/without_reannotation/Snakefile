@@ -70,36 +70,36 @@ rule split_filtered_bed6:
 
 rule expression_filter_contextpp_scores_chr_no_reannotation:
         input:
-                contextpp_scores="results/targets/{species}_nr_chr{chrom}_msa.contextpp.tsv",
+                contextpp_scores="results/targets/{species}_nr_chr{chrom}_msa.contextpp.tmp.tsv",
                 expression_values="results/salmon/{species}/{tissue}.sf"
         params:
                 tpm_expression_threshold=0
-        output: protected("results/targets/{species}/nr_{tissue}_chr{chrom}.contextpp.filt.tsv")
+        output: protected("results/targets/{species}/nr_{tissue}_chr{chrom}.contextpp.tsv")
         script: 'filter_contextpp_scores.R'
 
 rule expression_filter_contextpp_scores_no_reannotatin:
         input:
-            contextpp_scores="results/targets/{species}/nr.contextpp.tsv",
+            contextpp_scores="results/targets/{species}/nr.contextpp.tmp.tsv",
             expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=0
-        output: protected("results/targets/{species}/nr_{tissue}.contextpp.filt.tsv")
+        output: protected("results/targets/{species}/nr_{tissue}.contextpp.tsv")
         script: 'filter_contextpp_scores.R'
 
 rule expression_filter_miRanda_nr_chr:
         input:
-            miRanda_scores="results/targets/miRanda/{species}/nr_chr{chrom}.tsv",
+            miRanda_scores="results/targets/miRanda/{species}/nr_chr{chrom}.tmp.tsv",
             expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=0
-        output: protected("results/targets/miRanda/{species}/nr_{tissue}/chr{chrom}.filt.tsv")
+        output: protected("results/targets/miRanda/{species}/nr_{tissue}/chr{chrom}.tsv")
         script: 'filter_miRanda_scores.R'
 
 rule expression_filter_miRanda_nr:
         input:
-            miRanda_scores="results/targets/miRanda/{species}/nr.tsv",
+            miRanda_scores="results/targets/miRanda/{species}/nr.tmp.tsv",
             expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=0
-        output: protected("results/targets/miRanda/{species}/nr_{tissue}.filt.tsv")
+        output: protected("results/targets/miRanda/{species}/nr_{tissue}.tsv")
         script: 'filter_miRanda_scores.R'
