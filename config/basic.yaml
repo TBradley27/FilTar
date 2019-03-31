@@ -1,0 +1,17 @@
+tissues:
+        mmu: 
+                oocyte: [SRS540320]
+samples:
+         SRS540320: [SRR1137901,SRR1137902]
+        
+single_end: [SRR1137901,SRR1137902]
+paired_end: []
+
+mirnas: [] 
+transcripts: []  #mRNA
+
+TPM_expression_threshold: 0
+
+reannotation: False
+conservation: False
+sequence_data_source: ENA

@@ -1,0 +1,200 @@
+#    FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#    Copyright (C) 2019 Thomas Bradley
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+def get_tax_id(wildcards):
+	return(config['tax_ids'][wildcards.species])
+
+### miRNA prep ###
+
+rule prep_mirna_seeds:
+        input:                      
+           data="data/mature.fa",
+           script="scripts/get_mirna_seeds.sh"
+        output:
+           "results/mature_mirna_seed.tsv"
+        shell:
+           "{input.script} {input.data} > {output}"
+
+rule prep_mirna_family_file:
+        input:
+           mature_mirna_seeds="results/mature_mirna_seed.tsv"
+        output:
+           "results/{species}_mirna_family_tmp.tsv",
+        script:
+           "get_mirna_family.R"
+
+rule prep_mirna_mature_alt:
+        input:
+           data="data/mature.fa",
+           script="scripts/prep_mirna_mature_alt.sh"
+        output: "results/{species}_mature_mirna.tsv"
+	params: get_tax_id
+        shell:
+           "{input.script} {input.data} {wildcards.species} {params} > {output}"
+
+rule prep_mir_for_context_scores:
+        input:
+           mature_mirnas="results/{species}_mature_mirna.tsv",
+           mirna_seed="results/{species}_mirna_family_tmp.tsv",
+        output:
+           "results/{species}_mir_for_context_scores_tmp.tsv"
+        script:
+           "get_mirna_context.R"
+
+rule filter_mir_for_context_scores:
+	input: "results/{species}_mir_for_context_scores_tmp.tsv"
+	output: "results/{species}_mir_for_context_scores.tsv"
+	script: "filter_mir_for_context_scores.R"
+
+rule filter_mir_families:
+	input: 
+		mirna_families="results/{species}_mirna_family_tmp.tsv",
+		mature_mirnas="results/{species}_mir_for_context_scores.tsv"
+	output: "results/{species}_mirna_family.tsv"
+	script: "filter_mir_families.R"
+
+### main ###
+
+rule targetscan_sites:
+	input:
+           msa="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
+           mirna_families="results/{species}_mirna_family.tsv",
+           script="scripts/targetscan7/targetscan_70.pl"
+	output:
+           "results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv"
+	shell:
+           "{input.script} {input.mirna_families} {input.msa} {output}"
+
+rule targetscan_branch_lengths:
+        input:
+           msa_3UTR="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
+           script="scripts/targetscan7/targetscan_70_BL_bins.patch.pl"
+        output:
+             "results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv"
+        params: 
+              tax_id=get_tax_id
+        shell:
+            "{input.script} {input.msa_3UTR} {params.tax_id}  > {output}"
+
+rule targetscan_PCTs:
+        input:
+            mirna_family="results/{species}_mirna_family.tsv",
+            mirna_sites="results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv",
+            branch_lengths="results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv",
+            script="scripts/targetscan7/targetscan_70_BL_PCT.patch.pl",
+            PCT_param="data/PCT_parameters"
+        output:
+            "results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
+             temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv.sort.txt") # it is important that this file is deleted
+        shell:
+            "{input.script} {input.mirna_family} {input.mirna_sites} {input.branch_lengths} > {output}"
+
+rule targetscan_eightmers:
+        input:
+            mirna_seeds="results/{species}_mirna_family.tsv",
+            CDS="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv",
+            script="scripts/targetscan7/targetscan_count_8mers.pl"
+        output:
+            eightmer_counts="results/targets/{species}_{tissue}_chr{chrom}_msa.eightmers.tsv",
+            CDS_lengths="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv.lengths.txt"
+        shell:
+            "{input.script} {input.mirna_seeds} {input.CDS} > {output.eightmer_counts}"
+
+rule targetscan_context_scores:
+        input:
+            mirnas="results/{species}_mir_for_context_scores.tsv",
+            msa="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
+            PCTs="results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv",
+            CDS_lengths="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv.lengths.txt",
+            eightmer_counts="results/targets/{species}_{tissue}_chr{chrom}_msa.eightmers.tsv",
+            contextpp_script="scripts/targetscan7/targetscan_70_context_scores.patch.pl",
+            agarwal_param="scripts/targetscan7/Agarwal_2015_parameters.txt",
+            AIRs="results/targets/{species}_{tissue}_chr{chrom}.AIRs.txt",
+            TA_SPS_param="scripts/targetscan7/TA_SPS_by_seed_region.txt",
+            script="scripts/targetscan7/targetscan_70_context_scores.patch.pl"
+        output:
+            "results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tmp.tsv"
+        conda: "envs/viennarna.yaml" 
+        params:
+            RNAplfold_dir="results/targets/RNAplfold/{species}/{tissue}",
+            tax_id = get_tax_id
+        shell:
+            "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {params.tax_id} {input.AIRs} {params.RNAplfold_dir}"
+
+rule aggregate_contextpp_scores:
+       input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tmp.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
+       output: protected("results/targets/{species}/{tissue}.contextpp.tmp.tsv")
+       shell: "cat {input} | sed '1b;/Gene/d' > {output}"
+
+rule aggregate_targetscan_sites:
+       input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
+       output: protected("results/targets/{species}/{tissue}.sites.tsv")
+       shell: "cat {input} | sed '1b;/Gene/d' > {output}"
+
+### other ###
+
+rule get_all_transcripts:
+	input: "results/bed/{species}_{tissue}.utr.full.bed"
+	output: "results/bed/{species}_{tissue}_all_transcripts.txt"
+	shell: "awk '{{ print $5}}' {input} | sort | uniq > {output}"
+
+rule download_targetscan_data1:
+        input:
+        output:
+            "scripts/targetscan7/targetscan_70.pl"
+        shell:
+            "cd scripts/targetscan7 && wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70.zip && unzip targetscan_70.zip && rm UTR_Sequences_sample.txt miR_Family_info_sample.txt\
+ targetscan_70_output.txt README_70.txt targetscan_70.zip"
+
+rule download_targetscan_data2:
+        input:
+        output:
+            bins_script="scripts/targetscan7/targetscan_70_BL_bins.pl",
+            PCT_script="scripts/targetscan7/targetscan_70_BL_PCT.pl",
+            PCT_parameters=directory("data/PCT_parameters")
+        shell:
+            "wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70_BL_PCT.zip && unzip targetscan_70_BL_PCT.zip && mv\
+  TargetScan7_BL_PCT/PCT_parameters data/ && mv TargetScan7_BL_PCT/targetscan_70_BL_bins.pl TargetScan7_BL_PCT/targetscan_70_BL_PCT.pl scripts/targetscan7 && rm -rf targetscan_70_BL_PCT.zip TargetScan7_BL_PCT/"
+
+rule download_targetscan_data3:
+         input:
+         output:
+             agarwal_par="scripts/targetscan7/Agarwal_2015_parameters.txt",
+             contextpp_script="scripts/targetscan7/targetscan_70_context_scores.pl",
+             eightmer_script="scripts/targetscan7/targetscan_count_8mers.pl",
+             TA_pars="scripts/targetscan7/TA_SPS_by_seed_region.txt"
+         shell:
+           "wget http://www.targetscan.org/vert_72/vert_72_data_download/TargetScan7_context_scores.zip && unzip TargetScan7_context_scores.zip && mv TargetScan7_context_scores/Agarwal_2015_parameters.txt TargetScan7_context_scores/TA_SPS_by_seed_region.txt TargetScan7_context_scores/targetscan_count_8mers.pl TargetScan7_context_scores/targetscan_70_context_scores.pl scripts/targetscan7/ && rm -rf TargetScan7_context_scores/ TargetScan7_context_scores.zip"
+
+rule patch_bin_lengths_script:
+	input: 'scripts/targetscan7/targetscan_70_BL_bins.pl'
+	output: 'scripts/targetscan7/targetscan_70_BL_bins.patch.pl'
+	shell: "sed -e '40 s/9606/$ARGV[1]/g' {input} | sed -e '38 s;PCT_parameters;data\/PCT_parameters;g' > {output} && chmod +x {output}"
+
+rule patch_PCT_script:
+        input: 'scripts/targetscan7/targetscan_70_BL_PCT.pl'
+        output: 'scripts/targetscan7/targetscan_70_BL_PCT.patch.pl'
+        shell: "sed -e '55 s;PCT_parameters;data\/PCT_parameters;g' {input} > {output} && chmod +x {output}"
+
+rule patch_contextpp_script:
+        input:
+           contextpp="scripts/targetscan7/targetscan_70_context_scores.pl",
+           patch="scripts/targetscan7/patch_context_scores.sh"
+        output:
+          "scripts/targetscan7/targetscan_70_context_scores.patch.pl"
+        shell:
+          "{input.patch} {input.contextpp} {output} && chmod +x {output}" # force reference species as a parameter
+

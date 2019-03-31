@@ -1,0 +1,37 @@
+#    FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#    Copyright (C) 2019 Thomas Bradley
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+rule index_maf_files:
+        input:
+           maf="data/maf_{species}/chr{chrom}.maf",
+        output:
+           protected("data/{species}_chr{chrom}.mafindex")
+        conda: 'envs/biopython.yaml'
+        script:
+           "biopython_maf_processing.py"
+
+rule biopython_get_msa: 
+        input: 
+           maf="data/maf_{species}/chr{chrom}.maf", 
+           bed="results/bed/{species}_{tissue}_{feature}.chr{chrom}.bed", 
+           maf_index="data/{species}_chr{chrom}.mafindex", 
+           shell_script="scripts/targetscan7/convert_fasta_to_tsv.sh" 
+        output: 
+           "results/msa/{species}_{tissue}_chr{chrom}_{feature}_msa.tsv" 
+        conda: 
+           "envs/biopython.yaml" 
+        script: 
+           "biopython_maf_processing2.py"

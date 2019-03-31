@@ -1,0 +1,14 @@
+#!/bin/bash
+
+rule run_cutadapt:
+    input:
+        ["data/{sample}_1.fastq.gz", "data/{sample}_2.fastq.gz"]
+    output:
+        fastq1="results/{sample}_trimmed.1.fastq.gz",
+        fastq2="results/{sample}_trimmed.2.fastq.gz",
+        qc="logs/{sample}.qc.txt"
+    params:
+        "-a AGATCGGAAGAGC -q 20 --cores=16" # illumina adapter
+    shell:
+        "cutadapt {params} -o {output.fastq1} -p {output.fastq2} {input} > {output.qc}"
+

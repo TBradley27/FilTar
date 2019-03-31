@@ -1,0 +1,111 @@
+#    FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#    Copyright (C) 2019 Thomas Bradley
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+def get_cDNA_file (wildcards):
+	sci_species_name = config['sci_species_name'][wildcards.species]
+        genome_build = config['genome_build'][wildcards.species]
+	
+	return ( 'data/' + sci_species_name + '.' + genome_build + '.cdna.all.fa'  ) 
+
+rule salmon_index:
+        input:
+             get_cDNA_file
+        output:
+            directory("results/salmon/indexes/{species}")
+        threads: 8
+        conda: "envs/salmon.yaml"
+        shell:
+            "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
+
+rule salmon_index_for_lib_types:
+        input:
+             get_cDNA_file
+        output:
+            directory("results/salmon/indexes/lib_type_identification/{species}")
+        threads: 8
+        conda: "envs/salmon.yaml"
+        shell:
+            "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
+
+def get_input_files (wildcards):
+        if wildcards.run_accession in config['paired_end']:
+                input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.run_accession),
+                                'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.run_accession)
+                                ]
+                return(input_files)
+        elif wildcards.run_accession in config['single_end']:
+                input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.run_accession)
+                             ]
+                return(input_file)
+        else:
+                raise Exception("\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(wildcards.run_accession))
+
+rule salmon_quant_lib_type:
+        output:  directory("results/salmon/runs/{species}/lib_type_identification/{run_accession}")
+	input:
+           reads=get_input_files,
+           index="results/salmon/indexes/lib_type_identification/{species}"
+	conda:
+		"envs/salmon.yaml"
+	wildcard_constraints:
+		run_accession="((?!lib_type).)*" # excludes substring 'lib_type'
+	threads: 4
+	script:
+		"quant_salmon.py"
+
+rule salmon_quant:
+        output:  directory("results/salmon/runs/{species}/{run_accession}")
+	input:
+           reads=get_input_files,
+           index="results/salmon/indexes/{species}"
+	conda:
+		"envs/salmon.yaml"
+	wildcard_constraints:
+		run_accession="((?!lib_type).)*"
+	threads: 4
+	script:
+		"quant_salmon.py"
+
+rule salmon_get_lib_type:
+	input: "results/salmon/runs/{species}/lib_type_identification/{run_accession}" 
+	output: "results/salmon/runs/{species}/{run_accession}_lib_type.txt" # written this way because you cannot create files inside snakemake created directories
+	wildcard_constraints:
+		run_accession="((?!lib_type).)*"
+	shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
+
+rule salmon_quantmerge_by_run:
+	input:	lambda wildcards: expand("results/salmon/runs/{species}/{run_accession}", run_accession=config['samples'][wildcards.sample], species=wildcards.species)
+	output: temp("results/salmon/samples/{species}/{sample}.quant.tmp.sf")
+        conda: "envs/salmon.yaml"
+	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
+
+rule salmon_average_quantmerge_runs:
+        input: "results/salmon/samples/{species}/{sample}.quant.tmp.sf",
+        output: directory("results/salmon/samples/{species}/{sample}")
+        wildcard_constraints:
+               sample="((?!quant.tmp).)*" # anything not containing quant.tmp
+        script: "get_average_quant.R"
+
+rule salmon_quantmerge_by_sample:
+        input:  lambda wildcards: expand('results/salmon/samples/{species}/{sample}', sample=config['tissues'][wildcards.species][wildcards.tissue], species=wildcards.species)
+        output: temp("results/salmon/{species}/{tissue}.sf.tmp")
+        conda: "envs/salmon.yaml"
+        shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
+
+rule salmon_average_quantmerge_samples:
+        input: "results/salmon/{species}/{tissue}.sf.tmp",
+        output: "results/salmon/{species}/{tissue}.sf"
+        script: "get_average_quant2.R"

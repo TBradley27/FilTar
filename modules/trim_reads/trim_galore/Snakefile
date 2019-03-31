@@ -1,0 +1,23 @@
+#!/bin/bash
+
+rule trim_single_end_reads:
+       input: 
+           "data/single_end/{accession}.fastq.gz"
+       output: 
+           "results/trimmed_fastq/{accession}_trimmed.fq.gz"
+       conda: 
+          "envs/trim-galore.yaml"
+       shell:
+          "trim_galore --output_dir results/trimmed_fastq/  --length 35 --stringency 4 {input}"
+
+rule trim_paired_end_reads:
+       input:
+          file1="data/paired_end/{accession}_1.fastq.gz",
+          file2="data/paired_end/{accession}_2.fastq.gz"
+       output:
+           "results/trimmed_fastq/{accession}_1_val_1.fq.gz",
+           "results/trimmed_fastq/{accession}_2_val_2.fq.gz"
+       conda:
+          "envs/trim-galore.yaml"
+       shell:
+          "trim_galore --output_dir results/trimmed_fastq/ --length 35 --stringency 4 --paired {input.file1} {input.file2}"
