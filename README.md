@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/TBradley27/FilTar.svg?token=ZSHcZ6Hizcm8MJsG95AA&branch=master)](https://travis-ci.com/TBradley27/FilTar/)
+
 # FilTar
 
 FilTar is a tool to integrate RNA-Seq data to pre-existing miRNA target prediction workflows in order to increase prediction accuracy.
