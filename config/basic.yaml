@@ -10,7 +10,7 @@ paired_end: []
 mirnas: [] 
 transcripts: []  #mRNA
 
-TPM_expression_threshold: 0
+TPM_expression_threshold: 0.1
 
 reannotation: False
 conservation: False
