@@ -15,15 +15,19 @@ It also operates as a fully functional wrapper around the pre-existing TargetSca
 
 FilTar is fully documented at the following location: https://tbradley27.github.io/FilTar/
 
+## Publication
+
+The article describing FilTar can be found as a preprint at the following location: https://www.biorxiv.org/content/10.1101/595322v1
+
 ## Getting Help
 
-In order to ensure your enquiries are seen by the most people possible who may be sharing your problem, it is best to share the problems that you are having publicly. The first port of call is to post questions on this github repositories 'issue' page. Alternatively, the biostars bioinformatics online forum (https://www.biostars.org/) can also be used to post questions in public. If using biostars, please make sure to use the 'filtar' tag when asking questions to notify me, so I can answer promptly. 
+In order to ensure your enquiries are seen by the most people possible who may be sharing your problem, it is best to share the problems that you are having publicly. The first port of call is to post questions on the biostars bioinformatics online forum (https://www.biostars.org/). If using biostars, please make sure to use the 'filtar' tag when asking questions to notify me, so I can answer promptly. 
 
 If this option doesn't work for whatever reason, I happen to accept correspondence via my academic email address: thomas.bradley@uea.ac.uk
 
-## Reporting bugs, enhancements
+## Reporting bugs, suggested enhancements or any other issues
 
-Again, the issues page of this repository is the best place to post this.
+The issues page of this repository is the best place to post this.
 
 ## Contributions and Acknowledgements
 
