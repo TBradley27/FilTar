@@ -214,23 +214,3 @@ rule split_CDS:
         input: "results/bed/{species}_{tissue}_CDS.filtered.bed"
         output: "results/bed/{species}_{tissue}_CDS.chr{chrom}.bed"
         shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
-
-### filtering by expression level
-
-rule expression_filter_contextpp_scores_chr:
-        input:
-                contextpp_scores="results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tsv",
-                expression_values="results/salmon/{species}/{tissue}.sf"
-        params:
-                tpm_expression_threshold=2
-        output: protected("results/targets/{species}/{tissue}_chr{chrom}.contextpp.filt.tsv")
-        script: 'filter_contextpp_scores.R'
-
-rule expression_filter_contextpp_scores:
-        input:
-            contextpp_scores="results/targets/{species}/{tissue}.contextpp.tsv",
-            expression_values="results/salmon/{species}/{tissue}.sf"
-        params:
-            tpm_expression_threshold=2
-        output: protected("results/targets/{species}/{tissue}.contextpp.filt.tsv")
-        script: 'filter_contextpp_scores.R'
