@@ -88,7 +88,7 @@ rule expression_filter_contextpp_scores_no_reannotatin:
 
 rule expression_filter_miRanda_nr_chr:
         input:
-            miRanda_scores="results/targets/miRanda/{species}/nr_chr{chrom}.tmp.tsv",
+            miRanda_scores="results/targets/miRanda/{species}/nr_chr{chrom}.temp.tsv",
             expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=0
@@ -97,7 +97,7 @@ rule expression_filter_miRanda_nr_chr:
 
 rule expression_filter_miRanda_nr:
         input:
-            miRanda_scores="results/targets/miRanda/{species}/nr.tmp.tsv",
+            miRanda_scores="results/targets/miRanda/{species}/nr.temp.tsv",
             expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=0

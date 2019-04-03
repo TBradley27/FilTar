@@ -248,7 +248,7 @@ rule expression_filter_contextpp_scores:
 
 rule expression_filter_miRanda_chr:
         input:
-            miRanda_scores="results/targets/miRanda/{species}/{tissue}_chr{chrom}.tmp.tsv",
+            miRanda_scores="results/targets/miRanda/{species}/{tissue}_chr{chrom}.temp.tsv",
             expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold= config['TPM_expression_threshold']
@@ -257,9 +257,11 @@ rule expression_filter_miRanda_chr:
 
 rule expression_filter_miRanda:
         input:
-            miRanda_scores="results/targets/miRanda/{species}/{tissue}.tmp.tsv",
+            miRanda_scores="results/targets/miRanda/{species}/{tissue}.temp.tsv",
             expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=config['TPM_expression_threshold']
+        wildcard_constraints:
+               tissue="((?!temp).)*"
         output: protected("results/targets/miRanda/{species}/{tissue}.tsv")
         script: 'filter_miRanda_scores.R'

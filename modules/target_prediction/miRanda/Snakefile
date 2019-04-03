@@ -35,12 +35,12 @@ rule miRanda:
 
 rule convert_miRanda_to_tsv:
         input: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt"
-        output: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.tmp.tsv"
+        output: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.temp.tsv"
         shell: "scripts/convert_miRanda_to_tsv.sh {input} {output}"
 
 rule aggregate_miRanda_output_no_reannotation:
-        input: lambda wildcards: expand("results/targets/miRanda/{species}/{tissue}_chr{chrom}.tmp.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
-        output: "results/targets/miRanda/{species}/{tissue}.tmp.tsv"
+        input: lambda wildcards: expand("results/targets/miRanda/{species}/{tissue}_chr{chrom}.temp.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
+        output: "results/targets/miRanda/{species}/{tissue}.temp.tsv"
         wildcard_constraints:
                tissue="((?!filt).)*"
         shell: "cat {input} > {output}"
