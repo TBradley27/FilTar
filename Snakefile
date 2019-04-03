@@ -63,10 +63,3 @@ wildcard_constraints:
     feature="(3UTR|CDS)",
     ensembl_release="[0-9]{2,3}",
     genus_species="[A-Z][a-z]+_[a-z]+"
-
-rule all:
-     input: #"results/targets/mmu/liver.contextpp.tsv" 
-
-rule testing:
-	output: 'foo.txt'
-	shell: 'touch {output}'
