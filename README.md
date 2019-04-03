@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/TBradley27/FilTar.svg?token=ZSHcZ6Hizcm8MJsG95AA&branch=master)](https://travis-ci.com/TBradley27/FilTar/)
+[![GitHub release](https://img.shields.io/github/release/TBradley27/FilTar.svg)](https://GitHub.com/TBradley27/FilTar/releases/)
 
 # FilTar
 
