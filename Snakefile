@@ -25,7 +25,7 @@ if config['reannotation'] == True:
 elif config['reannotation'] == False:
 	include: "modules/without_reannotation/Snakefile"
 else:
-	raise Exception("\nPlease enter a value of either 'True' or 'False' for the 'reannotation' key. Default values can be set in config/config.yaml\n")
+	raise Exception("\nPlease enter a value of either 'True' or 'False' for the 'reannotation' key. Default values can be set in config/basic.yaml\n")
 
 if config['conservation'] == True:
 	include: "modules/get_utr_and_cds/with_conservation/Snakefile"
@@ -33,16 +33,16 @@ elif config['conservation'] == False:
 	include: "modules/get_utr_and_cds/without_conservation/Snakefile"
 	include: "modules/target_prediction/miRanda/Snakefile"
 else:
-	raise Exception("\nPlease enter a value of either 'True' or 'False' for the 'conservation' key. Default values can be set in config/config.yaml\n")
+	raise Exception("\nPlease enter a value of either 'True' or 'False' for the 'conservation' key. Default values can be set in config/basic.yaml\n")
 
 if config['sequence_data_source'] == 'ENA':
 	include: "modules/data_download/ENA/Snakefile"
 elif config['sequence_data_source'] == 'SRA':
 	include: "modules/data_download/SRAtoolkit/Snakefile"
-elif config['sequence_data_source'] == 'N/A':
+elif config['sequence_data_source'] == 'User':
 	pass
 else:
-	raise Exception("\nPlease enter a value of either 'ENA' or 'SRA' or 'N/A' for the 'sequence_data_source' key. Default values can be set in config/config.yaml\n")
+	raise Exception("\nPlease enter a value of either 'ENA' or 'SRA' or 'User' for the 'sequence_data_source' key. Default values can be set in config/basic.yaml\n")
 
 for transcript in list(config['transcripts']):
 	if re.match('^ENS[A-Z]+[0-9]+.[1-9]$',transcript):
