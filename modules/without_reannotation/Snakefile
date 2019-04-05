@@ -74,7 +74,7 @@ rule expression_filter_contextpp_scores_chr_no_reannotation:
                 expression_values="results/salmon/{species}/{tissue}.sf"
         params:
                 tpm_expression_threshold=config['TPM_expression_threshold']
-        output: protected("results/targets/{species}/nr_{tissue}_chr{chrom}.contextpp.tsv")
+        output: protected("results/targets/{species}/{tissue}_chr{chrom}.contextpp.tsv")
         script: 'filter_contextpp_scores.R'
 
 rule expression_filter_contextpp_scores_no_reannotatin:
@@ -83,7 +83,7 @@ rule expression_filter_contextpp_scores_no_reannotatin:
             expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=config['TPM_expression_threshold']
-        output: protected("results/targets/{species}/nr_{tissue}.contextpp.tsv")
+        output: protected("results/targets/{species}/{tissue}.contextpp.tsv")
         script: 'filter_contextpp_scores.R'
 
 rule expression_filter_miRanda_nr_chr:
@@ -92,7 +92,7 @@ rule expression_filter_miRanda_nr_chr:
             expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=config['TPM_expression_threshold']
-        output: protected("results/targets/miRanda/{species}/nr_{tissue}/chr{chrom}.tsv")
+        output: protected("results/targets/miRanda/{species}/{tissue}/chr{chrom}.tsv")
         script: 'filter_miRanda_scores.R'
 
 rule expression_filter_miRanda_nr:
@@ -101,5 +101,5 @@ rule expression_filter_miRanda_nr:
             expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold=config['TPM_expression_threshold']
-        output: protected("results/targets/miRanda/{species}/nr_{tissue}.tsv")
+        output: protected("results/targets/miRanda/{species}/{tissue}.tsv")
         script: 'filter_miRanda_scores.R'
