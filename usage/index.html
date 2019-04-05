@@ -32,11 +32,7 @@ title: Usage
 
 <h2>Option: no 3'UTR reannotation</h2>
 
-<p>If the user does not want to reannotate 3'UTRs, but still wishes to produce target predictions, then they can run the following command:<p>
-
-<code>snakemake results/targets/{species}/nr_{tissue}.contextpp.tsv --config reannotation=False</code>
-
-<p>Alternatively, the <code>reannotation</code> option can be set to <code>False</code> in <code>config/basic.yaml</code> </p>
+<p>If the user does not want to reannotate 3'UTRs, but still wishes to produce target predictions, then the <code>reannotation</code> option must be set to <code>False</code> via the command line or the configuration file<p>
 
 <p>In this case, FilTar will default to using 3'UTR annotations from the latest release of Ensembl</p> 
 
