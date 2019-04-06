@@ -24,6 +24,6 @@ rule mirna_species_fasta:
 
 rule filter_mirna_species_fasta:
 	input: "data/mirbase_mature_{species}.fa"
-	output: "data/mirbase_mature_{species}.filtered.fa"
+	output: temp("data/mirbase_mature_{species}.filtered.fa")
 	conda: "envs/biopython.yaml"
 	script: "filter_mirna_fasta.py"

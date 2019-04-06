@@ -34,11 +34,9 @@ script:
    - cpanm Statistics::Lite
    - Rscript -e 'devtools::install_github("TBradley27/filtar_R")'
    - snakemake --version
-   - snakemake --use-conda -p results/targets/mmu/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0
-   - head results/targets/mmu/oocyte_chrY.contextpp.tsv
+   - snakemake --use-conda -p results/targets/mmu/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0 && head results/targets/mmu/oocyte_chrY.contextpp.tsv && rm -f results/targets/mmu/oocyte_chrY.contextpp.tsv
    - snakemake --use-conda -p results/targets/miRanda/mmu/oocyte/chrY.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0
    - head results/targets/miRanda/mmu/oocyte/chrY.tsv
-   - touch results/bed/mmu_nr_3UTR.chrY.bed # in order to retrigger target build
    - snakemake --use-conda -p results/targets/mmu/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=True reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0
    - head results/targets/mmu/oocyte_chrY.contextpp.tsv
    - Rscript -e 'testthat::test_file("scripts/targetscan_test.R")'

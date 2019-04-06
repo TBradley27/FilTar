@@ -43,12 +43,12 @@ rule get_bed6_file: #three_prime_utrs only
 
 rule filter_bed6_file:
         input:  'results/{genus_species}.{build}.{ensembl_release}.bed6'
-        output:  'results/{genus_species}.{build}.{ensembl_release}.filtered.bed6'
+        output:  temp('results/{genus_species}.{build}.{ensembl_release}.filtered.bed6')
         script: 'filter_bed6.R'
 
 rule split_bed6_file:
         input: 'results/{genus_species}.{build}.{ensembl_release}.filtered.bed6'
-        output: 'results/{genus_species}.{build}.{ensembl_release}.chr{chrom}.filtered.bed6'
+        output: temp('results/{genus_species}.{build}.{ensembl_release}.chr{chrom}.filtered.bed6')
         shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
 
 # derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
@@ -140,7 +140,7 @@ rule split_bed12:
 
 rule filter_bed12:
         input: 'results/{species_prefix}_chr{chrom}.{ensembl_release}.bed'
-        output: 'results/{species_prefix}_chr{chrom}.{ensembl_release}.filtered.bed'
+        output: temp('results/{species_prefix}_chr{chrom}.{ensembl_release}.filtered.bed')
         script: "filter_bed12.R"
 
 rule reannotate_3utrs:
@@ -149,7 +149,7 @@ rule reannotate_3utrs:
        bed=get_bed_file,
        bedgraphs= 'results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph'
     output:
-       "results/bed/{species}_{cell_line}_chr{chrom}.utr.bed"
+       temp("results/bed/{species}_{cell_line}_chr{chrom}.utr.bed")
     params:
         percentage_cutoff=0.80,
         coverage_cutoff=0.05,
@@ -164,13 +164,13 @@ rule get_extended_bed_file:
             all_transcripts="results/bed/{species}_chr{chrom}_all_transcripts.txt",
             tx_quant="results/salmon/{species}/{tissue}.sf"
          output:
-            "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"
+            temp("results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed")
          script:
              "extend_bed2.R"
 
 rule aggregrate_extended_bed_files:
         input: lambda wildcards: expand("results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
-        output: "results/bed/{species}_{tissue}_3UTR.bed"
+        output: temp("results/bed/{species}_{tissue}_3UTR.bed")
         shell: "cat {input} > {output}"
 
 ### Generate AIR file
@@ -181,28 +181,28 @@ rule identify_APA_sites:
         bedgraphs= "results/bam/tissue/{species}/{tissue}_chr{chrom}.bedgraph",
         bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed"
      output:
-        "results/targets/{species}_{tissue}_chr{chrom}.APA.txt"
+        temp("results/targets/{species}_{tissue}_chr{chrom}.APA.txt")
      shell:
         "{input.script} -i {input.bedgraphs} -g 1 -n 1 -u {input.bed}  -o {output}"
 
 rule aggregate_APA_sites:
         input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}.APA.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
-        output: protected("results/targets/{species}_{tissue}.APA.txt")
+        output: temp("results/targets/{species}_{tissue}.APA.txt")
         shell: "cat {input} | sed '1b;/Gene/d' > {output}"
 
 rule get_utr_lengths_chr:
 	input: 'results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed'
-	output: 'results/utrs/{species}_{tissue}_chr{chrom}.utr.lengths.tsv'
+	output: temp('results/utrs/{species}_{tissue}_chr{chrom}.utr.lengths.tsv')
 	script: 'get_utr_lengths.R'
 
 rule get_utr_lengths:
         input:  'results/bed/{species}_{tissue}_3UTR.bed'
-        output: 'results/utrs/{species}_{tissue}.utr.lengths.tsv'
+        output: temp('results/utrs/{species}_{tissue}.utr.lengths.tsv')
         script: 'get_utr_lengths.R'
 
 rule get_AIR_file:
         input: "results/targets/{species}_{tissue}_chr{chrom}.APA.txt", "results/utrs/{species}_{tissue}_chr{chrom}.utr.lengths.tsv" #output from APA usage file
-        output: "results/targets/{species}_{tissue}_chr{chrom}.AIRs.txt"
+        output: temp("results/targets/{species}_{tissue}_chr{chrom}.AIRs.txt")
         script: "get_tissue_specific_APA_file.R"
 
 ### Get CDS bed file
@@ -212,18 +212,18 @@ rule gtf_to_bed_CDS:
             gtf=get_gtf_file,
             script="scripts/pre-processing/gtf_to_bed.sh"
         output:
-            "results/bed/{species}_{tissue}_CDS.tmp.bed"
+            temp("results/bed/{species}_{tissue}_CDS.tmp.bed")
         shell:
             "{input.script} {input.gtf} CDS {output}"
 
 rule filter_CDS:
 	input: "results/bed/{species}_{tissue}_CDS.tmp.bed"
-	output: "results/bed/{species}_{tissue}_CDS.filtered.bed"
+	output: temp("results/bed/{species}_{tissue}_CDS.filtered.bed")
 	script: "filter_bed6.R"
 
 rule split_CDS:
         input: "results/bed/{species}_{tissue}_CDS.filtered.bed"
-        output: "results/bed/{species}_{tissue}_CDS.chr{chrom}.bed"
+        output: temp("results/bed/{species}_{tissue}_CDS.chr{chrom}.bed")
         shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
 
 ### filtering by expression level
@@ -234,7 +234,7 @@ rule expression_filter_contextpp_scores_chr:
                 expression_values="results/salmon/{species}/{tissue}.sf"
         params:
                 tpm_expression_threshold=config['TPM_expression_threshold']
-        output: protected("results/targets/{species}/{tissue}_chr{chrom}.contextpp.tsv")
+        output: temp("results/targets/{species}/{tissue}_chr{chrom}.contextpp.tsv")
         script: 'filter_contextpp_scores.R'
 
 rule expression_filter_contextpp_scores:
@@ -252,7 +252,7 @@ rule expression_filter_miRanda_chr:
             expression_values="results/salmon/{species}/{tissue}.sf"
         params:
             tpm_expression_threshold= config['TPM_expression_threshold']
-        output: protected("results/targets/miRanda/{species}/{tissue}/chr{chrom}.tsv")
+        output: temp("results/targets/miRanda/{species}/{tissue}/chr{chrom}.tsv")
         script: 'filter_miRanda_scores.R'
 
 rule expression_filter_miRanda:
