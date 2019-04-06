@@ -61,23 +61,11 @@ title: Usage
 
 <h2>Intermediate files</h2>
 
-<p>Many intermediate files are generated when executing the canonical FilTar workflow. These files can be useful in their own right, and the user may wish to generate these files without expending resources creating downstream files. For example, with targetscan, if the user wishes to identify miRNA target sites, without computing a context++ scor for each target site, then the substring 'contextpp' in the target file name should be substituted for 'sites' like so:<p>
+<p>Most intermediate files generated whilst FilTar is running are automatically deleted once the process is deleted. This prevents FilTar from returning identical output even when the user has changed their configuration options</p>
 
-<code>snakemake results/targets/{species}/{tissue}.sites.tsv</code>
+<p>Exceptions to this general rule are files which which will not change as a result of different user input such as raw genomic sequence and index files. Alignment and pseudoalignment intermediate files are also not deleted, as these only need to be updated if the user updates the number of raw sequencing files for a given <code>context</code>.</p>
 
-<p>Note that the above file presents targetscan for given miRNA families rather than individual mature miRNA families. For the Filtar workflow, each miRNA family is given a numeric value. The mapping between this code and mature miRNA identifiers can be found in <code>results/{species}_mir_for_context_scores.tsv</code>
-
-<p>To get a comprehensive view of intermediate files generated, the user will have to inspect relevant Snakefiles manually. Alternatively, the user can inspect the stdout from a conventional snakemake run to determine intermediate files generated for various targets</p>
-
-<h2>Rerunning workflows</h2>
-
-<p>Rerunning workflows using different input data or parameters can be problematic because snakemake uses the existence and time stamps of intermediate and target files to determine which rules to execute when a a particular target file is specified by the user. For example, attemtping to rerun the FilTar workflow after changing the <code>mirnas</code> parameter without making any further alterations will not work as the intermediate miRNA data files have already been generated in a previous run. Snakemake determines that downstream target files have a later timestamp than the intermediate miRNA files, and therefore does not attemtp to regenerate these files.</p>
-
-<p>A work-around is to use the UNIX <code>touch</code> utility to update the time stamps of relevant files so they are ahead in time of their downstream targets. This will trigger snakemake to regenerate downstream target files. For example, when wanting to rerun a workflow using a different miRNA or combination of miRNAs, the following command would be appropriate:</p>
-
-<code>touch data/mature.fa</code>
-
-<p>This will update the time stamp on the full mature miRNA data file upstream of the point of miRNA selection, which will cause the triggering of miRNA selection steps</p>
+One slight problem with this approach, is that it leads to some inefficiency as mostly intermediate files will have to be regenerated for every individual run of FilTar. For advanced users, with a good knowledge of both FilTar and the Snakemake job scheduling system, they can choose to edit FilTar source files to remove snakemake <code>temp</code> tags where they think it is appropriate to do so. However, caution is advised with this approach.
 
 <h2>Modulating snakemake behaviour</h2>
 
