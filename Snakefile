@@ -45,7 +45,7 @@ else:
 	raise Exception("\nPlease enter a value of either 'ENA' or 'SRA' or 'User' for the 'sequence_data_source' key. Default values can be set in config/basic.yaml\n")
 
 for transcript in list(config['transcripts']):
-	if re.match('^ENS[A-Z]+[0-9]+.[1-9]$',transcript):
+	if re.match('^ENS[A-Z]+[0-9]+.[1-9]{1,2}$',transcript):
 		pass
 	else:
 		raise Exception('\nInvalid transcript identifier "{}". Identifiers must adhere to official Ensembl identifier patterns e.g. "ENSMUST00000189888.6". Please revise.\n'.format(transcript))
