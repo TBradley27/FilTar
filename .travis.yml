@@ -39,4 +39,4 @@ script:
    - head results/targets/miRanda/mmu/oocyte/chrY.tsv
    - snakemake --use-conda -p results/targets/mmu/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=True reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7
    - head results/targets/mmu/oocyte_chrY.contextpp.tsv
-   - Rscript -e 'testthat::test_file("scripts/targetscan_test.R")'
+   - R -e 'test=testthat::test_file("scripts/targetscan_test.R"); stopifnot(test[[1]]$results[[1]]$message=="success")'
