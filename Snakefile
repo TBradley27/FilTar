@@ -31,7 +31,6 @@ if config['conservation'] == True:
 	include: "modules/get_utr_and_cds/with_conservation/Snakefile"
 elif config['conservation'] == False:
 	include: "modules/get_utr_and_cds/without_conservation/Snakefile"
-	include: "modules/target_prediction/miRanda/Snakefile"
 else:
 	raise Exception("\nPlease enter a value of either 'True' or 'False' for the 'conservation' key. Default values can be set in config/basic.yaml\n")
 
@@ -44,6 +43,24 @@ elif config['sequence_data_source'] == 'User':
 else:
 	raise Exception("\nPlease enter a value of either 'ENA' or 'SRA' or 'User' for the 'sequence_data_source' key. Default values can be set in config/basic.yaml\n")
 
+if config['prediction_algorithm'] == 'TargetScan7' and config['reannotation'] == True:
+	include: "modules/target_prediction/targetscan/Snakefile"
+	include: "modules/target_prediction/targetscan/with_reannotation/Snakefile"
+elif config['prediction_algorithm'] == 'TargetScan7' and config['reannotation'] == False:
+	include: "modules/target_prediction/targetscan/Snakefile"
+	include: "modules/target_prediction/targetscan/without_reannotation/Snakefile"
+elif config['prediction_algorithm'] == 'miRanda' and config['reannotation'] == True:
+        include: "modules/target_prediction/miRanda/Snakefile"
+        include: "modules/target_prediction/miRanda/with_reannotation/Snakefile"
+elif config['prediction_algorithm'] == 'miRanda' and config['reannotation'] == False:
+        include: "modules/target_prediction/miRanda/Snakefile"
+        include: "modules/target_prediction/miRanda/without_reannotation/Snakefile"
+
+if config['conservation'] == True and config['prediction_algorithm'] == 'miRanda':
+	raise Exception("miRanda cannot be used when the conservation option is set to True")
+else:
+	pass
+
 for transcript in list(config['transcripts']):
 	if re.match('^ENS[A-Z]+[0-9]+.[1-9]{1,2}$',transcript):
 		pass
@@ -54,7 +71,6 @@ include: "modules/data_download/Snakefile"
 include: "modules/trim_reads/trim_galore/Snakefile"
 include: "modules/quant_reads/salmon/Snakefile"
 include: "modules/mirna/Snakefile"
-include: "modules/target_prediction/targetscan/Snakefile"
 
 wildcard_constraints:
     species="[a-z]{3,4}",

@@ -11,7 +11,7 @@ mirnas: []
 transcripts: []  #mRNA
 
 TPM_expression_threshold: 0.1
-
+prediction_algorithm: TargetScan7
 reannotation: False
 conservation: False
 sequence_data_source: ENA
