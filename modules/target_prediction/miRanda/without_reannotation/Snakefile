@@ -9,9 +9,9 @@ rule expression_filter_miRanda_nr_chr:
 
 rule expression_filter_miRanda_nr:
         input:
-            miRanda_scores="results/targets/miRanda/{species}/nr.temp.tsv",
-            expression_values="results/salmon/{species}/{tissue}.sf"
+            miRanda_scores="results/targets/miRanda/{}/nr.temp.tsv".format(config['species']),
+            expression_values="results/salmon/{}/{}.sf".format(config['species'],config['context'])
         params:
             tpm_expression_threshold=config['TPM_expression_threshold']
-        output: protected("results/targets/{species}/{tissue}/target_predictions.txt")
+        output: 'target_predictions.txt'
         script: 'filter_miRanda_scores.R'

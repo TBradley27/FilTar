@@ -10,6 +10,8 @@ paired_end: []
 mirnas: [] 
 transcripts: []  #mRNA
 
+species: mmu
+context: oocyte
 TPM_expression_threshold: 0.1
 prediction_algorithm: TargetScan7
 reannotation: False
