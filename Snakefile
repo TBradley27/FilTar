@@ -61,6 +61,11 @@ if config['conservation'] == True and config['prediction_algorithm'] == 'miRanda
 else:
 	pass
 
+if config['reannotation'] == True and config['context'] == 'reference':
+	raise Exception("The reannotation option cannot be set to True and context option set to 'reference' at the same time")
+else:
+	pass
+
 for transcript in list(config['transcripts']):
 	if re.match('^ENS[A-Z]+[0-9]+.[1-9]{1,2}$',transcript):
 		pass

@@ -7,11 +7,18 @@ rule expression_filter_contextpp_scores_chr_no_reannotation:
         output: temp("results/targets/{species}/{tissue}_chr{chrom}.contextpp.tsv")
         script: 'filter_contextpp_scores.R'
 
-rule expression_filter_contextpp_scores_no_reannotatin:
-        input:
-            contextpp_scores="results/targets/{}/nr.contextpp.tmp.tsv".format(config['species']),
-            expression_values="results/salmon/{}/{}.sf".format(config['species'],config['context'])
-        params:
-            tpm_expression_threshold=config['TPM_expression_threshold']
-        output: "target_predictions.txt"
-        script: 'filter_contextpp_scores.R'
+if config['context'] != 'reference':
+	rule expression_filter_contextpp_scores_no_reannotation:
+		input:
+			contextpp_scores="results/targets/{}/nr.contextpp.tmp.tsv".format(config['species']),
+			expression_values="results/salmon/{}/{}.sf".format(config['species'],config['context'])
+		params:
+			tpm_expression_threshold=config['TPM_expression_threshold']
+		output: "target_predictions.txt"
+		script: 'filter_contextpp_scores.R'
+elif config['context'] == 'reference':
+        rule expression_filter_contextpp_scores_no_reannotation:
+                input:
+                        contextpp_scores="results/targets/{}/nr.contextpp.tmp.tsv".format(config['species']),
+                output: "target_predictions.txt"
+                shell: "cp {input} {output}" 
