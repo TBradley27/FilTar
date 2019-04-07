@@ -12,9 +12,23 @@ It achieves this by:
 
 It also operates as a fully functional wrapper around the pre-existing TargetScan7 and miRanda target prediction workflows.
 
-## Documentation
+## Installation
 
-FilTar is fully documented at the following location: https://tbradley27.github.io/FilTar/
+Instructions on how to install FilTar can be found at the following location: https://tbradley27.github.io/FilTar/
+
+## Basic Usage
+
+FilTar can be used by following 2 steps:
+
+1. Specify the options you would like to use to run FilTar by editing `config/basic.yaml`.
+2. Run the following command:
+```
+snakemake --use-conda --cores $N target_predictions.txt
+```
+
+After running the command, all target predictions are contained inside `target_predictions.txt`.
+
+More detailed instructions can be found inside the full documentation: https://tbradley27.github.io/FilTar/
 
 ## Publication
 
