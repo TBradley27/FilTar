@@ -44,3 +44,11 @@ rule aggregate_miRanda_output_no_reannotation:
         wildcard_constraints:
                tissue="((?!filt).)*"
         shell: "cat {input} > {output}"
+
+rule add_miRanda_header:
+	input: "results/targets/miRanda/{species}/{tissue}.temp.tsv"
+	output: temp("results/targets/miRanda/{species}/{tissue}.temp2.tsv")
+	script: "add_miRanda_header.R"
+
+
+

@@ -10,7 +10,7 @@ rule expression_filter_miRanda_nr_chr:
 if config['context'] != 'reference':
 	rule expression_filter_miRanda_nr:
 		input:
-			miRanda_scores="results/targets/miRanda/{}/nr.temp.tsv".format(config['species']),
+			miRanda_scores="results/targets/miRanda/{}/nr.temp2.tsv".format(config['species']),
 			expression_values="results/salmon/{}/{}.sf".format(config['species'],config['context'])
 		params:
 			tpm_expression_threshold=config['TPM_expression_threshold']
@@ -19,6 +19,6 @@ if config['context'] != 'reference':
 elif config['context'] == 'reference':
 	rule expression_filter_miRanda_nr:
 		input:
-			miRanda_scores="results/targets/miRanda/{}/nr.temp.tsv".format(config['species']),
+			miRanda_scores="results/targets/miRanda/{}/nr.temp2.tsv".format(config['species']),
 		output: 'target_predictions.txt'
 		shell: 'cp {input} {output}'
