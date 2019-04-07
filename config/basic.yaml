@@ -14,6 +14,6 @@ species: mmu
 context: oocyte
 TPM_expression_threshold: 0.1
 prediction_algorithm: TargetScan7
-reannotation: False
+reannotation: True
 conservation: False
 sequence_data_source: ENA
