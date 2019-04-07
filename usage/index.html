@@ -22,35 +22,7 @@ title: Usage
 
 <p>Standard and default usage refers to usage of the tool in which the user reannotates 3'UTRs, filters mRNA targets by expression level, and uses TargetScan7:</p>
 
-<code>snakemake results/targets/{species}/{tissue}/target_predictions.txt</code>
-
-<p>The <code>species</code> and <code>tissue</code> wildcards will evaluate to the the species and biological context of interest. The three letter prefix of the species using the first letter of the genus name, and the first two letters of the species name must be used e.g.:<p>
-
-<code>snakemake results/targets/hsa/liver/target_predictions.txt</code>
-
-<h2>Option: no 3'UTR reannotation</h2>
-
-<p>If the user does not want to reannotate 3'UTRs, but still wishes to produce target predictions, then the <code>reannotation</code> option must be set to <code>False</code> via the command line or the configuration file<p>
-
-<p>In this case, FilTar will default to using 3'UTR annotations from the latest release of Ensembl</p> 
-
-<h2>Option: Altering the default expression filter</h2>
-
-<p>Expression filtering of putative targets is performed by default at a threshold of 0.1 TPM, as used and reported in the FilTar preprint</p>
-
-<p>The default expression threshold can be altered by modifying the value for the <code>TPM_expression_threshold</code> variable in <code>config/basic.yaml</code>.</p>
-
-<p>Alternatively this option can be set interactively by using the <code>--config</code> when running snakemake</code> 
-
-<h2>Option: no 3'UTR conservation information</h2>
-
-<p>When using Filtar to run targetscan7, the user can choose not to incorporate conservation information by running the algorithm on single 3'UTR sequences rather than multiple sequence alignments. Running targetscan with conservation information requires the download of large 100-way genome-wide alignment MAF files (totalling >500GB of information) - as a result, running the algorithm without 3'UTR conservation information would be appropriate when storage space is limited.</p>
-
-<p>The FilTar workflow can be executed without the use of 3'UTR conservation information by passing <code>--config conservation=False</code> when attemtpting to build targets. Alternatively, this option can be set using the configuration page (<code>config/basic.yaml</code>)
-
-<h2>Option: Use other target prediction algorithms</h2>
-
-<p>As mentioned previously, TargetScan7 is the default miRNA target prediction algorithm used for FilTar. However, users can also choose to use the miRanda algorithm by changing the value of the <code>prediction algorithm</code> option to <code>miRanda</code>.</p>
+<code>snakemake target_predictions.txt</code>
 
 <h2>Intermediate files</h2>
 
