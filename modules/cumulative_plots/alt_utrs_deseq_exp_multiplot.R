@@ -127,41 +127,25 @@ TPMs = as.data.frame(txi$abundance)
 TPMs$average = rowMeans(TPMs[,1:length(mock)])
 TPMs$names = rownames(txi$abundance)
 
-TPMs_low =TPMs
-
-#TPMs = dplyr::filter(TPMs, average >= snakemake@params$exp_threshold)
-
-#filt_results = filter(exp_data, baseMean > median_baseMean)
-
-filt_results = exp_data[exp_data$`resLFC@rownames` %in% TPMs$names,]
-
-########
+##########
 
 for (item in 1:length(snakemake@params$exp_threshold)){
-	TPMs_low = TPMs
-	TPMs_low = dplyr::filter(TPMs_low, average <= snakemake@params$exp_threshold[item])
-	removed_transcripts = exp_data[exp_data$`resLFC@rownames` %in% TPMs_low$names,]
-	removed_transcripts_exp = removed_transcripts$log2FoldChange[removed_transcripts$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
-	removed_transcripts_exp = removed_transcripts_exp - median(non_targets_exp)
-	removed_transcripts_tmp = paste("removed_transcripts",item,sep="_")
-	assign(
-		removed_transcripts_tmp, 
-		tibble(fc=removed_transcripts_exp,
-		legend=stringr::str_interp("Seed site (${snakemake@params$exp_threshold[item]} TPM) (n=${length(removed_transcripts_exp)})"))
-		)
-	print(removed_transcripts_tmp)
+	TPMs = dplyr::filter(TPMs, average >= snakemake@params$exp_threshold[item])
+	filt_results = exp_data[exp_data$`resLFC@rownames` %in% TPMs$names,]
+	filt_targets_exp = filt_results$log2FoldChange[filt_results$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
+	filt_targets_exp = filt_targets_exp - median(non_targets_exp)
+	filt_targets_tmp = paste("filt_targets",item,sep="_")
+	assign(filt_targets_tmp, tibble(fc=filt_targets_exp, legend=stringr::str_interp("Seed site (${snakemake@params$exp_threshold[item]} TPM) (n=${length(filt_targets_exp)})")))
+	print(filt_targets_tmp)
 }
 
-print(removed_transcripts_1)
-print(removed_transcripts_2)
-print(removed_transcripts_3)
-print(removed_transcripts_4)
-print(removed_transcripts_5)
+print(filt_targets_1)
+print(filt_targets_2)
+print(filt_targets_3)
+print(filt_targets_4)
+print(filt_targets_5)
 
-########
-
-filt_targets_exp = filt_results$log2FoldChange[filt_results$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
-filt_targets_exp = filt_targets_exp - median(non_targets_exp)
+##########
 
 filt_non_targets_exp = filt_results$log2FoldChange[!filt_results$`resLFC@rownames` %in% canon_targets$a_Gene_ID]
 filt_non_targets_exp = filt_non_targets_exp - median(non_targets_exp)
@@ -177,16 +161,13 @@ nontargets = tibble(fc=non_targets_exp2)
 nontargets$legend = stringr::str_interp("No seed site (n=${length(non_targets_exp)})")
 
 canon_targets = tibble(fc=canon_targets_exp)
-canon_targets$legend = stringr::str_interp("Seed site (n=${length(canon_targets_exp)})")
+canon_targets$legend = stringr::str_interp("Seed site (0.0 TPM) (n=${length(canon_targets_exp)})")
 
-filt_targets = tibble(fc=filt_targets_exp)
-filt_targets$legend = stringr::str_interp("Seed site (filtered) (n=${length(filt_targets_exp)})")
+#filt_targets = tibble(fc=filt_targets_exp)
+#filt_targets$legend = stringr::str_interp("Seed site (filtered) (n=${length(filt_targets_exp)})")
 
 filt_non_targets = tibble(fc=filt_non_targets_exp)
 filt_non_targets$legend = stringr::str_interp("No seed binding (filtered) (n=${length(filt_non_targets_exp)})")
-
-removed_transcripts = tibble(fc=removed_transcripts_exp)
-removed_transcripts$legend = stringr::str_interp("Removed sites (n=${length(removed_transcripts_exp)})")
 
 #filtered = tibble(fc=x)
 #filtered$legend = stringr::str_interp("No seed binding (n=${length(x)})")
@@ -194,8 +175,7 @@ removed_transcripts$legend = stringr::str_interp("Removed sites (n=${length(remo
 #not_filtered = tibble(fc=y)
 #not_filtered$legend = stringr::str_interp("No seed binding (n=${length(y)})")
 
-
-ggplot_df = rbind(nontargets,removed_transcripts_1,removed_transcripts_2,removed_transcripts_3,removed_transcripts_4,removed_transcripts_5)
+ggplot_df = rbind(nontargets,canon_targets, filt_targets_1,filt_targets_2,filt_targets_3,filt_targets_4,filt_targets_5)
 
 p_value = ks.test(filt_targets_exp,canon_targets_exp, alternative='greater')
 
@@ -213,20 +193,21 @@ ggplot_object = ggplot(
         bquote(
                 .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
-        y="",
+        y="Cumulative Proportion",
 	tag=expression(bold("A")),
-        x=""
-#        subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) )
+        x=expression('log'[2]*'(mRNA Fold Change)') 
+        #subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) )
 	) +
-  theme(legend.title=element_blank(), legend.position=c(0.785,0.27)) +
+  theme(legend.title=element_blank(), legend.position=c(0.77,0.27)) +
   scale_color_manual(
-        values=c("black","limegreen","lightgoldenrod","darkorchid1","aquamarine","hotpink1"),
+	values=c("black","darkorange","limegreen","lightgoldenrod","darkorchid1","aquamarine","hotpink1"),
         breaks=c(    # change legend order
-                        stringr::str_interp("Seed site (10 TPM) (n=11806)"), 
-                        stringr::str_interp("Seed site (5 TPM) (n=10300)"), 
-                        stringr::str_interp("Seed site (1 TPM) (n=6777)"),
-                        stringr::str_interp("Seed site (0.5 TPM) (n=5451)"),
-                        stringr::str_interp("Seed site (0.1 TPM) (n=2838)"),
+			stringr::str_interp("Seed site (10 TPM) (n=2224)"),
+			stringr::str_interp("Seed site (5 TPM) (n=3730)"),
+			stringr::str_interp("Seed site (1 TPM) (n=7253)"),
+			stringr::str_interp("Seed site (0.5 TPM) (n=8579)"),
+                        stringr::str_interp("Seed site (0.1 TPM) (n=11192)"),
+                        stringr::str_interp("Seed site (0.0 TPM) (n=${length(canon_targets_exp)})"),
                         stringr::str_interp("No seed site (n=${length(non_targets_exp)})")
                         )
 	) +

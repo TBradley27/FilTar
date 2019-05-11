@@ -11,6 +11,39 @@ rule figure1:
 	output: 'results/plots/figure1.png'
 	script: 'cumulative_plots.R'
 
+#rule sup_fig8:
+#	input:
+#		A549='A549_multi_threshold_plot.rds',
+#		HeLa='HeLa_multi_threshold_plot.rds',
+#		NMuMG="NMuMG_multi_threshold_plot.rds",
+#		ESCs="ESCs_multi_threshold_plot.rds"
+#	output: 'results/plots/sup_fig8.png'
+#	script: 'supplementary_figure_8.R'
+
+rule get_cumulative_plot_expression_filtering_multi_plot:
+        input:
+                quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
+                quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
+                canon_targets = "results/targets/{species}_msa_nr_{miRNA}.sites.tsv",
+                pc_transcripts="results/bed/{species}_all_protein_coding_transcripts.txt"
+        params:
+                nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+                target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+                exp_threshold= [0.1,0.5,1.0,5.0,10.0],
+                x_lim=2.00
+        threads: 16
+        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_exp_mp.rds"
+        script: "alt_utrs_deseq_exp_multiplot.R"
+
+rule figure1_multi:
+        input:
+                A549="results/plots/hsa_PRJNA304643_miR-1343-3p_A549_exp_mp.rds",
+                HeLa="results/plots/hsa_PRJNA512378_miR-16-5p_HeLa_exp_mp.rds",
+                NMuMG="results/plots/mmu_PRJNA340017_miR-1199-5p_NMuMG_exp_mp.rds",
+                ESCs='results/plots/mmu_PRJNA270999_miR-294-3p_ESCs_exp_mp.rds'
+        output: 'results/plots/figure1_mp.png'
+        script: 'cumulative_plots.R'
+
 rule sup_fig1:
         input:
                 A549="results/plots/hsa_PRJNA304643_miR-1343-3p_A549_sup_fig1.rds",
@@ -18,6 +51,15 @@ rule sup_fig1:
                 NMuMG="results/plots/mmu_PRJNA340017_miR-1199-5p_NMuMG_sup_fig1.rds",
                 ESCs='results/plots/mmu_PRJNA270999_miR-294-3p_ESCs_sup_fig1.rds'
         output: 'results/plots/supplementary_figure1.png'
+        script: 'cumulative_plots.R'
+
+rule sup_fig1_multi:
+        input:
+                A549="results/plots/hsa_PRJNA304643_miR-1343-3p_A549_sup_fig1_mp.rds",
+                HeLa="results/plots/hsa_PRJNA512378_miR-16-5p_HeLa_sup_fig1_mp.rds",
+                NMuMG="results/plots/mmu_PRJNA340017_miR-1199-5p_NMuMG_sup_fig1_mp.rds",
+                ESCs='results/plots/mmu_PRJNA270999_miR-294-3p_ESCs_sup_fig1_mp.rds'
+        output: 'results/plots/supplementary_figure1_mp.png'
         script: 'cumulative_plots.R'
 
 rule figure2:
@@ -78,6 +120,21 @@ rule supplementary_figure_1:
                 x_lim=2.00
         threads: 16
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_sup_fig1.rds"
+        script: "supplementary_figure1.R"
+
+rule supplementary_figure_1_multi_plot:
+        input:
+                quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
+                quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
+                canon_targets = "results/targets/{species}_msa_nr_{miRNA}.sites.tsv",
+                pc_transcripts="results/bed/{species}_all_protein_coding_transcripts.txt"
+        params:
+                nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+                target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+                exp_threshold=[0.1,0.5,1.0,5.0,10.0],
+                x_lim=1.20
+        threads: 16
+        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_sup_fig1_mp.rds"
         script: "supplementary_figure1.R"
 
 rule supplementary_data1_plots:
