@@ -101,7 +101,7 @@ def get_NCBI_taxonomic_id(wildcards):
 rule reformat_bed_file_for_bedtools_nr:
         input: "results/bed/{species}_{feature}.chr{chrom}.nr.bed"
         output: "results/bed/{species}_{feature}.chr{chrom}.bedtools.nr.bed"
-        shell: "exe/get_bedtools_bed.sh {input} {output}"
+        shell: "scripts/get_bedtools_bed.sh {input} {output}"
 
 rule get_single_species_seq_fa_nr:
         input:
@@ -120,7 +120,7 @@ rule convert_fasta_to_tsv_nr:
         input: "results/msa/{species}_chr{chrom}_{feature}.tmp2.nr.fa"
         output: "results/msa/{species}_chr{chrom}_{feature}_msa_nr.tsv"
         params: get_NCBI_taxonomic_id
-        shell: "exe/convert_fa_to_tsv2.sh {input} {params} {output}"
+        shell: "scripts/convert_fa_to_tsv2.sh {input} {params} {output}"
 
 ####
 
