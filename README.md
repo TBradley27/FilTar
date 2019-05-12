@@ -28,6 +28,10 @@ snakemake --use-conda --cores $N target_predictions.txt
 
 After running the command, all target predictions are contained inside `target_predictions.txt`.
 
+The following video presents a concise demonstration of basic FilTar usage:
+
+https://www.youtube.com/watch?v=Xhl-nsg7_xo
+
 More detailed instructions can be found inside the full documentation: https://tbradley27.github.io/FilTar/
 
 ## Publication
