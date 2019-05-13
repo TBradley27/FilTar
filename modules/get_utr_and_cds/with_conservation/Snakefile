@@ -30,7 +30,7 @@ rule biopython_get_msa:
            maf_index="data/{species}_chr{chrom}.mafindex", 
            shell_script="scripts/targetscan7/convert_fasta_to_tsv.sh" 
         output: 
-           "results/msa/{species}_{tissue}_chr{chrom}_{feature}_msa.tsv" 
+           temp("results/msa/{species}_{tissue}_chr{chrom}_{feature}_msa.tsv")
         conda: 
            "envs/biopython.yaml" 
         script: 
