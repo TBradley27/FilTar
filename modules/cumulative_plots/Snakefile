@@ -8,7 +8,7 @@ rule figure1:
 		HeLa="results/plots/hsa_PRJNA512378_miR-16-5p_HeLa_exp.rds",
 		NMuMG="results/plots/mmu_PRJNA340017_miR-1199-5p_NMuMG_exp.rds",
 		ESCs='results/plots/mmu_PRJNA270999_miR-294-3p_ESCs_exp.rds'
-	output: 'results/plots/figure1.png'
+	output: 'results/plots/figure1.pdf'
 	script: 'cumulative_plots.R'
 
 #rule sup_fig8:
@@ -238,7 +238,7 @@ rule get_cumulative_plot_expression_filtering: # Figure 1 & Supplementary Data f
                 nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
                 exp_threshold=0.1,
-                x_lim=2.00
+                x_lim=1.00
         threads: 16
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_exp.rds"
         script: "alt_utrs_deseq_exp.R"

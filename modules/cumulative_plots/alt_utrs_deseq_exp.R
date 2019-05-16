@@ -183,12 +183,12 @@ ggplot_object = ggplot(
         bquote(
                 .(str_interp("${snakemake@wildcards$miRNA}")) ~ 'transfection' ~ .(str_interp("(${snakemake@wildcards$cell_line})"))
         ),
-        y="Cumulative Proportion",
-	tag=expression(bold("")),
-        x=expression('log'[2]*'(mRNA Fold Change)'), 
+        y=NULL, #"Cumulative Proportion",
+	tag=expression(bold("A")),
+        x=NULL, #expression('log'[2]*'(mRNA Fold Change)'), 
         subtitle=as.expression(bquote(~ p %~~% .(format (p_value$p.value, nsmall=3, digits=3) ) ) )
 	) +
-  theme(legend.title=element_blank(), legend.position=c(0.77,0.18)) +
+  theme(legend.title=element_blank(), legend.position=c(0.765,0.18)) +
   scale_color_manual(
 	values=c("black","limegreen","darkorange"),
         breaks=c(    # change legend order

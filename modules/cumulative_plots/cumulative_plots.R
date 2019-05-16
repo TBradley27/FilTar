@@ -18,4 +18,4 @@ g = arrangeGrob(A549, HeLa, NMuMG, ESCs,
                gp=gpar(fontface="bold")
                )
              )
-ggsave(snakemake@output[[1]],plot = g, scale=1.25)
+ggsave(snakemake@output[[1]],plot = g, scale=1.25, dev='pdf')
