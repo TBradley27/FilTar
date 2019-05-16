@@ -155,7 +155,7 @@ rule reannotate_3utrs:
         coverage_cutoff=0.05,
         window_size=100
     shell:
-       "{input.script} -i {input.bedgraphs} -p {params.percentage_cutoff} -c {params.coverage_cutoff} -w {params.window_size} -m {input.bed} -o {output}"
+       "perl {input.script} -i {input.bedgraphs} -p {params.percentage_cutoff} -c {params.coverage_cutoff} -w {params.window_size} -m {input.bed} -o {output}"
 
 rule get_extended_bed_file:
          input:
@@ -183,7 +183,7 @@ rule identify_APA_sites:
      output:
         temp("results/targets/{species}_{tissue}_chr{chrom}.APA.txt")
      shell:
-        "{input.script} -i {input.bedgraphs} -g 1 -n 1 -u {input.bed}  -o {output}"
+        "perl {input.script} -i {input.bedgraphs} -g 1 -n 1 -u {input.bed}  -o {output}"
 
 rule aggregate_APA_sites:
         input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}.APA.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
