@@ -8,7 +8,7 @@ title: Dependencies
 
 <ol>
 
-<li><strong>Conda:</strong> FilTar is a snakemake project and it is therefore required that the conda package manager is installed on your system. The easiest way to do this is to obtain conda through the relatively lightweight miniconda python distribution, which only contains conda and its dependencies (<a href="https://conda.io/docs/user-guide/install/index.html">Installation Instructions</a>).</li></br>
+<li><strong>Conda (using python3):</strong> FilTar is a snakemake project and it is therefore required that the conda package manager is installed on your system. The easiest way to do this is to obtain conda through the relatively lightweight miniconda python distribution, which only contains conda and its dependencies (<a href="https://docs.conda.io/en/latest/miniconda.html">Installation Instructions</a>). Ensure that you have installed a version of conda compatible with python3.</li></br>
 
 <li><strong>Snakemake:</strong> <a href="https://snakemake.readthedocs.io/en/stable/getting_started/installation.html">Snakemake</a> can be installed using conda easily with the following command:
 
@@ -33,7 +33,7 @@ title: Dependencies
 
 <p><code>conda install -c bioconda perl-app-cpanminus</code><br></p>
 
-<p><strong>Warning:</strong> Once cpanm is installed, it is recommended to situate a native perl binary/installation on your path, so that it precedes the conda installation of perl. This can be verified using the <code>which perl</code> command. We recommend this, as using the conda perl installation when installing modules and running perl scripts within FilTar can lead to segmentation faults.</p>
+<p><strong>Warning:</strong> Once cpanm is installed, it is recommended to set a native perl binary/installation as being the default perl installation in your environment. This will ensure perl modules are installed and perl scripts executed using this version of perl on your system. This can be achieved by modifying your <code>PATH</code> environment so that the path to the perl installation you wish to use precedes any other paths pointing to any other perl installations on your system. This can be verified using the <code>which perl</code> command. We recommend this, as using the conda perl installation when installing modules and running perl scripts within FilTar can lead to segmentation faults.</p>
 
 <p>All required perl modules can be installed as follows:</p>
 
