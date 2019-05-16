@@ -29,18 +29,25 @@ title: Dependencies
 
 </li><br>
 
-<li><strong>Perl modules:</strong> It is not recommended to install perls module using conda*. The recommended method of installing perl modules for us with filtar is to install cpanm perl package manager, and then to manually install perl modules using cpanm. cpanm can itself be installed using conda:
+<li><strong>Perl modules:</strong> The recommended method of installing perl modules for use with FilTar is to install the cpanm perl package manager, and then to manually install perl modules using cpanm, which itself can be installed using conda:
 
 <p><code>conda install -c bioconda perl-app-cpanminus</code><br></p>
 
-Two perl modules are needed to correctly execute targetscan7 - <code>Bio::TreeIO</code> and <code>Statistics::Lite</code>. <p>They can be installed as follows:</p>
+<p><strong>Warning:</strong> Once cpanm is installed, it is recommended to situate a native perl binary/installation on your path, so that it precedes the conda installation of perl. This can be verified using the <code>which perl</code> command. We recommend this, as using the conda perl installation when installing modules and running perl scripts within FilTar can lead to segmentation faults.</p>
+
+<p>All required perl modules can be installed as follows:</p>
 
 <p><code>cpanm Bio::Perl</code><br></p>
 <p><code>cpanm Statistics::Lite</code></p>
+<p><code>cpanm Getopt::Long</code></p>
+<p><code>cpanm Smart::Comments</code></p>
+<p><code>cpanm experimental</code></p>
+<p><code>cpanm List::Util</code></p>
+<p><code>cpanm List::MoreUtils</code></p>
+<p><code>cpanm Math::NumberCruncher</code></p>
+<p><code>cpanm Exporter:Tiny</code></p>
 
-APAtrap needs the following modules to be installed in order to run: <code>Getopt::Long</code>,<code>Smart::Comments</code>,<code>List::Util</code>,<code>experimental</code>,<code>List::MoreUtils</code> and <code>Math::NumberCruncher</code><br>
-
-* This is because conda installs perl modules in different non-interacting directories using different installations of perl, making them very difficult if not possible to use together.
+It is not recommended to install perl module using conda. This is because conda installs perl modules in different non-interacting directories using different installations of perl, making them very difficult if not possible to use together.
 </li><br>
 <li><strong>Other:</strong> For the remaining dependencies, the user has the choice of the following two options:<br><br>
 
