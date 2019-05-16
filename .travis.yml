@@ -24,7 +24,7 @@ install:
    - conda config --add channels r
    - conda config --add channels conda-forge
    - conda config --add channels bioconda
-   - conda create -q -n test-environment snakemake r r-devtools perl-app-cpanminus python=$TRAVIS_PYTHON_VERSION
+   - travis_wait conda create -q -n test-environment snakemake r r-devtools perl-app-cpanminus python=$TRAVIS_PYTHON_VERSION
 
 script:
    - source activate test-environment
@@ -33,7 +33,7 @@ script:
    - cpanm Statistics::Lite
    - Rscript -e 'devtools::install_github("TBradley27/filtar_R")'
    - snakemake --version
-   - snakemake --use-conda -p results/targets/mmu/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7 && head results/targets/mmu/oocyte_chrY.contextpp.tsv && rm -f results/targets/mmu/oocyte_chrY.contextpp.tsv ## create empty target for downstream command
+   - travis_wait 50 snakemake --use-conda -p results/targets/mmu/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7 && head results/targets/mmu/oocyte_chrY.contextpp.tsv && rm -f results/targets/mmu/oocyte_chrY.contextpp.tsv ## create empty target for downstream command
    - snakemake --use-conda -p results/targets/miRanda/mmu/oocyte/chrY.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0 prediction_algorithm=miRanda
    - head results/targets/miRanda/mmu/oocyte/chrY.tsv
    - snakemake --use-conda -p results/targets/mmu/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=True reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7
