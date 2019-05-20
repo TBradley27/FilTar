@@ -17,9 +17,9 @@ rule get_gtf_file:
      shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/gtf/{params}/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf.gz data/ && gunzip data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf.gz && sed 's/^chr//g' data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf > tmp && mv tmp data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf"
 
 rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
-        input: "data/{species_prefix}.{ensembl_release}.chr.gtf"
+        input: "data/MANE.GRCh38.v0.5.select_ensembl_genomic.gff"
         output: "data/{species_prefix}.{ensembl_release}.mod.chr.gtf"
-        shell: "sed -r 's/^MT//g' {input} | sed '/^\t/d'  > {output}" # delete mitochondiral records and records not assigned to a chromosome
+        shell: "sed 's/^chr//g' {input}  > {output}" # delete mitochondiral records and records not assigned to a chromosome
 
 rule get_transcript_ids:
         input:

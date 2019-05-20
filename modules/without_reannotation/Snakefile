@@ -30,9 +30,9 @@ rule gtf_to_bed_no_reannotation:
             gtf=get_gtf_file,
             script="scripts/pre-processing/gtf_to_bed.sh"
         output:
-            "results/bed/{species}_{feature}.chr{chrom}.bed"
-        shell:
-            "{input.script} {input.gtf} {wildcards.feature} {wildcards.chrom} {output}"
+            "results/bed/{species}_{feature}.bed"
+        script:
+            "gtf_to_bed.R"
 
 rule get_utr_lengths_no_reannotation:
         input:  'results/bed/{species}_3UTR.chr{chrom}.bed'

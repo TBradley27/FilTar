@@ -21,7 +21,7 @@ def get_tax_id(wildcards):
 
 rule prep_mirna_seeds:
         input:                      
-           data="data/mature.fa",
+           data="data/mature_high_conf.fa",
            script="scripts/get_mirna_seeds.sh"
         output:
            "results/mature_mirna_seed.tsv"
@@ -38,7 +38,7 @@ rule prep_mirna_family_file:
 
 rule prep_mirna_mature_alt:
         input:
-           data="data/mature.fa",
+           data="data/mature_high_conf.fa",
            script="scripts/prep_mirna_mature_alt.sh"
         output: "results/{species}_mature_mirna.tsv"
 	params: get_tax_id

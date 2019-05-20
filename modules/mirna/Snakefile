@@ -16,7 +16,7 @@
 
 rule mirna_species_fasta:
         input:
-           "data/mature.fa"
+           "data/mature_high_conf.fa"
         output:
            "data/mirbase_mature_{species}.fa"
         shell:
