@@ -1,0 +1,63 @@
+rule targetscan_sites:
+        input:
+           msa="mock_3UTRs.tsv",
+           mirna_families="mock_seeds.tsv",
+           script="../../../../exe/targetscan7/targetscan_70.pl"
+        output:
+           "mock_sites_tmp.tsv"
+        shell:
+           "{input.script} {input.mirna_families} {input.msa} {output}"
+
+rule fix_targetscan_sites_output:
+	input: "mock_sites_tmp.tsv"
+	output: "mock_sites.tsv"
+	script: "fix_ts_output.R"
+
+rule targetscan_branch_lengths:
+        input:
+           msa_3UTR="mock_3UTRs.tsv",
+           PCT_param="exe/targetscan7/PCT_parameters",
+           script="../../../../exe/targetscan7/targetscan_70_BL_bins.patch.pl"
+        output:
+             "mock_branch_lengths.tsv"
+        shell:
+            "{input.script} {input.msa_3UTR} hsa > {output}"
+
+rule targetscan_PCTs:
+        input:
+            mirna_family="mock_seeds.tsv",
+            mirna_sites="mock_sites.tsv",
+            branch_lengths="mock_branch_lengths.tsv",
+            script="../../../../exe/targetscan7/targetscan_70_BL_PCT.patch.pl",
+            PCT_param="exe/targetscan7/PCT_parameters"
+        output:
+            "mock_PCTs.tsv"
+        shell:
+            "{input.script} {input.mirna_family} {input.mirna_sites} {input.branch_lengths} > {output}"
+
+rule targetscan_eightmers:
+        input:
+            mirna_seeds="mock_seeds.tsv",
+            CDS_msa="mock_CDS.tsv",
+            script="../../../../exe/targetscan7/targetscan_count_8mers.pl"
+        output:
+            eightmer_counts="mock_eightmers.tsv",
+            CDS_lengths="mock_CDS.tsv.lengths.txt"
+        shell:
+            "{input.script} {input.mirna_seeds} {input.CDS_msa} > {output.eightmer_counts}"
+
+rule targetscan_context_scores:
+        input:
+            mirnas="mock_mature_mirnas.tsv",
+            msa="mock_3UTRs.tsv",
+            PCTs="mock_PCTs.tsv",
+            CDS_lengths="mock_CDS.tsv.lengths.txt",
+            eightmer_counts="mock_eightmers.tsv",
+            agarwal_param="exe/targetscan7/Agarwal_2015_parameters.txt",
+            AIRs="exe/targetscan7/All_cell_lines.AIRs.txt",
+            TA_SPS_param="exe/targetscan7/TA_SPS_by_seed_region.txt",
+            script="../../../../exe/targetscan7/targetscan_70_context_scores.patch.pl"
+        output:
+            "{species}_mock_contextpp.tsv"
+        shell:
+            "perl {input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {wildcards.species}"

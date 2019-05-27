@@ -1,0 +1,31 @@
+
+rule targetscan_sites_profiles:
+        input:
+           msa=ancient("results/{species}_chr{chrom}_msa.tsv"),
+           mirna_families=ancient("results/mirna_family.tsv"),
+           script="exe/targetscan7/targetscan_70.pl"
+        output:
+           "results/{species}_chr{chrom}_msa.sites.profile.tsv"
+        benchmark:
+           "benchmarks/{species}_chr{chrom}_msa.sites.log"
+        shell:
+           "perl -d:NYTProf {input.script} {input.mirna_families} {input.msa} {output}"
+
+rule targetscan_context_scores_profiling:
+        input:
+            mirnas="results/{species}_mir_for_context_scores.tsv",
+            msa="results/{species}_chr{chrom}_msa.tsv",
+            PCTs="results/{species}_chr{chrom}_msa.PCTs.tsv",
+            CDS_lengths="results/{species}_CDS_chr{chrom}.tsv.lengths.txt",
+            eightmer_counts="results/{species}_chr{chrom}_msa.eightmers.tsv",
+            contextpp_script="exe/targetscan7/targetscan_70_context_scores.patch.pl",
+            agarwal_param="exe/targetscan7/Agarwal_2015_parameters.txt",
+            AIRs="exe/targetscan7/All_cell_lines.AIRs.txt",
+            TA_SPS_param="exe/targetscan7/TA_SPS_by_seed_region.txt",
+            script="exe/targetscan7/targetscan_70_context_scores.patch.pl"
+        output:
+            "results/{species}_chr{chrom}_msa.contextpp.profile.tsv"
+        benchmark:
+            "benchmarks/{species}_chr{chrom}_msa.contextpp.log"
+        shell:
+            "perl -d:NYTProf {input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} species['{wildcards.species}']"
