@@ -8,10 +8,10 @@ import pandas
 from snakemake.utils import report
 
 
-data = pandas.read_table("{}".format(snakemake.input))
+data = pandas.read_table("{}".format(snakemake.input[0]))
 
 data = data[["secondary_sample_accession","Sample Characteristic[organism part]"]]
-data['species_id'] = '9606'
+data['species_id'] = snakemake.params['table']
 data = data.drop_duplicates()
 
 data.columns=['name','tissue_id','species_id']

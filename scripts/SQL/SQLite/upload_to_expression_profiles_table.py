@@ -6,15 +6,11 @@ import os
 from subprocess import call
 import pandas
 
-print(sys.argv)
-print("results/{}_avg.sf".format(sys.argv[4]))
-
-
-data = pandas.read_table("results/{}_avg.sf".format(sys.argv[4]) )
+data = pandas.read_table(snakemake.input['data'])
 
 data = data[['Name','avg']]
 
-data['tissue'] = "{}".format(sys.argv[4])
+data['tissue'] = snakemake.wildcards['tissue']
 
 data.columns = ['mrnas_id','TPM','experiments_id']
 data.index.names = ['id']
@@ -25,8 +21,8 @@ data['mrnas_id'].replace(regex=True,inplace=True,to_replace=r'\..*',value=r'')
 conn = sqlite3.connect('filtar.db')
 c = conn.cursor()
 
-c.execute("DELETE FROM {};".format(sys.argv[2]))
-conn.commit()
+#c.execute("DELETE FROM {};".format(sys.argv[2]))
+#conn.commit()
 #c.execute("PRAGMA foreign_keys = ON")
 #conn.commit()
 
@@ -36,4 +32,4 @@ data.to_sql('expression_profiles', con=conn, if_exists='append')
 
 conn.commit()
 conn.close()
-call(['touch', "{}".format(sys.argv[3])])
+call(['touch', snakemake.output[0]])

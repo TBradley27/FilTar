@@ -26,26 +26,27 @@ rule upload_to_gene_species_table:
         script:
            "upload_to_gene_species_table.py"
 
-rule upload_to_utr_length_table:
-	input:
-		"results/{tissue}.utr.full.tsv"
-	output:
-		"results/utr_lengths_{tissue}_loaded.txt"
-	params:
-		table="utr_length"
-	script:
-		"upload_to_utr_length_table.py"
+#rule upload_to_utr_length_table:
+#	input:
+#		"results/{tissue}.utr.full.tsv"
+#	output:
+#		"results/utr_lengths_{tissue}_loaded.txt"
+#	params:
+#		table="utr_length"
+#	script:
+#		"upload_to_utr_length_table.py"
 
 rule upload_to_mRNA_table:
         input:
-           data="results/tx_and_gene_IDs.txt",
-           script="sub_snakemake/upload_to_tables/SQLite/upload_to_table.py"
+           table="results/mRNA_table_created.txt",
+           data="results/tx_and_gene_IDs_{species}.txt",
+           script="modules/upload_to_tables/SQLite/upload_to_table.py"
         output:
            "results/mRNA_table_loaded_{species}.txt"
-	params:
-		table="mRNA",
-		columns=["mRNA_ID","annotator","annotation_version","Gene_ID"]
-	script:
+        params:
+                table="mRNA",
+                columns=["mRNA_ID","annotator","annotation_version","Gene_ID"]
+        script:
            "upload_to_table.py"
 
 rule upload_to_Tissues_table:
@@ -60,19 +61,20 @@ rule upload_to_Tissues_table:
 
 rule upload_to_samples_table:
         input:
-           "data/read_sample_mapping.tsv"
+           "data/sample_tissue_mapping_{species}.tsv","results/samples_table_created.txt"
         output:
-           "results/samples_table_loaded_hsa.txt"
+           "results/samples_table_loaded_{species}.txt"
         params:
-           table="Samples"
+           table="Samples",
+           tax_id=get_tax_id
         script:
            "upload_to_samples_table.py"
 
 rule upload_to_runs_table:
         input:
-           "data/read_sample_mapping.tsv"
+           "data/read_sample_mapping_{species}.tsv", "results/runs_table_created.txt"
         output:
-           "results/runs_table_loaded_hsa.txt"
+           "results/runs_table_loaded_{species}.txt"
         params:
            table="Runs"
         script:
@@ -80,22 +82,22 @@ rule upload_to_runs_table:
 
 rule upload_to_expression_profiles_table:
         input:
-           data="results/{tissue}_avg.sf",
+           data="results/salmon/{species}/{tissue}.sf",
            dependency_exp_table="results/expression_profiles_table_created.txt",
-           dependency_mrna_loaded="results/mRNA_table_loaded_hsa.txt",
-           script="exe/SQL/SQLite/upload_to_expression_profiles_table.py"
+           dependency_mrna_loaded="results/mRNA_table_loaded_{species}.txt"
+           #script="scripts/SQL/SQLite/upload_to_expression_profiles_table.py"
         output:
-           "results/{tissue}_expression_profiles_table_loaded.txt"
-        shell:
-           "{input.script} {input.data} expression_profiles {output} {wildcards.tissue}"
+           "results/{species}/{tissue}_expression_profiles_table_loaded.txt"
+        script:
+              "upload_to_expression_profiles_table.py"  #"{input.script} {input.data} expression_profiles {output} {wildcards.tissue}"
 
 rule upload_mirna_data:
         input:
-            data="results/mature_mirna_for_db.tsv",
+            data="results/{species}_mature_mirna_for_loading.tsv",
             dependency="results/mirna_table_created.txt",
-            script="sub_snakemake/upload_to_tables/SQLite/upload_to_table.py"
+            script="modules/upload_to_tables/SQLite/upload_to_table.py"
         output:
-            "results/mirnas_loaded.txt"
+            "results/mirnas_{species}_loaded.txt"
 	params:
 		table="miRNA",
 		columns = ['name','species']
@@ -113,7 +115,7 @@ rule upload_mirna_data:
 
 rule upload_to_contextpp_table:
         input:
-            data=ancient("results/targets/{species}_{tissue}_msa.contextpp.tsv"),
+            data=ancient("results/targets/{species}/{tissue}.contextpp.tsv"),
             dependency=ancient("results/targetscan_table_created.txt")
         output:
             "results/table_uploads/contextpp_{species}_{tissue}_loaded.txt"

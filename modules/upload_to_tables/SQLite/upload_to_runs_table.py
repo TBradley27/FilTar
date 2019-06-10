@@ -8,7 +8,7 @@ import pandas
 from snakemake.utils import report
 
 
-data = pandas.read_table("{}".format(snakemake.input))
+data = pandas.read_table("{}".format(snakemake.input[0]))
 
 data = data[["Run","secondary_sample_accession"]]
 

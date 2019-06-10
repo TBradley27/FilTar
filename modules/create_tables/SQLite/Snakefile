@@ -18,7 +18,7 @@ rule create_utr_lengths_table:
 
 rule create_mRNA_table:
         input:
-           "exe/SQL/SQLite/create_mRNA_table.py"
+           "scripts/SQL/SQLite/create_mRNA_table.py"
         output:
            "results/mRNA_table_created.txt"
         shell:
@@ -26,7 +26,7 @@ rule create_mRNA_table:
 
 rule create_Tissues_table:
         input:
-           "exe/SQL/SQLite/create_tissues_table.py"
+           "scripts/SQL/SQLite/create_tissues_table.py"
         output:
            "results/tissues_table_created.txt"
         shell:
@@ -46,7 +46,7 @@ rule create_runs_table:
 
 rule create_expression_profiles_table:
          input:
-            script="exe/SQL/SQLite/create_expression_profiles_table.py",
+            script="scripts/SQL/SQLite/create_expression_profiles_table.py",
             dependency="results/mRNA_table_created.txt"
          output:
             "results/expression_profiles_table_created.txt"
@@ -55,7 +55,7 @@ rule create_expression_profiles_table:
 
 rule create_species_table:
         input:
-           "exe/SQL/SQLite/create_species_table.sql"
+           "scripts/SQL/SQLite/create_species_table.sql"
         output:
            "results/species_table_created.txt"
         shell:
@@ -63,7 +63,7 @@ rule create_species_table:
 
 rule create_mirna_table:
         input:
-           script="exe/SQL/SQLite/create_mirna_table.py",
+           script="scripts/SQL/SQLite/create_mirna_table.py",
            dependency="results/species_table_created.txt"
         output:
            "results/mirna_table_created.txt"

@@ -17,9 +17,9 @@ rule get_gtf_file:
      shell: "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/gtf/{params}/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf.gz data/ && gunzip data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf.gz && sed 's/^chr//g' data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf > tmp && mv tmp data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf"
 
 rule modify_gtf_file: # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
-        input: "data/MANE.GRCh38.v0.5.select_ensembl_genomic.gff"
+        input: "data/{species_prefix}.{ensembl_release}.chr.gtf"
         output: "data/{species_prefix}.{ensembl_release}.mod.chr.gtf"
-        shell: "sed 's/^chr//g' {input}  > {output}" # delete mitochondiral records and records not assigned to a chromosome
+        shell: "sed -r 's/^MT//g' {input} | sed '/^\t/d'  > {output}" # delete mitochondiral records and records not assigned to a chromosome
 
 rule get_transcript_ids:
         input:
@@ -66,40 +66,40 @@ rule download_maf_files_mouse:
         shell:
            "wget --directory-prefix=data/maf_mmu/ -nv http://hgdownload.cse.ucsc.edu/goldenPath/mm10/multiz60way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"
 
-rule download_targetscan_data1:
-        input:
-        output:
-            "exe/targetscan7/targetscan_70.pl"
-        shell:
-            "cd exe/targetscan7 && wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70.zip && unzip targetscan_70.zip && rm UTR_Sequences_sample.txt miR_Family_info_sample.txt\
- targetscan_70_output.txt README_70.txt targetscan_70.zip"
-
-rule download_targetscan_data2:
-        input:
-        output:
-            bins_script="exe/targetscan7/targetscan_70_BL_bins.pl",
-            PCT_script="exe/targetscan7/targetscan_70_BL_PCT.pl",
-            PCT_parameters="exe/targetscan7/PCT_parameters"
-        shell:
-            "wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70_BL_PCT.zip && unzip targetscan_70_BL_PCT.zip && mv\
-  TargetScan7_BL_PCT/PCT_parameters TargetScan7_BL_PCT/targetscan_70_BL_bins.pl TargetScan7_BL_PCT/targetscan_70_BL_PCT.pl exe/targetscan7 && rm -rf targetscan_70_BL_PCT.zip TargetScan7_BL_PCT/"
-
-rule download_targetscan_data3: # fix this
-         input:
-         output:
-             agarwal_par="exe/targetscan7/Agarwal_2015_parameters.txt",
-             contextpp_script="exe/targetscan7/targetscan_70_context_scores.pl",
-             eightmer_script="exe/targetscan7/targetscan_count_8mers.pl",
-             TA_pars="exe/targetscan7/TA_SPS_by_seed_region.txt"
-         shell:
-           "wget http://www.targetscan.org/vert_72/vert_72_data_download/TargetScan7_context_scores.zip && unzip TargetScan7_context_scores.zip && mv TargetScan7_context_scores/Agarwal_2015_parameters.txt TargetScan7_context_scores/TA_SPS_by_seed_region.txt TargetScan7_context_scores/targetscan_count_8mers.pl TargetScan7_context_scores/targetscan_70_context_scores.pl exe/targetscan7/ && rm -rf TargetScan7_context_scores/ TargetScan7_context_scores.zip"
-
-rule download_targetscan_data4:
-        input:
-        output:
-         "exe/targetscan7/All_cell_lines.AIRs.txt"
-        shell:
-         "wget http://www.targetscan.org/vert_72/vert_72_data_download/3Pseq_tags_AIRs.zip && unzip 3Pseq_tags_AIRs.zip && mv All_cell_lines.AIRs.txt exe/targetscan7/ && rm -rf README.txt 3Pseq_tags_AIRs.zip All_cell_lines.tags.bed All_cell_lines.tags+pseudocounts.bed"
+#rule download_targetscan_data1:
+#        input:
+#        output:
+#            "exe/targetscan7/targetscan_70.pl"
+#        shell:
+#            "cd exe/targetscan7 && wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70.zip && unzip targetscan_70.zip && rm UTR_Sequences_sample.txt miR_Family_info_sample.txt\
+# targetscan_70_output.txt README_70.txt targetscan_70.zip"
+#
+#rule download_targetscan_data2:
+#        input:
+#        output:
+#            bins_script="exe/targetscan7/targetscan_70_BL_bins.pl",
+#            PCT_script="exe/targetscan7/targetscan_70_BL_PCT.pl",
+#            PCT_parameters="exe/targetscan7/PCT_parameters"
+#        shell:
+#            "wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70_BL_PCT.zip && unzip targetscan_70_BL_PCT.zip && mv\
+#  TargetScan7_BL_PCT/PCT_parameters TargetScan7_BL_PCT/targetscan_70_BL_bins.pl TargetScan7_BL_PCT/targetscan_70_BL_PCT.pl exe/targetscan7 && rm -rf targetscan_70_BL_PCT.zip TargetScan7_BL_PCT/"
+#
+#rule download_targetscan_data3: # fix this
+#         input:
+#         output:
+#             agarwal_par="exe/targetscan7/Agarwal_2015_parameters.txt",
+#             contextpp_script="exe/targetscan7/targetscan_70_context_scores.pl",
+#             eightmer_script="exe/targetscan7/targetscan_count_8mers.pl",
+#             TA_pars="exe/targetscan7/TA_SPS_by_seed_region.txt"
+#         shell:
+#           "wget http://www.targetscan.org/vert_72/vert_72_data_download/TargetScan7_context_scores.zip && unzip TargetScan7_context_scores.zip && mv TargetScan7_context_scores/Agarwal_2015_parameters.txt TargetScan7_context_scores/TA_SPS_by_seed_region.txt TargetScan7_context_scores/targetscan_count_8mers.pl TargetScan7_context_scores/targetscan_70_context_scores.pl exe/targetscan7/ && rm -rf TargetScan7_context_scores/ TargetScan7_context_scores.zip"
+#
+#rule download_targetscan_data4:
+#        input:
+#        output:
+#         "exe/targetscan7/All_cell_lines.AIRs.txt"
+#        shell:
+#         "wget http://www.targetscan.org/vert_72/vert_72_data_download/3Pseq_tags_AIRs.zip && unzip 3Pseq_tags_AIRs.zip && mv All_cell_lines.AIRs.txt exe/targetscan7/ && rm -rf README.txt 3Pseq_tags_AIRs.zip All_cell_lines.tags.bed All_cell_lines.tags+pseudocounts.bed"
 
 rule download_cdna_file:
         output: "data/{genus_species}.{build}.cdna.all.fa.gz"

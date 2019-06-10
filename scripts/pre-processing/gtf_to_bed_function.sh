@@ -5,7 +5,7 @@ gtf_to_bed () {
 	input="$1"; tx_feature="$2"; output="$3"
 
 	if [[ "$tx_feature" == '3UTR' ]]; then
-		tx_feature_long=three_prime_UTR
+		tx_feature_long=three_prime_utr
 	elif [[ "$tx_feature" == 'CDS' ]]; then
 		tx_feature_long=CDS
 	else

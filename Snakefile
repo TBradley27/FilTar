@@ -18,6 +18,7 @@ import re
 
 configfile: "config/basic.yaml"
 configfile: "config/species.yaml"
+configfile: "config/accession_mappings.yaml"
 
 if config['reannotation'] == True:
 	include: "modules/with_reannotation/Snakefile"
@@ -56,6 +57,10 @@ include: "modules/quant_reads/salmon/Snakefile"
 include: "modules/mirna/Snakefile"
 include: "modules/target_prediction/targetscan/Snakefile"
 
+include: "modules/create_tables/SQLite/Snakefile"
+include: "modules/upload_to_tables/Snakefile"
+include: "modules/upload_to_tables/SQLite/Snakefile"
+
 wildcard_constraints:
     species="[a-z]{3,4}",
     tissue="((?!chr([A-Z]|\d)).)*", # pattern to ensure tissue wildcard does not contain the following pattern: chr[0-9] or chr[A-Z]
@@ -63,3 +68,12 @@ wildcard_constraints:
     feature="(3UTR|CDS)",
     ensembl_release="[0-9]{2,3}",
     genus_species="[A-Z][a-z]+_[a-z]+"
+
+rule all:
+	input: "results/gene_table_loaded_hsa.txt","results/gene_table_loaded_mmu.txt",
+               "results/gene_species_table_loaded_hsa.txt","results/gene_species_table_loaded_mmu.txt",
+               "results/mRNA_table_loaded_hsa.txt","results/mRNA_table_loaded_mmu.txt",
+               "results/Tissues_table_loaded_hsa.txt","results/Tissues_table_loaded_mmu.txt",
+               "results/samples_table_loaded_hsa.txt","results/samples_table_loaded_mmu.txt",
+               "results/runs_table_loaded_hsa.txt","results/runs_table_loaded_mmu.txt",
+               "results/mirnas_loaded.txt"

@@ -1,8 +1,17 @@
+def get_tax_id(wildcards):
+        return(config['tax_ids'][wildcards.species])
+
 def get_gtf_file(wildcards):
         sci_species_name = config['sci_species_name'][wildcards.species]
         genome_build = config['genome_build'][wildcards.species]
 
         return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.mod.chr.gtf'.format(config['ensembl_release'])  )
+
+def get_cDNA_file (wildcards):
+        sci_species_name = config['sci_species_name'][wildcards.species]
+        genome_build = config['genome_build'][wildcards.species]
+
+        return ( 'data/' + sci_species_name + '.' + genome_build + '.cdna.all.fa'  )
 
 rule pre_mRNA_for_loading:
 	input: 
@@ -19,21 +28,10 @@ rule prep_for_gene_loading:
 	shell: "{input.script} {input.data} > {output}"
 
 rule extract_tx_and_gene_IDs:
-        input:
-           data="data/Homo_sapiens.GRCh38.cdna.all.fa",
-           script="exe/extract_tx_and_gene_ids.sh"
+        input: get_cDNA_file
         output:
-           "results/tx_and_gene_IDs.txt"
-        shell:
-           "{input.script} {input.data} > {output}"
-
-rule extract_tx_and_gene_IDs_mouse:
-        input:
-           "data/Mus_musculus.GRCm38.cdna.all.fa"
-        output:
-           "results/tx_and_gene_IDs_mouse.txt"
-        shell:
-           "cat {input} | grep '>' | awk '{{ print $1,$7 }}' | tr ' ' '\t' | sed 's/gene_symbol://g' | sed 's/>//g'  > {output}"
+           "results/tx_and_gene_IDs_{species}.txt"
+        shell: "scripts/extract_tx_gene_and_ids.sh {input} > {output}"
 
 rule extract_unique_gene_names:
        input:
@@ -43,21 +41,21 @@ rule extract_unique_gene_names:
        shell:
           "awk '{{print $2}}' {input} | uniq > {output}"
 
-rule prep_mirnas_for_loading:
-        input:
-            mirnas="results/mature_mirna.tsv",
-            script="exe/prep_mirs_for_loading.sh"
-        output: "results/mature_mirna_for_db.tsv"
-        shell: "{input.script} {input.mirnas} > {output}"
-
-rule get_all_utr_lengths:
-        input:  "results/{tissue}.utr.full.bed"
-        output: "results/{tissue}.utr.full.tsv"
-        script: "get_utr_lengths.R"
+rule prep_mirnas_for_loading_prologue:
+	input: "data/mature_high_conf.fa"
+	output: "results/{species}_mature_mirna_for_loading.tsv"
+	params: get_tax_id
+	shell: "grep {wildcards.species} {input} | sed 's/>//g' | awk '{{print $1}}' | awk -v params={params} '{{ print $1,params }}' | tr ' ' '\t'  > {output}"
 
 
+#rule prep_mirnas_for_loading:
+#        input:
+#            mirnas="results/{species}_mature_mirna_for_loading.tsv",
+#            script="scripts/prep_mirs_for_loading.sh"
+#        output: "results/{species}_mature_mirna_for_db.tsv"
+#        shell: "{input.script} {input.mirnas} > {output}"
 
-
-
-
-
+#rule get_all_utr_lengths:
+#        input:  "results/{tissue}.utr.full.bed"
+#        output: "results/{tissue}.utr.full.tsv"
+#        script: "get_utr_lengths.R"
