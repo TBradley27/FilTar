@@ -17,3 +17,5 @@ prediction_algorithm: TargetScan7        # select from 'TargetScan7' or 'miRanda
 reannotation: True                       # Whether to reannotate 3'UTRs or not
 conservation: False                      # Where possible, whether to determine conservation of target sites or not using MSAs
 sequence_data_source: ENA                # select from 'ENA','SRA' or 'User'
+
+genome_index_type: standard              # 'standard' option requires ~8GB of memory. Otherwise, the 'splice-aware' option reuires ~200GB of memory

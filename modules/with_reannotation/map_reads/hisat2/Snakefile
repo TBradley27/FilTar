@@ -64,30 +64,43 @@ def get_read_files (wildcards):
 		raise Exception("\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(wildcards.accession))
 		return
 
-rule get_splice_sites_for_hisat2:
-        input:
-          gtf=get_gtf_file,
-          py_script='scripts/hisat2_extract_splice_sites.py'
-        output: "results/{species}_hisat2_splice_sites.txt"
-        shell: "python {input.py_script} {input.gtf} > {output}"
+if config['genome_index_type'] == 'splice-aware':
+	rule get_splice_sites_for_hisat2:
+		input:
+			gtf=get_gtf_file,
+			py_script='scripts/hisat2_extract_splice_sites.py'
+		output: "results/{species}_hisat2_splice_sites.txt"
+		shell: "python {input.py_script} {input.gtf} > {output}"
 
-rule get_exons_for_hisat2:
-        input:
-          gtf=get_gtf_file,
-          py_script='scripts/hisat2_extract_exons.py'
-        output: "results/{species}_hisat2_exons.txt"
-        shell: "python {input.py_script} {input.gtf} > {output}"
+	rule get_exons_for_hisat2:
+		input:
+			gtf=get_gtf_file,
+			py_script='scripts/hisat2_extract_exons.py'
+		output: "results/{species}_hisat2_exons.txt"
+		shell: "python {input.py_script} {input.gtf} > {output}"
 
-rule create_index:
-        input:
-           assembly=get_assembly,
-           splice_sites="results/{species}_hisat2_splice_sites.txt",
-           exons="results/{species}_hisat2_exons.txt"
-        conda:
-           "envs/hisat2.yaml"
-        output: "data/{species}.1.ht2"
-        threads: 16
-        shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} data/{wildcards.species}"
+	rule create_index:
+		input:
+			assembly=get_assembly,
+			splice_sites="results/{species}_hisat2_splice_sites.txt",
+			exons="results/{species}_hisat2_exons.txt"
+		conda: "envs/hisat2.yaml"
+		output: "data/{species}.1.ht2"
+		threads: 16
+		shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} data/{wildcards.species}"
+elif config['genome_index_type'] == 'standard':
+
+	rule create_index:
+		input:
+			assembly=get_assembly
+		conda: "envs/hisat2.yaml"
+		output: "data/{species}.1.ht2"
+		threads: 16
+		shell: "hisat2-build -f -p {threads} {input.assembly} data/{wildcards.species}"
+
+else:
+	raise Exception("\nPlease use a valid value for the configuration option 'genome_index_type' - use either 'standard' or 'splice-aware'\n")
+
 
 rule map_reads:
 	input: 
