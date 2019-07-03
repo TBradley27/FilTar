@@ -16,7 +16,7 @@ test_object = c.fetchone()
 
 def create_table():
 	c.execute('''CREATE TABLE `contextpp` (
-	id INTEGER PRIMARY KEY,
+	id INTEGER PRIMARY KEY autoincrement,
 	mirna_id VARCHAR(15) DEFAULT NULL,
 	mrna_id VARCHAR(20) DEFAULT NULL,
         Species VARCHAR(20) DEFAULT NULL,
@@ -25,10 +25,8 @@ def create_table():
 	Site_Type VARCHAR(7) DEFAULT NULL,
 	`score` decimal(4,3) DEFAULT NULL,
 	`weighted_score` decimal(4,3) DEFAULT NULL,
-	Tissue VARCHAR(20) DEFAULT NULL,
 	CONSTRAINT UNIQUE_site UNIQUE (`mirna_id`,`mrna_id`,`UTR_START`,`UTR_END`),
-	FOREIGN KEY(Species) REFERENCES species (taxonomic_ID),
-        FOREIGN KEY(Tissue,Species) REFERENCES `Tissues` (`name`,`taxonomic_id`)	
+	FOREIGN KEY(Species) REFERENCES species (taxonomic_ID)
 	)''')
 
 	c.execute("CREATE INDEX 'key_contextpp_mrna' ON contextpp (mrna_id);")

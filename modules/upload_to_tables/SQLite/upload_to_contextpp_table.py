@@ -28,15 +28,17 @@ print(data)
 data.columns = snakemake.params['columns'] # rename columns
 data.index.names = ['id']
 
-data['Tissue'] = snakemake.wildcards['tissue'] # add tissues column
+#data['Tissue'] = snakemake.wildcards['tissue'] # add tissues column
 
 #df.to_sql('mRNA', conn, if_exists='append', index=False)
 
 #call("sqlite3 filtar.db -separator '\t' '.import {} {}'".format(sys.argv[1], sys.argv[2]), shell=True)
 
+#data.drop(columns="id")
+
 print(data)
 c.execute("PRAGMA synchronous=OFF")
-data.to_sql('{}'.format(snakemake.params['table']), con=conn, if_exists='append')
+data.to_sql('{}'.format(snakemake.params['table']), con=conn, if_exists='append', index=False)
 
 conn.commit()
 conn.close()
