@@ -113,6 +113,22 @@ rule upload_mirna_data:
 #        shell:
 #           "{input.script} {input.contextpp_results} {wildcards.chrom} {wildcards.species}"
 
+
+#rule modify_contextpp_output:
+#	input: "results/targets/{species}/{tissue}.contextpp.tsv"
+#	output: "results/targets/{species}/{tissue}.contextpp.mod.tsv"
+#	shell: "cat {input} | awk '{{ print $3,$1,$2,$5,$6,$4,$7,$10 }}' > {output}"
+
+#rule modify_contextpp_output2:
+#	input: "results/targets/{species}/{tissue}.contextpp.mod.tsv"
+#	output: "results/targets/{species}/{tissue}.contextpp.mod2.sql"
+#	script: "modify_contextpp.py" 
+
+#rule upload_to_contextpp_table:
+#	input: "results/targets/{species}/{tissue}.contextpp.mod2.sql"
+#	output: "results/table_uploads/contextpp_{species}_{tissue}_loaded.txt"
+#	shell: "sqlite3 filtar.db < {input} && touch {output}" 
+
 rule upload_to_contextpp_table:
         input:
             data=ancient("results/targets/{species}/{tissue}.contextpp.tsv"),
@@ -124,4 +140,22 @@ rule upload_to_contextpp_table:
                 columns = ['mirna_id','mrna_id','Species','UTR_START','UTR_END','Site_Type','score','weighted_score']
         script:
             "upload_to_contextpp_table.py"
+
+
+#rule get_unique_hits:
+#	input:
+#		reference="results/targets/mmu/ESCs.contextpp.tsv",
+#		test="results/targets/{species}/{tissue}.contextpp.tsv"
+#	output: "results/targets/{species}/{tissue}.contextpp.mod.tsv"
+#	script: "get_unique_hits.R"
+
+
+rule get_longest_bed:
+	input:
+	output: "results/bed/{species}_longest_3UTR.chr{chrom}.bed"
+	script: "get_longest_utrs.R"
+
+
+
+
 
