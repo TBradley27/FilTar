@@ -99,6 +99,9 @@ PRJNA512378:
                 miR-9-3p: [SRR8382238,SRR8382239]
                 miR-9-5p: [SRR8382240,SRR8382241]
                 mock: [SRR8382242,SRR8382243]
+                all_mirnas: [let-7c-5p,miR-107,miR-10a-5p,miR-124-3p,miR-126-3p,miR-126-5p,miR-133b,miR-142-3p,miR-145-5p,miR-146a-5p,miR-155-5p,miR-15a-5p,
+                             miR-16-5p,miR-17-5p,miR-193b-3p,miR-200a-3p,miR-200b-3p,miR-200c-3p,miR-206,miR-210-3p,miR-21-5p,miR-31-5p,miR-34a-5p,miR-9-3p,
+                             miR-9-5p]
 
 
         all_runs: [SRR8382192,SRR8382193,SRR8382194,SRR8382195,SRR8382196,SRR8382197,SRR8382198,SRR8382199,
@@ -126,6 +129,7 @@ PRJNA340017: # beware contains technical replicates
                 miR-429-3p: [SRR4055002,SRR4055005] # SRR4055003,SRR4055004 SRR4055006,SRR4055007
         all_runs: [SRR4054984,SRR4054985,SRR4054992,SRR4054995,
                    SRR4054996,SRR4054999,SRR4055002,SRR4055005]
+        miRNAs: [miR-1199-5p,miR-200b-3p,miR-429-3p]
 
 PRJNA309441:
         CD4:
@@ -137,6 +141,7 @@ PRJNA309441:
                   SRR3112245,SRR3112246,SRR3112247,SRR3112248,
                   SRR3112237,SRR3112238,SRR3112239,SRR3112240,
                   SRR3112241,SRR3112242,SRR3112243,SRR3112244]
+        miRNAs: [miR-27a-3p,miR-23a-3p,miR-24-3p]
 
 PRJNA270999: # technical replicates
         ESCs:

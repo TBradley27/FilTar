@@ -148,4 +148,12 @@ paired_end: [SRR2146408,SRR2146409,SRR2146410,SRR2146411,SRR2968576,SRR2968577,
 mirnas: [mmu-miR-294-3p] #if this configuration is left blank - processing is performed for all miRNAs of a given species as default
 transcripts: []
 
+species: hsa                             # use first letter of genus name, and first two letters of species name
+context: A549                               # for standard target prediction with no RNA-Seq data, set context to 'reference'
+TPM_expression_threshold: 0.0
+prediction_algorithm: TargetScan7        # select from 'TargetScan7' or 'miRanda'
+reannotation: True                       # Whether to reannotate 3'UTRs or not
+conservation: True                      # Where possible, whether to determine conservation of target sites or not using MSAs
+sequence_data_source: ENA                # select from 'ENA','SRA' or 'User'
+
 sequence_data_source: SRA

@@ -32,8 +32,23 @@ rule get_cumulative_plot_expression_filtering_multi_plot:
                 exp_threshold= [0.1,0.5,1.0,5.0,10.0],
                 x_lim=2.00
         threads: 16
-        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_exp_mp.rds"
+        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_exp_mp.png"
         script: "alt_utrs_deseq_exp_multiplot.R"
+
+rule volcano_plots:
+	input:
+		quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
+		quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
+		canon_targets = "results/targets/{species}_msa_nr_{miRNA}.sites.tsv",
+		pc_transcripts="results/bed/{species}_all_protein_coding_transcripts.txt"
+	params:
+		nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+		target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+		exp_threshold= [0.1,0.5,1.0,5.0,10.0],
+		x_lim=2.00
+	threads: 16
+	output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_volcano.rds"
+	script: "volcano_plots.R"
 
 rule figure1_multi:
         input:
@@ -259,6 +274,24 @@ rule get_cumulative_plot_alt_utrs_added_targets: # Figure 2 & Supplementary Data
         output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_alt_utr.rds"
         script: "alt_utrs_deseq.R"
 
+rule noise_analysis: # Figure 2 & Supplementary Data file 4
+        input:
+                quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
+                quant_real= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line][wildcards.miRNA]),
+                canon_targets ="results/targets/{species}_msa_nr_{miRNA}.sites.tsv",
+                pc_transcripts="results/bed/{species}_all_protein_coding_transcripts.txt"
+        params:
+                nontarget_site_types= ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+                target_site_types = ['8mer-1a','7mer-m8','7mer-1a','6mer'],
+                exp_threshold=0,
+                x_lim=1.2
+        threads: 20
+        output: "results/plots/{species}_{project}_{miRNA}_{cell_line}_noise_analysis.tsv"
+        script: "noise_analysis.R"
+
+
+
+
 rule get_cumulative_plot_alt_utrs_removed_targets: # Figure 3 & Supplementary Data file 5
         input:
                 quant_mock= lambda wildcards: expand("results/kallisto/{Run}/abundance.tsv", Run=config[wildcards.project][wildcards.cell_line]['mock']),
@@ -478,3 +511,45 @@ rule aggregate_utr_lengths: # aggregate by chromosome
        input: lambda wildcards: expand("results/targets/canonical/{species}_chr{chrom}.utr.lengths.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
        output: "results/targets/canonical/{species}.utr.lengths.tsv"
        shell: "cat {input} | sed '1b;/tx/d' > {output}"
+
+### thesis volcano plots ###
+
+rule volcano1_thesis:
+	input:
+		U251='results/plots/hsa_PRJNA231155_miR-137-3p_U251_volcano.rds',
+		U343="results/plots/hsa_PRJNA231155_miR-137-3p_U343_volcano.rds",
+		Du145="results/plots/hsa_PRJNA292016_miR-141-3p_Du145_volcano.rds",
+		HBE14o="results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_volcano.rds",
+		U20S_1="results/plots/hsa_PRJNA223608_miR-155-5p_U20S_volcano.rds",
+		U20S_2="results/plots/hsa_PRJNA223608_miR-1-3p_U20S_volcano.rds",
+		NMuMG_1="results/plots/mmu_PRJNA340017_miR-200b-3p_NMuMG_volcano.rds",
+		NMuMG_2="results/plots/mmu_PRJNA340017_miR-429-3p_NMuMG_volcano.rds",
+		CD4_1='results/plots/mmu_PRJNA309441_miR-24-3p_CD4_volcano.rds',
+		CD4_2='results/plots/mmu_PRJNA309441_miR-27a-3p_CD4_volcano.rds',
+		CD4_3='results/plots/mmu_PRJNA309441_miR-23a-3p_CD4_volcano.rds'
+	output: 'results/plots/volcano1_thesis.png'
+	script: 'volcano_thesis.R'
+
+rule volcano2_thesis:
+	input:
+		A549="results/plots/hsa_PRJNA304643_miR-1343-3p_A549_volcano.rds",HeLa_6="results/plots/hsa_PRJNA512378_miR-126-5p_HeLa_volcano.rds",
+                HeLa_7="results/plots/hsa_PRJNA512378_miR-133b_HeLa_volcano.rds",HeLa_8="results/plots/hsa_PRJNA512378_miR-142-3p_HeLa_volcano.rds",
+                HeLa_9="results/plots/hsa_PRJNA512378_miR-145-5p_HeLa_volcano.rds",HeLa_10="results/plots/hsa_PRJNA512378_miR-146a-5p_HeLa_volcano.rds",
+                HeLa_11="results/plots/hsa_PRJNA512378_miR-155-5p_HeLa_volcano.rds",HeLa_12="results/plots/hsa_PRJNA512378_miR-15a-5p_HeLa_volcano.rds",
+                HeLa_13="results/plots/hsa_PRJNA512378_miR-17-5p_HeLa_volcano.rds",HeLa_14="results/plots/hsa_PRJNA512378_miR-193b-3p_HeLa_volcano.rds",
+                HeLa_15="results/plots/hsa_PRJNA512378_miR-200a-3p_HeLa_volcano.rds",HeLa_16="results/plots/hsa_PRJNA512378_miR-200b-3p_HeLa_volcano.rds",
+	output: 'results/plots/volcano2_thesis.png'
+	script: 'volcano_thesis2.R'
+
+
+rule supplementary_data3_thesis3:
+        input:
+                HeLa_21="results/plots/hsa_PRJNA512378_miR-31-5p_HeLa_volcano.rds",HeLa_22="results/plots/hsa_PRJNA512378_miR-34a-5p_HeLa_volcano.rds",
+                HeLa_23="results/plots/hsa_PRJNA512378_miR-9-3p_HeLa_volcano.rds",HeLa_24="results/plots/hsa_PRJNA512378_miR-9-5p_HeLa_volcano.rds",
+                HeLa_1="results/plots/hsa_PRJNA512378_let-7c-5p_HeLa_volcano.rds",HeLa_2="results/plots/hsa_PRJNA512378_miR-107_HeLa_volcano.rds",
+                HeLa_3="results/plots/hsa_PRJNA512378_miR-10a-5p_HeLa_volcano.rds",HeLa_4="results/plots/hsa_PRJNA512378_miR-124-3p_HeLa_volcano.rds",
+                HeLa_17="results/plots/hsa_PRJNA512378_miR-200c-3p_HeLa_volcano.rds",HeLa_18="results/plots/hsa_PRJNA512378_miR-206_HeLa_volcano.rds",
+                HeLa_19="results/plots/hsa_PRJNA512378_miR-210-3p_HeLa_volcano.rds",HeLa_20="results/plots/hsa_PRJNA512378_miR-21-5p_HeLa_volcano.rds"
+        output: 'results/plots/volcano3_thesis.png'
+        script: 'volcano_thesis3.R'
+

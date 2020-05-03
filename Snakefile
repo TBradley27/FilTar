@@ -61,14 +61,26 @@ wildcard_constraints:
 
 rule all:
         input:
-                "results/plots/supplementary_data1.pdf","results/plots/supplementary_data3.pdf",
-                "results/plots/supplementary_data4.pdf","results/plots/supplementary_data4.pdf",
-                'results/plots/figure1.png','results/plots/supplementary_figure1.png',
-                'results/plots/figure2.png','results/plots/figure3.png',
-                'results/plots/supplementary_figure7.png','results/plots/supplementary_figure2.png',
-                "results/plots/supplementary_figure3a.png","results/plots/supplementary_figure3b.png",
-                'results/plots/supplementary_table4.tsv','results/plots/figure4.png',
-                'results/plots/supplementary_figure5.png','results/plots/supplementary_figure5a.png',
-                'results/plots/supplementary_figure5b.png','results/plots/supplementary_table1.tsv',
-                'results/plots/supplementary_table2.tsv','results/plots/supplementary_table3.tsv',
-                'results/plots/supplementary_figure4a.png','results/plots/supplementary_figure4b.png'
+                #"results/plots/supplementary_data1.pdf","results/plots/supplementary_data3.pdf",
+                #"results/plots/supplementary_data4.pdf","results/plots/supplementary_data4.pdf",
+                #'results/plots/figure1.png','results/plots/supplementary_figure1.png',
+                #'results/plots/figure2.png','results/plots/figure3.png',
+                #'results/plots/supplementary_figure7.png','results/plots/supplementary_figure2.png',
+                #"results/plots/supplementary_figure3a.png","results/plots/supplementary_figure3b.png",
+                #'results/plots/supplementary_table4.tsv','results/plots/figure4.png',
+                #'results/plots/supplementary_figure5.png','results/plots/supplementary_figure5a.png',
+                #'results/plots/supplementary_figure5b.png','results/plots/supplementary_table1.tsv',
+                #'results/plots/supplementary_table2.tsv','results/plots/supplementary_table3.tsv',
+                #'results/plots/supplementary_figure4a.png','results/plots/supplementary_figure4b.png'
+                 #lambda wildcards: expand("results/plots/hsa_PRJNA512378_{miRNA}_HeLa_noise_analysis.tsv", miRNA=config['PRJNA512378']['HeLa']['all_mirnas']),
+                 #lambda wildcards: expand("results/plots/hsa_PRJNA231155_miR-137-3p_U251_noise_analysis.tsv"),
+                 #lambda wildcards: expand("results/plots/hsa_PRJNA231155_miR-137-3p_U343_noise_analysis.tsv"),
+                 #lambda wildcards: expand("results/plots/hsa_PRJNA292016_miR-141-3p_Du145_noise_analysis.tsv"),
+                 #lambda wildcards: expand("results/plots/hsa_PRJNA304643_miR-1343-3p_A549_noise_analysis.tsv"),
+                 #lambda wildcards: expand("results/plots/hsa_PRJNA304643_miR-1343-3p_16HBE14o_noise_analysis.tsv"),
+                 #lambda wildcards: expand("results/plots/hsa_PRJNA223608_{miRNA}_U20S_noise_analysis.tsv", miRNA=config['PRJNA223608']['miRNAs']),
+                 #lambda wildcards: expand("results/plots/mmu_PRJNA340017_{miRNA}_NMuMG_noise_analysis.tsv", miRNA=config['PRJNA340017']['miRNAs']),
+                 #lambda wildcards: expand("results/plots/mmu_PRJNA309441_{miRNA}_CD4_noise_analysis.tsv", miRNA=config['PRJNA309441']['miRNAs']),
+                 #lambda wildcards: expand("results/plots/mmu_PRJNA270999_miR-294-3p_ESCs_noise_analysis.tsv"),
+                 'results/kallisto/SRR4054984/abundance.tsv','results/kallisto/SRR4054985/abundance.tsv',
+                 'results/kallisto/SRR4055002/abundance.tsv','results/kallisto/SRR4055005/abundance.tsv'
