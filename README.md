@@ -36,7 +36,17 @@ More detailed instructions can be found inside the full documentation: https://t
 
 ## Publication
 
-The article describing FilTar can be found as a preprint at the following location: https://www.biorxiv.org/content/10.1101/595322v1
+The article describing FilTar can be found in Volume 36, Issue 8 (pages 2410-2416) of the *Bioinformatics* journal published by Oxford University Press. An online, open access version of the article is available [here](https://doi.org/10.1093/bioinformatics/btaa007 "FilTar Bioinformatics article").
+
+__DOI:__ [10.1093/bioinformatics/btaa007](https://doi.org/10.1093/bioinformatics/btaa007)
+
+__PMCID:__ [PMC7178423](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7178423/)
+
+__PMID:__ 31930382 
+
+The default method of citing the article is to use the following:
+
+> Thomas Bradley, Simon Moxon, FilTar: using RNA-Seq data to improve microRNA target prediction accuracy in animals, Bioinformatics, Volume 36, Issue 8, 15 April 2020, Pages 2410–2416, https://doi.org/10.1093/bioinformatics/btaa007
 
 ## Getting Help
 
