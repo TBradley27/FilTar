@@ -76,6 +76,7 @@ include: "modules/data_download/Snakefile"
 include: "modules/trim_reads/trim_galore/Snakefile"
 include: "modules/quant_reads/salmon/Snakefile"
 include: "modules/mirna/Snakefile"
+include: 'modules/get_target_coordinates/Snakefile'
 
 wildcard_constraints:
     species="[a-z]{3,4}",
