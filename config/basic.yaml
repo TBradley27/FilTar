@@ -19,3 +19,4 @@ conservation: False                      # Where possible, whether to determine 
 sequence_data_source: ENA                # select from 'ENA','SRA' or 'User'
 
 genome_index_type: standard              # 'standard' option requires ~8GB of memory. Otherwise, the 'splice-aware' option reuires ~200GB of memory
+use_high_conf_mirs_only: True
