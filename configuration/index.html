@@ -20,6 +20,7 @@ title: Configuration
 <li><code>TPM_expression_threshold</code>: set TPM expression threshold. Use a value of 0 if you do not want to filter by expression level.</li>
 <li><code>conservation</code>: Set to 'True' to use multiple sequence alignments, otherwise set to 'False'. Genome-wide alignment files are many gigabytes in size, and take longer to process than non-MSA sequence data, so in some cases, this option may be preferable</li>
 <li><code>prediction_algorithm</code>: Which miRNA target prediction algorithm to use - possible values are 'Targetscan7' and 'miRanda'</li>
+<li><code>use_high_conf_mirs_only</code>: Set to <code>True</code> to use high confidence miRBase miRNA annotations only. Otherwise, all miRNAs for that species will be used</li>
 </ol>
 <p>These details can be manually configured by editing the <code>config/basic.yaml</code> file to enter configurations in serialised format.</p>
 
