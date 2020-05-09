@@ -24,6 +24,10 @@ title: Usage
 
 <code>snakemake target_predictions.txt</code>
 
+<p>Users can also optionally derive the genomic co-ordinates for identified predicted miRNA targets by running the following command: <code>snakemake {species}_target_predictions_with_gene_coords.txt</code></p>
+
+<p>However, in order to run this step, users must ensure that the <code>reannotation</code> option is set to false when running this step. This step can also be used with target prediction data generated using the FilTarDB web application, however, they must ensure that the transcript name, miRNA name, target site 'start' and target site 'end' columns are named 'Gene ID','Mirbase ID','UTR start' and 'UTR end', respectively.</p>
+
 <h2>Intermediate files</h2>
 
 <p>Most intermediate files generated whilst FilTar is running are automatically deleted once the process is deleted. This prevents FilTar from returning identical output even when the user has changed their configuration options</p>
