@@ -84,7 +84,7 @@ for transcript in list(config['transcripts']):
 		raise Exception('\nInvalid transcript identifier "{}". Identifiers must adhere to official Ensembl identifier patterns e.g. "ENSMUST00000189888.6". Please revise.\n'.format(transcript))
 
 include: "modules/data_download/Snakefile"
-include: "modules/trim_reads/trim_galore/Snakefile"
+include: "modules/trim_reads/Snakefile"
 include: "modules/quant_reads/salmon/Snakefile"
 include: "modules/mirna/Snakefile"
 include: 'modules/get_target_coordinates/Snakefile'
