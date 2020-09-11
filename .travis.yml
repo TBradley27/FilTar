@@ -1,10 +1,11 @@
 language: python
-python: "3.6"
+python: "3.8"
 
 branches:
     only:
         - master
         - beta3
+        - dev
 os:
  - linux
 
