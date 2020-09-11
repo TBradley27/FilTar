@@ -47,6 +47,13 @@ elif config['sequence_data_source'] == 'User':
 else:
 	raise Exception("\nPlease enter a value of either 'ENA' or 'SRA' or 'User' for the 'sequence_data_source' key. Default values can be set in config/basic.yaml\n")
 
+if config['prediction_algorithm'] == 'TargetScan7':
+	pass
+elif config['prediction_algorithm'] == 'miRanda':
+	pass
+else:
+	raise Exception("\nPlease enter a valid name for a miRNA target prediction algorithm. Choose either 'TargetScan7' or 'miRanda'\n")
+
 if config['prediction_algorithm'] == 'TargetScan7' and config['reannotation'] == True:
 	include: "modules/target_prediction/targetscan/Snakefile"
 	include: "modules/target_prediction/targetscan/with_reannotation/Snakefile"
