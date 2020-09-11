@@ -32,6 +32,14 @@ def get_bed6_file(wildcards):
 
         return ( 'results/' + sci_species_name + '.' + genome_build + '.{}.chr{}.filtered.bed6'.format(config['ensembl_release'], wildcards.chrom) )
 
+def get_sample_level_bedgraph_file_names(wildcards):
+	metadata_tmp = metadata.loc[(metadata['species'] == wildcards.species) & (metadata['biological_context'] == wildcards.cell_line)]
+	metadata_tmp = metadata_tmp['sample_accession']
+	metadata_tmp = set(metadata_tmp)
+
+	file_names = expand("results/bam/sample/{species}/{sample}_chr{chrom}.bedgraph", species=wildcards.species, sample=metadata_tmp, chrom=wildcards.chrom)
+	return (file_names)
+
 rule get_bed6_file: #three_prime_utrs only
         input:
             script="scripts/gtf_to_bed.sh",
@@ -91,9 +99,16 @@ rule split_bedgraph:
         output: 'results/bam/run/{species}/{accession}_chr{chrom}.bedgraph'
         shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
 
+def get_run_level_bedgraph_file_names(wildcards):
+	metadata_tmp = metadata.loc[(metadata['species'] == wildcards.species) & (metadata['sample_accession'] == wildcards.sample)]
+	metadata_tmp = metadata_tmp['run_accession']
+	metadata_tmp = set(metadata_tmp)
+
+	file_names = expand("results/bam/run/{species}/{accession}_chr{chrom}.bedgraph", species=wildcards.species, accession=metadata_tmp, chrom=wildcards.chrom)
+	return (file_names)
+
 rule merge_bedgraphs_by_run:
-        input:
-             lambda wildcards: expand("results/bam/run/{species}/{accession}_chr{chrom}.bedgraph", species=wildcards.species, accession=config['samples'][wildcards.sample], chrom=wildcards.chrom)
+        input: get_run_level_bedgraph_file_names
         output:
              temp("results/bam/sample/{species}/{sample}_chr{chrom}_tmp.bedgraph")
         wildcard_constraints:
@@ -113,8 +128,7 @@ rule avg_merged_bedgraph_by_run:
                 "get_average_bedgraph.R"
 
 rule merge_bedgraphs_by_sample:
-        input:
-             lambda wildcards: expand("results/bam/sample/{species}/{sample}_chr{chrom}.bedgraph", species=wildcards.species, sample=config['tissues'][wildcards.species][wildcards.cell_line], chrom=wildcards.chrom)
+        input: get_sample_level_bedgraph_file_names 
         output:
              temp("results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp")
         wildcard_constraints:
@@ -154,8 +168,7 @@ rule reannotate_3utrs:
         percentage_cutoff=0.80,
         coverage_cutoff=0.05,
         window_size=100
-    shell:
-       "perl {input.script} -i {input.bedgraphs} -p {params.percentage_cutoff} -c {params.coverage_cutoff} -w {params.window_size} -m {input.bed} -o {output}"
+    shell: "perl {input.script} -i {input.bedgraphs} -p {params.percentage_cutoff} -c {params.coverage_cutoff} -w {params.window_size} -m {input.bed} -o {output}"
 
 rule get_extended_bed_file:
          input:

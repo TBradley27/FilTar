@@ -51,12 +51,12 @@ def get_lib_type(wildcards):
 		return ("")
 
 def get_read_files (wildcards):
-	if wildcards.accession in config['paired_end']:
+	if wildcards.accession in set(metadata.loc[(metadata['pe_or_se'] == 'paired_end')]['run_accession']):
 		input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession), 
 			       'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession),
 				] 
 		return(input_files)
-	elif wildcards.accession in config['single_end']:
+	elif wildcards.accession in set(metadata.loc[(metadata['pe_or_se'] == 'single_end')]['run_accession']):
 		input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
 				]
 		return(input_file)

@@ -15,6 +15,10 @@
 #along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import re
+import pandas
+
+# import metadata
+metadata = pandas.read_table("metadata.tsv")
 
 configfile: "config/basic.yaml"
 configfile: "config/species.yaml"
