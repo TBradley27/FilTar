@@ -25,7 +25,7 @@ rule salmon_index:
              get_cDNA_file
         output:
             directory("results/salmon/indexes/{species}")
-        threads: 8
+        threads: config['salmon.index_threads']
         conda: "envs/salmon.yaml"
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
@@ -35,7 +35,7 @@ rule salmon_index_for_lib_types:
              get_cDNA_file
         output:
             directory("results/salmon/indexes/lib_type_identification/{species}")
-        threads: 8
+        threads: config['salmon.index_threads']
         conda: "envs/salmon.yaml"
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
@@ -62,7 +62,7 @@ rule salmon_quant_lib_type:
 		"envs/salmon.yaml"
 	wildcard_constraints:
 		run_accession="((?!lib_type).)*" # excludes substring 'lib_type'
-	threads: 4
+	threads: config['salmon.quant_threads']
 	script:
 		"quant_salmon.py"
 
@@ -75,7 +75,7 @@ rule salmon_quant:
 		"envs/salmon.yaml"
 	wildcard_constraints:
 		run_accession="((?!lib_type).)*"
-	threads: 4
+	threads: config['salmon.quant_threads']
 	script:
 		"quant_salmon.py"
 

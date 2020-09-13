@@ -20,6 +20,14 @@ def get_dna_file(wildcards):
 
         return('data/' + sci_species_name + '.' + genome_build + '.dna.chromosome.{}.fa'.format(wildcards.chrom))
 
+def get_miRanda_strict_bool(wildcards):
+	if config['miRanda.strict']==True:
+		return (' -strict')
+	elif config['miRanda.strict']==False:
+		return ('')
+	else:
+		raise Exception ("Value for 'miRanda.strict' config option must be 'True' or 'False'")
+
 rule fix_fasta_output:
 	input: "results/msa/{species}_{tissue}_chr{chrom}_3UTR.tmp2.fa"
 	output: temp("results/msa/{species}_{tissue}_chr{chrom}.fa")
@@ -31,7 +39,8 @@ rule miRanda:
 		mirna="data/mirbase_mature_{species}.filtered.fa"
 	output: temp("results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt")
 	conda: "envs/miRanda.yaml"
-	shell: "miranda {input.mirna} {input.utr} > {output}"
+	params: get_miRanda_strict_bool
+	shell: "miranda {input.mirna} {input.utr} {params} -sc {config[miRanda.minimum_alignment_score]} -en {config[miRanda.minimum_energy_score]} -scale {config[miRanda.5_prime_3_prime_scaling_factor]} -go {config[miRanda.alignment_gap_open_penalty]} -ge {config[miRanda.alignment_gap_extension_penalty]} > {output}"
 
 rule convert_miRanda_to_tsv:
         input: "results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt"
@@ -49,6 +58,3 @@ rule add_miRanda_header:
 	input: "results/targets/miRanda/{species}/{tissue}.temp.tsv"
 	output: temp("results/targets/miRanda/{species}/{tissue}.temp2.tsv")
 	script: "add_miRanda_header.R"
-
-
-

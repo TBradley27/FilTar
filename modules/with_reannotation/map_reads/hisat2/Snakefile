@@ -86,7 +86,7 @@ if config['genome_index_type'] == 'splice-aware':
 			exons="results/{species}_hisat2_exons.txt"
 		conda: "envs/hisat2.yaml"
 		output: "data/{species}.1.ht2"
-		threads: 16
+		threads: config['hisat2.num_threads_for_indexing']
 		shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} data/{wildcards.species}"
 elif config['genome_index_type'] == 'standard':
 
@@ -95,7 +95,7 @@ elif config['genome_index_type'] == 'standard':
 			assembly=get_assembly
 		conda: "envs/hisat2.yaml"
 		output: "data/{species}.1.ht2"
-		threads: 16
+		threads:  config['hisat2.num_threads_for_indexing']
 		shell: "hisat2-build -f -p {threads} {input.assembly} data/{wildcards.species}"
 
 else:
@@ -110,7 +110,7 @@ rule map_reads:
 	conda:
 		"envs/hisat2.yaml"
 	params: get_lib_type
-        threads: 8
+        threads: config['hisat2.num_threads_for_mapping']
         output: "results/bam/run/{species}/{accession}.sam"
 	script:
 		"map_reads.py"
@@ -118,7 +118,7 @@ rule map_reads:
 rule sam_to_bam:
 	input: "results/bam/run/{species}/{accession}.sam",
         output: "results/bam/run/{species}/{accession}.bam"
-        threads: 8
+        threads: config['samtools.view.num_threads']
         conda:
 	   "envs/hisat2.yaml"
 	shell: "samtools view -@ {threads} -Sb  {input}  >  {output}"
@@ -130,6 +130,6 @@ rule samtools_sort:
         "results/bam/run/{species}/{accession}.bam.sorted"
     params:
         "-m 2G"
-    threads: 8
+    threads: config['samtools.sort.num_threads']
     wrapper:
         "0.27.0/bio/samtools/sort"

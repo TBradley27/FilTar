@@ -22,6 +22,7 @@ metadata = pandas.read_table("metadata.tsv")
 
 configfile: "config/basic.yaml"
 configfile: "config/species.yaml"
+configfile: "config/dependencies.yaml"
 
 if config['reannotation'] == True:
 	include: "modules/with_reannotation/Snakefile"

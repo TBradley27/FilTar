@@ -1,0 +1,46 @@
+# trim galore
+
+trim_galore.length: 35
+trim_galore.stringency: 4
+
+# salmon
+
+salmon.index_threads: 8 # the number of threads requested for the transcriptome indexing step of salmon
+salmon.quant_threads: 4 # the number of threads requested for the transcript quantification step of salmon
+
+# read-to-genome mapping
+
+hisat2.num_threads_for_indexing: 16 # the number of threads to use for indexing a genome
+hisat2.num_threads_for_mapping: 8 # the number of threads to use for mapping reads to a genome
+samtools.view.num_threads: 8 # the number of threads to use when converting sam files to bam format
+samtools.sort.num_threads: 8 # the number of threads to use when using samtools sort
+
+# APAtrap
+
+## Identify distal 3'UTRs for each transcript
+
+APAtrap.utr_extension_size: 10000 # The limit to which the 3'UTR could potentially be extended 
+APAtrap.window_size: 100 # size of the scanning window 
+APAtrap.min_window_coverage: 0.05 # min coverage expected the 3'UTR for each nucleotide as a proportion of the the coverage in the coding region of the transcript 
+APAtrap.min_proportion_of_valid_nucleotides_in_window: 0.80 # scanning window stops on 3'UTR if this criteria is not met
+
+## APA prediction on reannotatd 3'UTRs
+
+APAtrap.min_cov_variation_between_APA_sites: 0.2 # 'The minimum degree of coverage variation between two adjacent APA sites' for those two sites to be called as distinct
+APAtrap.min_average_cov: 20 # 'The minimum average coverage required for each called 3'UTR'. Must be 10 or greater
+APAtrap.min_distance_between_APA_sites: 100 # 'The minimum distance between the predicted APA sites'. Must be 20 or greater.
+APAtrap.predictAPA_window_size: 50 # 'Window size used to scan the profile'. Must be 20 or greater
+
+# miRNA target prediction
+
+## miRanda
+
+miRanda.strict: False # 'demand strict 5' seed pairing'
+miRanda.minimum_alignment_score: 140.0 # the minimum alignment score between miRNA and target for the interaction to be reported in the output
+miRanda.minimum_energy_score: 1.0 # the minimum (absolute) energy score for the alignment to be reported. units: kcal/mol, sign: (-)
+miRanda.5_prime_3_prime_scaling_factor: 4.0 # a scaling factor accounting for the greater importance of the miRNA 5' end (compared to the 3' end) when generating alignments.
+miRanda.alignment_gap_open_penalty: -4.0
+miRanda.alignment_gap_extension_penalty: -9.0 
+
+
+
