@@ -159,12 +159,12 @@ rule filter_bed12:
 
 rule reannotate_3utrs:
     input:
-       script="scripts/identifyDistal3UTR.pl",
+       script="scripts/APAtrap/identifyDistal3UTR",
        bed=get_bed_file,
        bedgraphs= 'results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph'
     output:
        temp("results/bed/{species}_{cell_line}_chr{chrom}.utr.bed")
-    shell: "perl {input.script} -i {input.bedgraphs} -p {config[APAtrap.min_proportion_of_valid_nucleotides_in_window]} -c {config[APAtrap.min_window_coverage]} -w {config[APAtrap.window_size]} -e {config[APAtrap.utr_extension_size]} -m {input.bed} -o {output}"
+    shell: "./{input.script} -i {input.bedgraphs} -p {config[APAtrap.min_proportion_of_valid_nucleotides_in_window]} -c {config[APAtrap.min_window_coverage]} -w {config[APAtrap.window_size]} -e {config[APAtrap.utr_extension_size]} -m {input.bed} -o {output}"
 
 rule get_extended_bed_file:
          input:
@@ -186,13 +186,13 @@ rule aggregrate_extended_bed_files:
 
 rule identify_APA_sites:
      input:
-        script="scripts/predictAPA.pl",
+        script="scripts/APAtrap/predictAPA",
         bedgraphs= "results/bam/tissue/{species}/{tissue}_chr{chrom}.bedgraph",
         bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed"
      output:
         temp("results/targets/{species}_{tissue}_chr{chrom}.APA.txt")
      shell:
-        "perl {input.script} -i {input.bedgraphs} -g 1 -n 1 -d {config[APAtrap.min_cov_variation_between_APA_sites]} -c {config[APAtrap.min_average_cov]} -a {config[APAtrap.min_distance_between_APA_sites]} -w {config[APAtrap.predictAPA_window_size]} -u {input.bed}  -o {output}"
+        "./{input.script} -i {input.bedgraphs} -g 1 -n 1 -d {config[APAtrap.min_cov_variation_between_APA_sites]} -c {config[APAtrap.min_average_cov]} -a {config[APAtrap.min_distance_between_APA_sites]} -w {config[APAtrap.predictAPA_window_size]} -u {input.bed}  -o {output}"
 
 rule aggregate_APA_sites:
         input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}.APA.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
