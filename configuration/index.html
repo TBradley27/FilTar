@@ -9,13 +9,10 @@ title: Configuration
 
 <p>The primary options to be configured in the configuration files are as followed:</p>
 <ol>
-<li><code>tissues</code>: A mapping between tissue or cell line identifiers for a given species, their respective sample accession (c.f. <a href="https://www.ncbi.nlm.nih.gov/biosample/">BioSamples</a>). This mapping is mediated by a three letter species code (<i>e.g.</i> hsa) to differentiate between the same tissue type found in different species.</li> 
-<li><code>samples</code>: The mapping of sample accessions to sequencing run accessions</li>
-<li><code>single_end</code> and <code>paired_end</code>: A labelling of each run accession to determine if that library corresponds to single-end or paired-end sequencing</li>
 <li><code>miRNAs</code>: A list of miRNAs (using canonical miRNA names found in miRBase with the three letter species prefix) to use for target prediction. If this configuration is left blank, target prediction is performed for all miRBase annotated miRNAs of that species</li>
 <li><code>transcripts</code>: A list of mRNAs to use for target prediction. If this configuration is left blank, target prediction is performed for all annotated transcripts of a given species</li>
-<li><code>species</code>: When specifiying the species option, a three-letter code must be used which uses the first letter of the Genus name and the first two letters of the species name. All letters must be in lowercase. A full list of available species that can be used with FilTar is found in config/species.yaml.</li>
-<li><code>context</code>: Specify which RNA-Seq experiment to use e.g. liver or kidney. This should correspond to values specified for 'tissues'.If the user does not want to use RNA-Seq data at all, and to default on standard Ensembl 3UTR models, the value of 'context' should be set to 'reference'</li>
+<li><code>species</code>: Specify which species to investigate. There must be a record containing this species name in the 'species' field of the <code>metadata.tsv</code> data table. A full list of available species that can be used with FilTar is found in the file named <code>config/species.yaml</code>.</li>
+<li><code>context</code>: Specify which RNA-Seq experiment to use e.g. liver or kidney. This should correspond to values specified for the 'biological_context' field in <code>metadata.tsv</code>.If the user does not want to use RNA-Seq data at all, and to default on standard Ensembl 3UTR models, the value of 'context' should be set to 'reference'</li>
 <li><code>reannotation</code>: Set to 'True' if the user wants to reannotate 3'UTRs, if not, set to 'False'.</li>
 <li><code>TPM_expression_threshold</code>: set TPM expression threshold. Use a value of 0 if you do not want to filter by expression level.</li>
 <li><code>conservation</code>: Set to 'True' to use multiple sequence alignments, otherwise set to 'False'. Genome-wide alignment files are many gigabytes in size, and take longer to process than non-MSA sequence data, so in some cases, this option may be preferable</li>

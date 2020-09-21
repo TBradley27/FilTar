@@ -18,6 +18,18 @@ title: Usage
 
 <p>Most parameters can be invoked by passing the <code>--config</code> option to snakemake and setting individual parameter values. Alternatively, the workflow can be configured by editing the <code>config/basic.yaml</code> file. See the 'configurations' page for more detail on this.
 
+<h2>Record Metadata</h2>
+
+<p>Before the the workflow is executed, the user should specify which datasets are available for potential use by FilTar.</p>
+
+<p>This is done by adding entries to the file <code>'metadata.tsv'</code> in which each record represents a single sequencing run dataset. Fields for this table relate to the species of the sequencing dataset, the biological context from which the RNA was sampled, the sample accession, the run accession, and a column denoting whether the dataset refers to single end or paired end sequencing data<p>
+
+<p>When specifiying the <code>species</code> option, a three-letter code must be used which uses the first letter of the Genus name and the first two letters of the species name. All letters must be in lowercase.</p> 
+
+<p>The <code>biological context</code> is defined at the user-level, but generally refers to any biological condition/state of interest to the researchers using the tool - <i>e.g.</i> 'healthy kidney', 'lung primary tumour' <i>etc.</i>
+
+<p>The <code>sample accession</code> and the <code>run accession</code> refer to the metadata attributes (of the same name) of these datasets within the sequence read archive (SRA) and the European nucleotide archive (ENA). Briefly, the 'sample accession' refers to the set of all metadata attributes for a given set of biological samples. Using this nomenclature, a set of biological replicate samples would be registered using the same sample accession. In contrast, the 'run accession' refers to a single sequencing dataset produced from a single sequencing run, and is linked with a single fastq file or a single pair of fastq files (for paired end sequencing). Please refer to SRA and ENA documentation for further information relating to these database accession types</p>
+
 <h2>Standard Usage</h2>
 
 <p>Standard and default usage refers to usage of the tool in which the user reannotates 3'UTRs, filters mRNA targets by expression level, and uses TargetScan7:</p>
