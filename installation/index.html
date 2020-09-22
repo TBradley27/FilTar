@@ -1,0 +1,107 @@
+---
+layout: default
+title: Dependencies
+---
+<body>
+
+<h1>Installation & dependencies</h1>
+
+<ol>
+
+<li><strong>devtools (R package):</strong> devtools is needed to install R packages from Github repositories. It can be installed directly from CRAN within the R console as follows:
+
+<p><code>install.packages("devtools")</code></p>
+
+</li><br>
+
+<li><strong>filtar (R package):</strong> The filtar R package also exists to perform a series of data manipulations within the main FilTar workflow. It can be installed via use of the devtools R package with the following command within the R console:
+
+<p><code>devtools::install_github('TBradley27/filtar_R')</code></p>
+
+<p>If you are using conda to manage your R installation, you may run into a few issues. See the following <a href=https://github.com/conda-forge/r-devtools-feedstock/issues/4>thread</a> for possible resolutions</p>
+
+</li><br>
+
+<li><strong>Conda (using python3):</strong> FilTar is a snakemake project and it is therefore required that the conda package manager is installed on your system. The easiest way to do this is to obtain conda through the relatively lightweight miniconda python distribution, which only contains conda and its dependencies (<a href="https://docs.conda.io/en/latest/miniconda.html">Installation Instructions</a>). Ensure that you have installed a version of conda compatible with python3.</li></br>
+
+<li><strong>Create a new conda environment:</strong> It is advised that users create a new conda environment specifically for FilTar as this will minimise the possibility of dependency conflicts. If the user already has a stand-alone environment for snakemake than this may also work.
+
+<p><code>conda create --name filtar python=3.7</code></p>
+
+</li><br>
+
+<li><strong>Activate the environment:</strong>
+
+<p><code>conda activate filtar</code></p>
+
+</li><br>
+
+<li>
+
+<strong>Install a specific perl build using conda:</strong>
+
+<p><code>conda install -c conda-forge perl=5.26.2=h470a237_0</code></p>
+
+</li>
+
+<li><strong>Install cpanm - the perl package manager:</strong> The recommended method of installing perl modules for use with FilTar is to install the cpanm perl package manager, and then to manually install perl modules using cpanm, which itself can be installed using conda:
+
+<p><code>conda install -c bioconda perl-app-cpanminus</code><br></p>
+
+</li>
+
+<li><strong>Install the Statistics::Lite perl module</strong>
+
+<p><code>cpanm Statistics::Lite</code></p>
+
+</li>
+
+<li><strong>Install the Bio::TreeIO perl module</strong>
+
+<p>This is quite a large installation as Bio::TreeIO uses BioPerl as a dependency. This installation also requires several steps:</p>
+
+<p>Attempt to install Bio::TreeIO using cpanm:</p>
+
+<p><code>cpanm Bio::TreeIO</code></p>
+
+<p>The attempted installation with cpanm will fail, but will prime your conda enviornment for correct installation of this module. To complete installation, download patch needed for Bio::TreeIO installation - this should be located at the following location: <code>~/.cpan/prefs/XML-DOM-XPath.yml</code>. The URL of the patch is as followed: <code>github.com/eserte/srezic-cpan-distroprefs/blob/master/XML-DOM-XPath.yml</code></p>
+
+<p>Reattempt the installation of Bio::TreeIO using <code>CPAN</code>:</p>
+
+<p><code>perl -e MCPAN -e shell</code></p>
+<p><code>install XML::DOM:XPath</code></p>
+
+</li>
+
+<li>
+
+<p><strong>Install mamba (a conda alternative)</strong></p>
+
+<p><code>conda install -c conda-forge mamba</code></p>
+</li>
+
+<li>
+
+<p><code>mamba install -c conda-forge -c bioconda snakemake</code></p>
+
+</li>
+
+<li><strong>Other:</strong> For the remaining dependencies, the user has the choice of the following two options:<br><br>
+
+	<ol>
+	<li>  To allow dependencies to be managed within the snakemake workflow. If the <code>--use-conda</code> flag (see later) is used when executing snakemake, then snakemake will use conda to download and/or activate environments containing dependencies needed to execute a given rule (i.e. job within the larger workflow). That environment will then be reactivated whenever that same rule is executed.<br><br>
+
+For example, if the <code>--use-conda</code> flag is used, filtar will download and install HISAT2 and run it within its own self-contained conda environment. The dependency would be installed within conda, so root priviliges would not be needed.</li><br>
+
+	<li>The user can manage their own dependencies outside of the filtar workflow. If the <code>--use-conda</code> flag is not used, then filtar will try and find HISAT2 within the current environment using the PATH environment variable.</li>	
+	</ol>
+
+<p><strong>Note 1:</strong> Option 1) may cause problems on systems such as some HPC environments in which data download and resource-expensive jobs cannot occur on the same node/machine. In which case option 2) may be preferable. However, for more recent versions of snakemake, all data downloads occur before subsequent job execution, in which case, it may br advisable to download data on one machine, then re-execute the workflow on a different machine to complete jobs.</p>
+
+<strong>Note 2:</strong> For more flexibility if users would like FilTar to manage some dependencies internally (e.g. HISAT2) and some dependencies externally (e.g. trim galore) they could edit the relevant Snakefile and comment out the 'conda' directive from the relevant rule.
+In this case, that rule's dependencies would not be managed internally by filtar even when the <code>--use-conda</code> flag is used when executing the 'snakemake' command
+</li>
+
+
+</ol>
+</body>		
