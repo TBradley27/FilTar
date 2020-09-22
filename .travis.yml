@@ -3,7 +3,6 @@ python: "3.6"
 
 branches:
     only:
-        - master
         - beta3
     
 os:
