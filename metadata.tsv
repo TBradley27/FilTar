@@ -1,0 +1,3 @@
+species	biological_context	sample_accession	run_accession	pe_or_se
+mmu	oocyte	SRS540320	SRR1137901	single_end
+mmu	oocyte	SRS540320	SRR1137902	single_end

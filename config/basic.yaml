@@ -1,12 +1,3 @@
-tissues:
-        mmu: 
-                oocyte: [SRS540320]
-samples:
-         SRS540320: [SRR1137901,SRR1137902]
-        
-single_end: [SRR1137901,SRR1137902]
-paired_end: []
-
 mirnas: [mmu-miR-188-5p]                 # if blank, all miRNA for a given species are used 
 transcripts: []                          # if blank, all available transcripts for a given species are used
 

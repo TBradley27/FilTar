@@ -93,14 +93,5 @@ rule decompress_cdna_file:
         shell: "gunzip {input}"
 
 rule download_first_APAtrap_script:
-	output: 'scripts/identifyDistal3UTR.pl'
-	shell: 'wget https://sourceforge.net/projects/apatrap/files/Source%20Codes/identifyDistal3UTR.pl/download && mv download {output} && chmod +x {output}'
-
-rule download_second_APAtrap_script:
-	output: 'scripts/predictAPA.pl'
-	shell: 'wget https://sourceforge.net/projects/apatrap/files/Source%20Codes/predictAPA.pl/download && mv download {output} && chmod +x {output}'
-
-
-
-
-
+	output: 'scripts/APAtrap/identifyDistal3UTR', 'scripts/APAtrap/predictAPA'
+	shell: 'wget https://sourceforge.net/projects/apatrap/files/APAtrap_Linux.zip/download && mv download scripts && unzip -d scripts/ scripts/download'

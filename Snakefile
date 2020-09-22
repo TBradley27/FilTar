@@ -15,9 +15,14 @@
 #along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import re
+import pandas
+
+# import metadata
+metadata = pandas.read_table("metadata.tsv")
 
 configfile: "config/basic.yaml"
 configfile: "config/species.yaml"
+configfile: "config/dependencies.yaml"
 
 if config['reannotation'] == True:
 	include: "modules/with_reannotation/Snakefile"
@@ -42,6 +47,13 @@ elif config['sequence_data_source'] == 'User':
 	pass
 else:
 	raise Exception("\nPlease enter a value of either 'ENA' or 'SRA' or 'User' for the 'sequence_data_source' key. Default values can be set in config/basic.yaml\n")
+
+if config['prediction_algorithm'] == 'TargetScan7':
+	pass
+elif config['prediction_algorithm'] == 'miRanda':
+	pass
+else:
+	raise Exception("\nPlease enter a valid name for a miRNA target prediction algorithm. Choose either 'TargetScan7' or 'miRanda'\n")
 
 if config['prediction_algorithm'] == 'TargetScan7' and config['reannotation'] == True:
 	include: "modules/target_prediction/targetscan/Snakefile"
@@ -73,7 +85,7 @@ for transcript in list(config['transcripts']):
 		raise Exception('\nInvalid transcript identifier "{}". Identifiers must adhere to official Ensembl identifier patterns e.g. "ENSMUST00000189888.6". Please revise.\n'.format(transcript))
 
 include: "modules/data_download/Snakefile"
-include: "modules/trim_reads/trim_galore/Snakefile"
+include: "modules/trim_reads/Snakefile"
 include: "modules/quant_reads/salmon/Snakefile"
 include: "modules/mirna/Snakefile"
 include: 'modules/get_target_coordinates/Snakefile'

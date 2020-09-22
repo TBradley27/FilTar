@@ -25,7 +25,7 @@ rule salmon_index:
              get_cDNA_file
         output:
             directory("results/salmon/indexes/{species}")
-        threads: 8
+        threads: config['salmon.index_threads']
         conda: "envs/salmon.yaml"
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
@@ -35,18 +35,18 @@ rule salmon_index_for_lib_types:
              get_cDNA_file
         output:
             directory("results/salmon/indexes/lib_type_identification/{species}")
-        threads: 8
+        threads: config['salmon.index_threads']
         conda: "envs/salmon.yaml"
         shell:
             "salmon index --threads {threads} -t {input} -i {output} --type quasi -k 31"
 
 def get_input_files (wildcards):
-        if wildcards.run_accession in config['paired_end']:
+        if wildcards.run_accession in set(metadata.loc[(metadata['pe_or_se'] == 'paired_end')]['run_accession']):
                 input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.run_accession),
                                 'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.run_accession)
                                 ]
                 return(input_files)
-        elif wildcards.run_accession in config['single_end']:
+        elif wildcards.run_accession in set(metadata.loc[(metadata['pe_or_se'] == 'single_end')]['run_accession']):
                 input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.run_accession)
                              ]
                 return(input_file)
@@ -62,7 +62,7 @@ rule salmon_quant_lib_type:
 		"envs/salmon.yaml"
 	wildcard_constraints:
 		run_accession="((?!lib_type).)*" # excludes substring 'lib_type'
-	threads: 4
+	threads: config['salmon.quant_threads']
 	script:
 		"quant_salmon.py"
 
@@ -75,7 +75,7 @@ rule salmon_quant:
 		"envs/salmon.yaml"
 	wildcard_constraints:
 		run_accession="((?!lib_type).)*"
-	threads: 4
+	threads: config['salmon.quant_threads']
 	script:
 		"quant_salmon.py"
 
@@ -86,8 +86,16 @@ rule salmon_get_lib_type:
 		run_accession="((?!lib_type).)*"
 	shell: "grep 'expected' {input}/lib_format_counts.json | awk '{{print $2}}' | sed 's/\"//g' | sed 's/,//g' > {output}"
 
+def get_salmon_run_directory_names(wildcards):
+	metadata_tmp = metadata.loc[(metadata['species'] == wildcards.species) & (metadata['sample_accession'] == wildcards.sample)]
+	metadata_tmp = metadata_tmp['run_accession']
+	metadata_tmp = set(metadata_tmp)
+
+	file_names = expand('results/salmon/runs/{species}/{run_accession}', species=wildcards.species, run_accession=metadata_tmp)
+	return (file_names)
+
 rule salmon_quantmerge_by_run:
-	input:	lambda wildcards: expand("results/salmon/runs/{species}/{run_accession}", run_accession=config['samples'][wildcards.sample], species=wildcards.species)
+	input:	get_salmon_run_directory_names
 	output: temp("results/salmon/samples/{species}/{sample}.quant.tmp.sf")
         conda: "envs/salmon.yaml"
 	shell: "salmon quantmerge --quants {input} --names {input} -o {output}"
@@ -99,8 +107,16 @@ rule salmon_average_quantmerge_runs:
                sample="((?!quant.tmp).)*" # anything not containing quant.tmp
         script: "get_average_quant.R"
 
+def get_salmon_sample_directory_names(wildcards):
+	metadata_tmp = metadata.loc[(metadata['species'] == wildcards.species) & (metadata['biological_context'] == wildcards.tissue)]
+	metadata_tmp = metadata_tmp['sample_accession']
+	metadata_tmp = set(metadata_tmp)
+
+	file_names = expand('results/salmon/samples/{species}/{sample}', species=wildcards.species, sample=metadata_tmp)
+	return (file_names)
+
 rule salmon_quantmerge_by_sample:
-        input:  lambda wildcards: expand('results/salmon/samples/{species}/{sample}', sample=config['tissues'][wildcards.species][wildcards.tissue], species=wildcards.species)
+        input:  get_salmon_sample_directory_names
         output: temp("results/salmon/{species}/{tissue}.sf.tmp")
         conda: "envs/salmon.yaml"
         shell: "salmon quantmerge --quants {input} --names {input} -o {output}"

@@ -33,7 +33,7 @@ rule trim_single_end_reads:
        conda: 
           "envs/trim-galore.yaml"
        shell:
-          "trim_galore --output_dir results/trimmed_fastq/  --length 35 --stringency 4 {input}"
+          "trim_galore --output_dir results/trimmed_fastq/  --length {config[trim_galore.length]} --stringency {config[trim_galore.stringency]} {input}"
 
 rule trim_paired_end_reads:
        input:
@@ -44,4 +44,4 @@ rule trim_paired_end_reads:
        conda:
           "envs/trim-galore.yaml"
        shell:
-          "trim_galore --output_dir results/trimmed_fastq/ --length 35 --stringency 4 --paired {input[0]} {input[1]}"
+          "trim_galore --output_dir results/trimmed_fastq/ --length  {config[trim_galore.length]} --stringency {config[trim_galore.stringency]}  --paired {input[0]} {input[1]}"
