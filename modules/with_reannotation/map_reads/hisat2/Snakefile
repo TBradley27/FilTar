@@ -16,120 +16,173 @@
 
 import os
 
-def get_gtf_file(wildcards):
-        sci_species_name = config['sci_species_name'][wildcards.species]
-        genome_build = config['genome_build'][wildcards.species]
 
-        return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.chr.gtf'.format(config['ensembl_release'])  )
+def get_gtf_file(wildcards):
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
+
+    return (
+        "data/"
+        + sci_species_name
+        + "."
+        + genome_build
+        + ".{}.chr.gtf".format(config["ensembl_release"])
+    )
+
 
 def get_assembly(wildcards):
-	sci_species_name = config['sci_species_name'][wildcards.species]
-        genome_build = config['genome_build'][wildcards.species]
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
 
-	if config['assembly_level'][wildcards.species] == 'primary':
-        	return ( 'data/' + sci_species_name + '.' + genome_build + '.dna.primary_assembly.fa'  )
-	elif config['assembly_level'][wildcards.species] == 'toplevel':
-		return ( 'data/' + sci_species_name + '.' + genome_build + '.dna.toplevel.fa'  )
+    if config["assembly_level"][wildcards.species] == "primary":
+        return (
+            "data/" + sci_species_name + "." + genome_build + ".dna.primary_assembly.fa"
+        )
+    elif config["assembly_level"][wildcards.species] == "toplevel":
+        return "data/" + sci_species_name + "." + genome_build + ".dna.toplevel.fa"
+
 
 def get_lib_type(wildcards):
-	hisat2_dict = {'IU':'','ISF':'FR','ISR':'RF', 'U':'','SF':'F','SR':'R'}	
-	if not os.path.exists('results/salmon/{}/{}_lib_type.txt'.format(wildcards.species,wildcards.accession)): return '' # stmps an error being generated when this file is missing
-        fp=open('results/salmon/{}/{}_lib_type.txt'.format(wildcards.species,wildcards.accession))
-        fp2 = fp.readlines()[0]
-        lib_type = fp2.replace("\n","") 
-	tmp = hisat2_dict[lib_type]
-	
-	if tmp == 'FR':
-		return ("--rna-strandness FR")
-	elif tmp == 'RF':
-		return ("--rna-strandness RF")
-	elif tmp == 'F':
-		return ("--rna-strandness F")
-	elif tmp == 'R':
-		return ("--rna-strandness R")
-	else:
-		return ("")
+    hisat2_dict = {"IU": "", "ISF": "FR", "ISR": "RF", "U": "", "SF": "F", "SR": "R"}
+    if not os.path.exists(
+        "results/salmon/{}/{}_lib_type.txt".format(
+            wildcards.species, wildcards.accession
+        )
+    ):
+        return ""  # stmps an error being generated when this file is missing
+    fp = open(
+        "results/salmon/{}/{}_lib_type.txt".format(
+            wildcards.species, wildcards.accession
+        )
+    )
+    fp2 = fp.readlines()[0]
+    lib_type = fp2.replace("\n", "")
+    tmp = hisat2_dict[lib_type]
 
-def get_read_files (wildcards):
-	if wildcards.accession in set(metadata.loc[(metadata['pe_or_se'] == 'paired_end')]['run_accession']):
-		input_files = ['results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession), 
-			       'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession),
-				] 
-		return(input_files)
-	elif wildcards.accession in set(metadata.loc[(metadata['pe_or_se'] == 'single_end')]['run_accession']):
-		input_file = ["results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
-				]
-		return(input_file)
-	else:
-		raise Exception("\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(wildcards.accession))
-		return
+    if tmp == "FR":
+        return "--rna-strandness FR"
+    elif tmp == "RF":
+        return "--rna-strandness RF"
+    elif tmp == "F":
+        return "--rna-strandness F"
+    elif tmp == "R":
+        return "--rna-strandness R"
+    else:
+        return ""
 
-if config['genome_index_type'] == 'splice-aware':
-	rule get_splice_sites_for_hisat2:
-		input:
-			gtf=get_gtf_file,
-			py_script='scripts/hisat2_extract_splice_sites.py'
-		output: "results/{species}_hisat2_splice_sites.txt"
-		shell: "python {input.py_script} {input.gtf} > {output}"
 
-	rule get_exons_for_hisat2:
-		input:
-			gtf=get_gtf_file,
-			py_script='scripts/hisat2_extract_exons.py'
-		output: "results/{species}_hisat2_exons.txt"
-		shell: "python {input.py_script} {input.gtf} > {output}"
+def get_read_files(wildcards):
+    if wildcards.accession in set(
+        metadata.loc[(metadata["pe_or_se"] == "paired_end")]["run_accession"]
+    ):
+        input_files = [
+            "results/trimmed_fastq/{}_1_val_1.fq.gz".format(wildcards.accession),
+            "results/trimmed_fastq/{}_2_val_2.fq.gz".format(wildcards.accession),
+        ]
+        return input_files
+    elif wildcards.accession in set(
+        metadata.loc[(metadata["pe_or_se"] == "single_end")]["run_accession"]
+    ):
+        input_file = [
+            "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
+        ]
+        return input_file
+    else:
+        raise Exception(
+            "\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(
+                wildcards.accession
+            )
+        )
+        return
 
-	rule create_index:
-		input:
-			assembly=get_assembly,
-			splice_sites="results/{species}_hisat2_splice_sites.txt",
-			exons="results/{species}_hisat2_exons.txt"
-		conda: "envs/hisat2.yaml"
-		output: "data/{species}.1.ht2"
-		threads: config['hisat2.num_threads_for_indexing']
-		shell: "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} data/{wildcards.species}"
-elif config['genome_index_type'] == 'standard':
 
-	rule create_index:
-		input:
-			assembly=get_assembly
-		conda: "envs/hisat2.yaml"
-		output: "data/{species}.1.ht2"
-		threads:  config['hisat2.num_threads_for_indexing']
-		shell: "hisat2-build -f -p {threads} {input.assembly} data/{wildcards.species}"
+if config["genome_index_type"] == "splice-aware":
+
+    rule get_splice_sites_for_hisat2:
+        input:
+            gtf=get_gtf_file,
+            py_script="scripts/hisat2_extract_splice_sites.py",
+        output:
+            "results/{species}_hisat2_splice_sites.txt",
+        shell:
+            "python {input.py_script} {input.gtf} > {output}"
+
+    rule get_exons_for_hisat2:
+        input:
+            gtf=get_gtf_file,
+            py_script="scripts/hisat2_extract_exons.py",
+        output:
+            "results/{species}_hisat2_exons.txt",
+        shell:
+            "python {input.py_script} {input.gtf} > {output}"
+
+    rule create_index:
+        input:
+            assembly=get_assembly,
+            splice_sites="results/{species}_hisat2_splice_sites.txt",
+            exons="results/{species}_hisat2_exons.txt",
+        conda:
+            "envs/hisat2.yaml"
+        output:
+            "data/{species}.1.ht2",
+        threads: config["hisat2.num_threads_for_indexing"]
+        shell:
+            "hisat2-build -f -p {threads} --ss {input.splice_sites} --exon {input.exons} {input.assembly} data/{wildcards.species}"
+
+elif config["genome_index_type"] == "standard":
+
+    rule create_index:
+        input:
+            assembly=get_assembly,
+        conda:
+            "envs/hisat2.yaml"
+        output:
+            "data/{species}.1.ht2",
+        threads: config["hisat2.num_threads_for_indexing"]
+        shell:
+            "hisat2-build -f -p {threads} {input.assembly} data/{wildcards.species}"
 
 else:
-	raise Exception("\nPlease use a valid value for the configuration option 'genome_index_type' - use either 'standard' or 'splice-aware'\n")
+    raise Exception(
+        "\nPlease use a valid value for the configuration option 'genome_index_type' - use either 'standard' or 'splice-aware'\n"
+    )
 
 
 rule map_reads:
-	input: 
-		reads=get_read_files,
-		lib_type_file='results/salmon/runs/{species}/{accession}_lib_type.txt',
-                index="data/{species}.1.ht2"
-	conda:
-		"envs/hisat2.yaml"
-	params: get_lib_type
-        threads: config['hisat2.num_threads_for_mapping']
-        output: "results/bam/run/{species}/{accession}.sam"
-	script:
-		"map_reads.py"
+    input:
+        reads=get_read_files,
+        lib_type_file="results/salmon/runs/{species}/{accession}_lib_type.txt",
+        index="data/{species}.1.ht2",
+    conda:
+        "envs/hisat2.yaml"
+    params:
+        get_lib_type,
+    threads: config["hisat2.num_threads_for_mapping"]
+    output:
+        "results/bam/run/{species}/{accession}.sam",
+    script:
+        "map_reads.py"
+
 
 rule sam_to_bam:
-	input: "results/bam/run/{species}/{accession}.sam",
-        output: "results/bam/run/{species}/{accession}.bam"
-        threads: config['samtools.view.num_threads']
-        conda:
-	   "envs/hisat2.yaml"
-	shell: "samtools view -@ {threads} -Sb  {input}  >  {output}"
+    input:
+        "results/bam/run/{species}/{accession}.sam",
+    output:
+        "results/bam/run/{species}/{accession}.bam",
+    threads: config["samtools.view.num_threads"]
+    conda:
+        "envs/hisat2.yaml"
+    shell:
+        "samtools view -@ {threads} -Sb  {input}  >  {output}"
+
 
 rule samtools_sort:
     input:
-        "results/bam/run/{species}/{accession}.bam"
+        "results/bam/run/{species}/{accession}.bam",
     output:
-        "results/bam/run/{species}/{accession}.bam.sorted"
+        "results/bam/run/{species}/{accession}.bam.sorted",
     params:
-        "-m 2G"
-    threads: config['samtools.sort.num_threads']
+        "-m 2G",
+    threads: config["samtools.sort.num_threads"]
     wrapper:
         "0.27.0/bio/samtools/sort"

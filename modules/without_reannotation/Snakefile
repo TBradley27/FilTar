@@ -14,54 +14,93 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>
 
+
 def get_tax_id(wildcards):
-        return(config['tax_ids'][wildcards.species])
+    return config["tax_ids"][wildcards.species]
+
 
 def get_gtf_file(wildcards):
-        sci_species_name = config['sci_species_name'][wildcards.species]
-        genome_build = config['genome_build'][wildcards.species]
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
 
-        return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.mod.chr.gtf'.format(config['ensembl_release'])  )
+    return (
+        "data/"
+        + sci_species_name
+        + "."
+        + genome_build
+        + ".{}.mod.chr.gtf".format(config["ensembl_release"])
+    )
 
-### get AIR file 
+
+### get AIR file
+
 
 rule gtf_to_bed_no_reannotation:
-        input:
-            gtf=get_gtf_file,
-            script="scripts/pre-processing/gtf_to_bed.sh"
-        output:
-            "results/bed/{species}_{feature}.bed"
-        shell:
-            "{input.script} {input.gtf} {wildcards.feature} {output}"
+    input:
+        gtf=get_gtf_file,
+        script="scripts/pre-processing/gtf_to_bed.sh",
+    output:
+        "results/bed/{species}_{feature}.bed",
+    shell:
+        "{input.script} {input.gtf} {wildcards.feature} {output}"
+
 
 rule get_utr_lengths_no_reannotation:
-        input:  'results/bed/{species}_3UTR.chr{chrom}.bed'
-        output: 'results/targets/{species}_chr{chrom}.utr.lengths.tsv'
-        script: 'get_utr_lengths.R'
+    input:
+        "results/bed/{species}_3UTR.chr{chrom}.bed",
+    output:
+        "results/targets/{species}_chr{chrom}.utr.lengths.tsv",
+    script:
+        "get_utr_lengths.R"
+
 
 rule get_air_file_no_reannotation:
-	input: "results/targets/{species}_chr{chrom}.utr.lengths.tsv"
-	output: 'results/targets/{species}_nr_chr{chrom}.AIRs.txt'
-	script: 'get_canonical_AIR.R'
+    input:
+        "results/targets/{species}_chr{chrom}.utr.lengths.tsv",
+    output:
+        "results/targets/{species}_nr_chr{chrom}.AIRs.txt",
+    script:
+        "get_canonical_AIR.R"
+
 
 rule aggregate_chromosomal_AIR_files:
-        input: lambda wildcards: expand("results/targets/{species}_chr{chrom}.utr.lengths.tsv", chrom=config['chromosomes'][wildcards.species], species=wildcards.species)
-        output: 'results/targets/{species}_nr.AIRs.txt'
-        script: 'get_canonical_AIR.R'
+    input:
+        lambda wildcards: expand(
+            "results/targets/{species}_chr{chrom}.utr.lengths.tsv",
+            chrom=config["chromosomes"][wildcards.species],
+            species=wildcards.species,
+        ),
+    output:
+        "results/targets/{species}_nr.AIRs.txt",
+    script:
+        "get_canonical_AIR.R"
+
 
 ###
 
+
 rule split_bed6:
-        input: "results/bed/{species}_3UTR.bed"
-        output: "results/bed/{species}_3UTR.chr{chrom}.bed"
-        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
+    input:
+        "results/bed/{species}_3UTR.bed",
+    output:
+        "results/bed/{species}_3UTR.chr{chrom}.bed",
+    shell:
+        'grep -E "^{wildcards.chrom}\s" {input} > {output}'
+
 
 rule filter_bed6_file_no_reannotation:
-        input: "results/bed/{species}_{feature}.bed"
-        output: temp("results/bed/{species}_nr_{feature}.bed")
-        script: 'filter_bed6.R'
+    input:
+        "results/bed/{species}_{feature}.bed",
+    output:
+        temp("results/bed/{species}_nr_{feature}.bed"),
+    script:
+        "filter_bed6.R"
+
 
 rule split_filtered_bed6:
-	input: rules.filter_bed6_file_no_reannotation.output
-	output: temp("results/bed/{species}_nr_{feature}.chr{chrom}.bed")
-	shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
+    input:
+        rules.filter_bed6_file_no_reannotation.output,
+    output:
+        temp("results/bed/{species}_nr_{feature}.chr{chrom}.bed"),
+    shell:
+        'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'

@@ -18,13 +18,14 @@
 
 
 rule download_single_end_fastq_file:
-       input:
-       output: 
-            "data/single_end/{accession}.fastq.gz"
-       script: "download_fastq.py" 
+    output:
+        "data/single_end/{accession}.fastq.gz",
+    script:
+        "download_fastq.py"
+
 
 rule download_paired_end_fastq_files:
-       input:
-       output:
-           "data/paired_end/{accession}_{mate_number}.fastq.gz",
-       script: "download_fastq.py"
+    output:
+        "data/paired_end/{accession}_{mate_number}.fastq.gz",
+    script:
+        "download_fastq.py"

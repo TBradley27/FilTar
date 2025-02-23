@@ -14,53 +14,71 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>
 
+
 def get_cDNA_file(wildcards):
-	if wildcards.assembly == 'GRCh38':
-		return('data/Homo_sapiens.GRCh38.cdna.all.fa')
-	elif wildcards.assembly == 'GRCm38':
-		return('data/Mus_musculus.GRCm38.cdna.all.fa')
+    if wildcards.assembly == "GRCh38":
+        return "data/Homo_sapiens.GRCh38.cdna.all.fa"
+    elif wildcards.assembly == "GRCm38":
+        return "data/Mus_musculus.GRCm38.cdna.all.fa"
+
 
 rule get_index:
-	input: get_cDNA_file
-	output: "results/kallisto/{assembly}.idx"
-	conda: "envs/kallisto.yaml"
-	shell: "kallisto index -i {output} {input}"
+    input:
+        get_cDNA_file,
+    output:
+        "results/kallisto/{assembly}.idx",
+    conda:
+        "envs/kallisto.yaml"
+    shell:
+        "kallisto index -i {output} {input}"
 
 
-def get_index_file (wildcards):
-	if wildcards.accession in config['mouse']['runs']:
-		return ('results/kallisto/GRCm38.idx')
-	elif wildcards.accession in config['human']['runs']:
-		return ('results/kallisto/GRCh38.idx')
-	else:
-		raise Exception("please specify which species run {} corresponds to".format(wildcards.accession))
+def get_index_file(wildcards):
+    if wildcards.accession in config["mouse"]["runs"]:
+        return "results/kallisto/GRCm38.idx"
+    elif wildcards.accession in config["human"]["runs"]:
+        return "results/kallisto/GRCh38.idx"
+    else:
+        raise Exception(
+            "please specify which species run {} corresponds to".format(
+                wildcards.accession
+            )
+        )
 
-def get_input_files (wildcards):
-        if wildcards.accession in config['paired_end']:
-                input_files = [
-			       'results/trimmed_fastq/{}_1_val_1.fq.gz'.format(wildcards.accession),
-                               'results/trimmed_fastq/{}_2_val_2.fq.gz'.format(wildcards.accession)
-                              ]
-                return(input_files)
-        elif wildcards.accession in config['single_end']::
-                input_file = [
-                              "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
-                             ]
-                return(input_file)
-	else:
-		raise Exception("\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(wildcards.accession))
+
+def get_input_files(wildcards):
+    if wildcards.accession in config["paired_end"]:
+        input_files = [
+            "results/trimmed_fastq/{}_1_val_1.fq.gz".format(wildcards.accession),
+            "results/trimmed_fastq/{}_2_val_2.fq.gz".format(wildcards.accession),
+        ]
+        return input_files
+    elif wildcards.accession in config["single_end"]:
+        input_file = [
+            "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
+        ]
+        return input_file
+    else:
+        raise Exception(
+            "\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(
+                wildcards.accession
+            )
+        )
+
 
 rule kallisto_quant:
-        output: "results/kallisto/{accession}/abundance.tsv"
-        input: 
-                index=get_index_file,
-                fastq=get_input_files
-        conda: "envs/kallisto.yaml"
-        log:   "logs/{accession}_kallisto.out"
-        params:
-               frag_length_mean=180,
-               frag_length_sd=20
-	threads: 5
-        script: "kallisto_quant.py"
-
-
+    output:
+        "results/kallisto/{accession}/abundance.tsv",
+    input:
+        index=get_index_file,
+        fastq=get_input_files,
+    conda:
+        "envs/kallisto.yaml"
+    log:
+        "logs/{accession}_kallisto.out",
+    params:
+        frag_length_mean=180,
+        frag_length_sd=20,
+    threads: 5
+    script:
+        "kallisto_quant.py"

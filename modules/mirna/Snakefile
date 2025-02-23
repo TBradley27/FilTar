@@ -14,19 +14,29 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>
 
+
 def get_mirbase_file(wildcards):
-	if config['use_high_conf_mirs_only']:
-		return('data/mature_high_conf.fa')
-	else:
-		return('data/mature.fa')
+    if config["use_high_conf_mirs_only"]:
+        return "data/mature_high_conf.fa"
+    else:
+        return "data/mature.fa"
+
 
 rule mirna_species_fasta:
-	input: get_mirbase_file
-	output: "data/mirbase_mature_{species}.fa"
-	shell: "grep -A 1 {wildcards.species} {input} | awk '{{ print $1 }}' | sed 's/--//g' | sed '/^$/d' > {output}"
+    input:
+        get_mirbase_file,
+    output:
+        "data/mirbase_mature_{species}.fa",
+    shell:
+        "grep -A 1 {wildcards.species} {input} | awk '{{ print $1 }}' | sed 's/--//g' | sed '/^$/d' > {output}"
+
 
 rule filter_mirna_species_fasta:
-	input: "data/mirbase_mature_{species}.fa"
-	output: temp("data/mirbase_mature_{species}.filtered.fa")
-	conda: "envs/biopython.yaml"
-	script: "filter_mirna_fasta.py"
+    input:
+        "data/mirbase_mature_{species}.fa",
+    output:
+        temp("data/mirbase_mature_{species}.filtered.fa"),
+    conda:
+        "envs/biopython.yaml"
+    script:
+        "filter_mirna_fasta.py"

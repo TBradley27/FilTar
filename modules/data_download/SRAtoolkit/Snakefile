@@ -16,30 +16,43 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>
 
+
 rule download_single_end_fastq:
-       input:
-       output: "data/single_end/{accession}.fastq"
-       conda: "envs/sra-tools.yaml"
-       threads: 20
-       shell: "fasterq-dump -O data/single_end/ --threads {threads} {wildcards.accession}"
+    output:
+        "data/single_end/{accession}.fastq",
+    conda:
+        "envs/sra-tools.yaml"
+    threads: 20
+    shell:
+        "fasterq-dump -O data/single_end/ --threads {threads} {wildcards.accession}"
+
 
 rule download_paired_end_fastq:
-       input:
-       output: "data/paired_end/{accession}_1.fastq", "data/paired_end/{accession}_2.fastq"
-       conda: "envs/sra-tools.yaml"
-       threads: 20
-       shell: "fasterq-dump -O data/paired_end/ --threads {threads} {wildcards.accession}"
+    output:
+        "data/paired_end/{accession}_1.fastq",
+        "data/paired_end/{accession}_2.fastq",
+    conda:
+        "envs/sra-tools.yaml"
+    threads: 20
+    shell:
+        "fasterq-dump -O data/paired_end/ --threads {threads} {wildcards.accession}"
+
 
 rule compress_single_end_fastq_files:
-       input: "data/single_end/{accession}.fastq"
-       output: "data/single_end/{accession}.fastq.gz",
-       shell: "gzip {input}"
+    input:
+        "data/single_end/{accession}.fastq",
+    output:
+        "data/single_end/{accession}.fastq.gz",
+    shell:
+        "gzip {input}"
+
 
 rule compress_paired_end_fastq_files:
-       input: 
-           file1="data/paired_end/{accession}_1.fastq",
-           file2="data/paired_end/{accession}_2.fastq"
-       output: 
-            "data/paired_end/{accession}_1.fastq.gz",
-            "data/paired_end/{accession}_2.fastq.gz"
-       shell: "gzip {input.file1} {input.file2}"
+    input:
+        file1="data/paired_end/{accession}_1.fastq",
+        file2="data/paired_end/{accession}_2.fastq",
+    output:
+        "data/paired_end/{accession}_1.fastq.gz",
+        "data/paired_end/{accession}_2.fastq.gz",
+    shell:
+        "gzip {input.file1} {input.file2}"

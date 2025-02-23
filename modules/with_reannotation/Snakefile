@@ -14,223 +14,345 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>
 
-def get_gtf_file(wildcards):
-        sci_species_name = config['sci_species_name'][wildcards.species]
-        genome_build = config['genome_build'][wildcards.species]
 
-        return ( 'data/' + sci_species_name + '.' + genome_build + '.{}.mod.chr.gtf'.format(config['ensembl_release'])  )
+def get_gtf_file(wildcards):
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
+
+    return (
+        "data/"
+        + sci_species_name
+        + "."
+        + genome_build
+        + ".{}.mod.chr.gtf".format(config["ensembl_release"])
+    )
+
 
 def get_bed_file(wildcards):
-        sci_species_name = config['sci_species_name'][wildcards.species]
-        genome_build = config['genome_build'][wildcards.species]
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
 
-        return('results/' + sci_species_name + '.' + genome_build + '_chr{}.{}.filtered.bed'.format(wildcards.chrom, config['ensembl_release']))
+    return (
+        "results/"
+        + sci_species_name
+        + "."
+        + genome_build
+        + "_chr{}.{}.filtered.bed".format(wildcards.chrom, config["ensembl_release"])
+    )
+
 
 def get_bed6_file(wildcards):
-        sci_species_name = config['sci_species_name'][wildcards.species]
-        genome_build = config['genome_build'][wildcards.species]
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
 
-        return ( 'results/' + sci_species_name + '.' + genome_build + '.{}.chr{}.filtered.bed6'.format(config['ensembl_release'], wildcards.chrom) )
+    return (
+        "results/"
+        + sci_species_name
+        + "."
+        + genome_build
+        + ".{}.chr{}.filtered.bed6".format(config["ensembl_release"], wildcards.chrom)
+    )
+
 
 def get_sample_level_bedgraph_file_names(wildcards):
-	metadata_tmp = metadata.loc[(metadata['species'] == wildcards.species) & (metadata['biological_context'] == wildcards.cell_line)]
-	metadata_tmp = metadata_tmp['sample_accession']
-	metadata_tmp = set(metadata_tmp)
+    metadata_tmp = metadata.loc[
+        (metadata["species"] == wildcards.species)
+        & (metadata["biological_context"] == wildcards.cell_line)
+    ]
+    metadata_tmp = metadata_tmp["sample_accession"]
+    metadata_tmp = set(metadata_tmp)
 
-	file_names = expand("results/bam/sample/{species}/{sample}_chr{chrom}.bedgraph", species=wildcards.species, sample=metadata_tmp, chrom=wildcards.chrom)
-	return (file_names)
+    file_names = expand(
+        "results/bam/sample/{species}/{sample}_chr{chrom}.bedgraph",
+        species=wildcards.species,
+        sample=metadata_tmp,
+        chrom=wildcards.chrom,
+    )
+    return file_names
 
-rule get_bed6_file: #three_prime_utrs only
-        input:
-            script="scripts/gtf_to_bed.sh",
-            gtf="data/{genus_species}.{build}.{ensembl_release}.chr.gtf"
-        output:
-            "results/{genus_species}.{build}.{ensembl_release}.bed6"
-        shell:
-            "{input.script} {input.gtf} {output}"
+
+rule get_bed6_file:  #three_prime_utrs only
+    input:
+        script="scripts/gtf_to_bed.sh",
+        gtf="data/{genus_species}.{build}.{ensembl_release}.chr.gtf",
+    output:
+        "results/{genus_species}.{build}.{ensembl_release}.bed6",
+    shell:
+        "{input.script} {input.gtf} {output}"
+
 
 rule filter_bed6_file:
-        input:  'results/{genus_species}.{build}.{ensembl_release}.bed6'
-        output:  temp('results/{genus_species}.{build}.{ensembl_release}.filtered.bed6')
-        script: 'filter_bed6.R'
+    input:
+        "results/{genus_species}.{build}.{ensembl_release}.bed6",
+    output:
+        temp("results/{genus_species}.{build}.{ensembl_release}.filtered.bed6"),
+    script:
+        "filter_bed6.R"
+
 
 rule split_bed6_file:
-        input: 'results/{genus_species}.{build}.{ensembl_release}.filtered.bed6'
-        output: temp('results/{genus_species}.{build}.{ensembl_release}.chr{chrom}.filtered.bed6')
-        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
+    input:
+        "results/{genus_species}.{build}.{ensembl_release}.filtered.bed6",
+    output:
+        temp(
+            "results/{genus_species}.{build}.{ensembl_release}.chr{chrom}.filtered.bed6"
+        ),
+    shell:
+        'grep -E "^{wildcards.chrom} " {input} > {output} || true'
+
 
 # derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
 
+
 rule convert_gtf_to_genepred:
-     input:
-         gtf="data/{species_prefix}.{ensembl_release}.mod.chr.gtf"
-     output:
-         "results/{species_prefix}.{ensembl_release}.genePred"
-     conda: "envs/ucsc.yaml"
-     shell:
-         "gtfToGenePred {input.gtf} {output}"
+    input:
+        gtf="data/{species_prefix}.{ensembl_release}.mod.chr.gtf",
+    output:
+        "results/{species_prefix}.{ensembl_release}.genePred",
+    conda:
+        "envs/ucsc.yaml"
+    shell:
+        "gtfToGenePred {input.gtf} {output}"
+
 
 rule convert_genepred_to_bed12:
-     input:
-         genepred="results/{species_prefix}.{ensembl_release}.genePred"
-     output:
-         "results/{species_prefix}.{ensembl_release}.bed"
-     wildcard_constraints:
-               species_prefix="((?!chr).)*" # anything not containing chr
-     conda: "envs/ucsc.yaml"
-     shell:
-         "genePredToBed {input.genepred} {output}"
+    input:
+        genepred="results/{species_prefix}.{ensembl_release}.genePred",
+    output:
+        "results/{species_prefix}.{ensembl_release}.bed",
+    wildcard_constraints:
+        species_prefix="((?!chr).)*",  # anything not containing chr
+    conda:
+        "envs/ucsc.yaml"
+    shell:
+        "genePredToBed {input.genepred} {output}"
+
 
 rule get_bedgraph:
     input:
         sorted_bam="results/bam/run/{species}/{accession}.bam.sorted",
     output:
-        "results/bam/run/{species}/{accession}.bedgraph"
+        "results/bam/run/{species}/{accession}.bedgraph",
     conda:
         "envs/bedtools.yaml"
     wildcard_constraints:
-               accession="((?!_chr).)*"
+        accession="((?!_chr).)*",
     priority: 10
     shell:
         "genomeCoverageBed -bg -ibam {input.sorted_bam} -split > {output}"
 
+
 rule split_bedgraph:
-        input: 'results/bam/run/{species}/{accession}.bedgraph'
-        output: 'results/bam/run/{species}/{accession}_chr{chrom}.bedgraph'
-        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
+    input:
+        "results/bam/run/{species}/{accession}.bedgraph",
+    output:
+        "results/bam/run/{species}/{accession}_chr{chrom}.bedgraph",
+    shell:
+        'grep -E "^{wildcards.chrom} " {input} > {output}'
+
 
 def get_run_level_bedgraph_file_names(wildcards):
-	metadata_tmp = metadata.loc[(metadata['species'] == wildcards.species) & (metadata['sample_accession'] == wildcards.sample)]
-	metadata_tmp = metadata_tmp['run_accession']
-	metadata_tmp = set(metadata_tmp)
+    metadata_tmp = metadata.loc[
+        (metadata["species"] == wildcards.species)
+        & (metadata["sample_accession"] == wildcards.sample)
+    ]
+    metadata_tmp = metadata_tmp["run_accession"]
+    metadata_tmp = set(metadata_tmp)
 
-	file_names = expand("results/bam/run/{species}/{accession}_chr{chrom}.bedgraph", species=wildcards.species, accession=metadata_tmp, chrom=wildcards.chrom)
-	return (file_names)
+    file_names = expand(
+        "results/bam/run/{species}/{accession}_chr{chrom}.bedgraph",
+        species=wildcards.species,
+        accession=metadata_tmp,
+        chrom=wildcards.chrom,
+    )
+    return file_names
+
 
 rule merge_bedgraphs_by_run:
-        input: get_run_level_bedgraph_file_names
-        output:
-             temp("results/bam/sample/{species}/{sample}_chr{chrom}_tmp.bedgraph")
-        wildcard_constraints:
-             sample="((?!tmp).)*"
-        conda:
-             "envs/bedtools.yaml"
-        script: "merge_bedgraphs.py"
+    input:
+        get_run_level_bedgraph_file_names,
+    output:
+        temp("results/bam/sample/{species}/{sample}_chr{chrom}_tmp.bedgraph"),
+    wildcard_constraints:
+        sample="((?!tmp).)*",
+    conda:
+        "envs/bedtools.yaml"
+    script:
+        "merge_bedgraphs.py"
+
 
 rule avg_merged_bedgraph_by_run:
-        input:
-                "results/bam/sample/{species}/{sample}_chr{chrom}_tmp.bedgraph"
-        output:
-                temp("results/bam/sample/{species}/{sample}_chr{chrom}.bedgraph")
-        wildcard_constraints:
-             sample="((?!tmp).)*"
-        script:
-                "get_average_bedgraph.R"
+    input:
+        "results/bam/sample/{species}/{sample}_chr{chrom}_tmp.bedgraph",
+    output:
+        temp("results/bam/sample/{species}/{sample}_chr{chrom}.bedgraph"),
+    wildcard_constraints:
+        sample="((?!tmp).)*",
+    script:
+        "get_average_bedgraph.R"
+
 
 rule merge_bedgraphs_by_sample:
-        input: get_sample_level_bedgraph_file_names 
-        output:
-             temp("results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp")
-        wildcard_constraints:
-               cell_line="((?!chr).)*" 
-        conda:
-             "envs/bedtools.yaml"
-        script: "merge_bedgraphs.py"
+    input:
+        get_sample_level_bedgraph_file_names,
+    output:
+        temp("results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp"),
+    wildcard_constraints:
+        cell_line="((?!chr).)*",
+    conda:
+        "envs/bedtools.yaml"
+    script:
+        "merge_bedgraphs.py"
+
 
 rule avg_merged_bedgraph_by_sample:
-        input:
-                "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp"
-        output:
-                temp("results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph")
-        wildcard_constraints:
-               cell_line="((?!chr).)*" 
-        script:
-                "get_average_bedgraph.R"
+    input:
+        "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp",
+    output:
+        temp("results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph"),
+    wildcard_constraints:
+        cell_line="((?!chr).)*",
+    script:
+        "get_average_bedgraph.R"
+
 
 rule split_bed12:
-        input: 'results/{species_prefix}.{ensembl_release}.bed'
-        output:'results/{species_prefix}_chr{chrom}.{ensembl_release}.bed'
-        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output}'
+    input:
+        "results/{species_prefix}.{ensembl_release}.bed",
+    output:
+        "results/{species_prefix}_chr{chrom}.{ensembl_release}.bed",
+    shell:
+        'grep -E "^{wildcards.chrom} " {input} > {output}'
+
 
 rule filter_bed12:
-        input: 'results/{species_prefix}_chr{chrom}.{ensembl_release}.bed'
-        output: temp('results/{species_prefix}_chr{chrom}.{ensembl_release}.filtered.bed')
-        script: "filter_bed12.R"
+    input:
+        "results/{species_prefix}_chr{chrom}.{ensembl_release}.bed",
+    output:
+        temp("results/{species_prefix}_chr{chrom}.{ensembl_release}.filtered.bed"),
+    script:
+        "filter_bed12.R"
+
 
 rule reannotate_3utrs:
     input:
-       script="scripts/APAtrap/identifyDistal3UTR",
-       bed=get_bed_file,
-       bedgraphs= 'results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph'
+        script="scripts/APAtrap/identifyDistal3UTR",
+        bed=get_bed_file,
+        bedgraphs="results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph",
     output:
-       temp("results/bed/{species}_{cell_line}_chr{chrom}.utr.bed")
-    shell: "./{input.script} -i {input.bedgraphs} -p {config[APAtrap.min_proportion_of_valid_nucleotides_in_window]} -c {config[APAtrap.min_window_coverage]} -w {config[APAtrap.window_size]} -e {config[APAtrap.utr_extension_size]} -m {input.bed} -o {output}"
+        temp("results/bed/{species}_{cell_line}_chr{chrom}.utr.bed"),
+    shell:
+        "./{input.script} -i {input.bedgraphs} -p {config[APAtrap.min_proportion_of_valid_nucleotides_in_window]} -c {config[APAtrap.min_window_coverage]} -w {config[APAtrap.window_size]} -e {config[APAtrap.utr_extension_size]} -m {input.bed} -o {output}"
+
 
 rule get_extended_bed_file:
-         input:
-            normal_bed= get_bed6_file,
-            extended_bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed",
-            all_transcripts="results/bed/{species}_chr{chrom}_all_transcripts.txt",
-            tx_quant="results/salmon/{species}/{tissue}.sf"
-         output:
-            temp("results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed")
-         script:
-             "extend_bed2.R"
+    input:
+        normal_bed=get_bed6_file,
+        extended_bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed",
+        all_transcripts="results/bed/{species}_chr{chrom}_all_transcripts.txt",
+        tx_quant="results/salmon/{species}/{tissue}.sf",
+    output:
+        temp("results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"),
+    script:
+        "extend_bed2.R"
+
 
 rule aggregrate_extended_bed_files:
-        input: lambda wildcards: expand("results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
-        output: temp("results/bed/{species}_{tissue}_3UTR.bed")
-        shell: "cat {input} > {output}"
+    input:
+        lambda wildcards: expand(
+            "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed",
+            chrom=config["chromosomes"][wildcards.species],
+            species=wildcards.species,
+            tissue=wildcards.tissue,
+        ),
+    output:
+        temp("results/bed/{species}_{tissue}_3UTR.bed"),
+    shell:
+        "cat {input} > {output}"
+
 
 ### Generate AIR file
 
+
 rule identify_APA_sites:
-     input:
+    input:
         script="scripts/APAtrap/predictAPA",
-        bedgraphs= "results/bam/tissue/{species}/{tissue}_chr{chrom}.bedgraph",
-        bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed"
-     output:
-        temp("results/targets/{species}_{tissue}_chr{chrom}.APA.txt")
-     shell:
+        bedgraphs="results/bam/tissue/{species}/{tissue}_chr{chrom}.bedgraph",
+        bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed",
+    output:
+        temp("results/targets/{species}_{tissue}_chr{chrom}.APA.txt"),
+    shell:
         "./{input.script} -i {input.bedgraphs} -g 1 -n 1 -d {config[APAtrap.min_cov_variation_between_APA_sites]} -c {config[APAtrap.min_average_cov]} -a {config[APAtrap.min_distance_between_APA_sites]} -w {config[APAtrap.predictAPA_window_size]} -u {input.bed}  -o {output}"
 
+
 rule aggregate_APA_sites:
-        input: lambda wildcards: expand("results/targets/{species}_{tissue}_chr{chrom}.APA.txt", chrom=config['chromosomes'][wildcards.species], species=wildcards.species, tissue=wildcards.tissue)
-        output: temp("results/targets/{species}_{tissue}.APA.txt")
-        shell: "cat {input} | sed '1b;/Gene/d' > {output}"
+    input:
+        lambda wildcards: expand(
+            "results/targets/{species}_{tissue}_chr{chrom}.APA.txt",
+            chrom=config["chromosomes"][wildcards.species],
+            species=wildcards.species,
+            tissue=wildcards.tissue,
+        ),
+    output:
+        temp("results/targets/{species}_{tissue}.APA.txt"),
+    shell:
+        "cat {input} | sed '1b;/Gene/d' > {output}"
+
 
 rule get_utr_lengths_chr:
-	input: 'results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed'
-	output: temp('results/utrs/{species}_{tissue}_chr{chrom}.utr.lengths.tsv')
-	script: 'get_utr_lengths.R'
+    input:
+        "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed",
+    output:
+        temp("results/utrs/{species}_{tissue}_chr{chrom}.utr.lengths.tsv"),
+    script:
+        "get_utr_lengths.R"
+
 
 rule get_utr_lengths:
-        input:  'results/bed/{species}_{tissue}_3UTR.bed'
-        output: temp('results/utrs/{species}_{tissue}.utr.lengths.tsv')
-        script: 'get_utr_lengths.R'
+    input:
+        "results/bed/{species}_{tissue}_3UTR.bed",
+    output:
+        temp("results/utrs/{species}_{tissue}.utr.lengths.tsv"),
+    script:
+        "get_utr_lengths.R"
+
 
 rule get_AIR_file:
-        input: "results/targets/{species}_{tissue}_chr{chrom}.APA.txt", "results/utrs/{species}_{tissue}_chr{chrom}.utr.lengths.tsv" #output from APA usage file
-        output: temp("results/targets/{species}_{tissue}_chr{chrom}.AIRs.txt")
-        script: "get_tissue_specific_APA_file.R"
+    input:
+        "results/targets/{species}_{tissue}_chr{chrom}.APA.txt",
+        "results/utrs/{species}_{tissue}_chr{chrom}.utr.lengths.tsv",  #output from APA usage file
+    output:
+        temp("results/targets/{species}_{tissue}_chr{chrom}.AIRs.txt"),
+    script:
+        "get_tissue_specific_APA_file.R"
+
 
 ### Get CDS bed file
 
+
 rule gtf_to_bed_CDS:
-        input:
-            gtf=get_gtf_file,
-            script="scripts/pre-processing/gtf_to_bed.sh"
-        output:
-            temp("results/bed/{species}_{tissue}_CDS.tmp.bed")
-        shell:
-            "{input.script} {input.gtf} CDS {output}"
+    input:
+        gtf=get_gtf_file,
+        script="scripts/pre-processing/gtf_to_bed.sh",
+    output:
+        temp("results/bed/{species}_{tissue}_CDS.tmp.bed"),
+    shell:
+        "{input.script} {input.gtf} CDS {output}"
+
 
 rule filter_CDS:
-	input: "results/bed/{species}_{tissue}_CDS.tmp.bed"
-	output: temp("results/bed/{species}_{tissue}_CDS.filtered.bed")
-	script: "filter_bed6.R"
+    input:
+        "results/bed/{species}_{tissue}_CDS.tmp.bed",
+    output:
+        temp("results/bed/{species}_{tissue}_CDS.filtered.bed"),
+    script:
+        "filter_bed6.R"
+
 
 rule split_CDS:
-        input: "results/bed/{species}_{tissue}_CDS.filtered.bed"
-        output: temp("results/bed/{species}_{tissue}_CDS.chr{chrom}.bed")
-        shell: 'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
+    input:
+        "results/bed/{species}_{tissue}_CDS.filtered.bed",
+    output:
+        temp("results/bed/{species}_{tissue}_CDS.chr{chrom}.bed"),
+    shell:
+        'grep -E "^{wildcards.chrom} " {input} > {output} || true'
