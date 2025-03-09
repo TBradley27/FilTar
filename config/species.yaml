@@ -1,4 +1,4 @@
-ensembl_release: 95
+ensembl_release: 113
 
 assembly_level:
         hsa: primary
@@ -98,26 +98,26 @@ sci_species_name:
 
 genome_build:
         hsa: GRCh38
-        mmu: GRCm38
+        mmu: GRCm39
         dre: GRCz11
-        gga: GRCg6a
-        aca: AnoCar2.0
+        gga: GRCg7b
+        aca: AnoCar2.0v2
         ptr: Pan_tro_3.0
-        bta: ARS-UCD1.2
-        cfa: CanFam3.1
+        bta: ARS-UCD1.3
+        cfa: ROS_Cfam_1.0
         nle: Nleu_3.0
         chi: ARS1
         ggo: gorGor4
-        mml: Mmul_8.0.1
+        mml: Mmul_10
         mmr: Mmur_3.0
-        mdo: monDom5
+        mdo: ASM229v1
         ssc: Sscrofa11.1
-        oan: OANA5
+        oan: mOrnAna1
         ocu: OryCun2.0
-        rno: Rnor_6.0
-        oar: Oar_v3.1
+        rno: mRatBN7.2
+        oar: ARS-UI_Ramb_v2.0
         tni: TETRAODON8
-        tgu: taeGut3.2.4
+        tgu: btaeGut1_v1.p
         ppa: panpan1.1
 
 TaxID: 
