@@ -3,7 +3,7 @@ transcripts: []                          # if blank, all available transcripts f
 
 species: mmu                             # use first letter of genus name, and first two letters of species name
 context: oocyte                          # for standard target prediction with no RNA-Seq data, set context to 'reference'
-TPM_expression_threshold: 0.1
+TPM_expression_threshold: 0.0
 prediction_algorithm: TargetScan7        # select from 'TargetScan7' or 'miRanda'
 reannotation: True                       # Whether to reannotate 3'UTRs or not
 conservation: False                      # Where possible, whether to determine conservation of target sites or not using MSAs
