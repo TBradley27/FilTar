@@ -24,7 +24,7 @@ if (length(snakemake@config[['transcripts']]) == 0) {
 
 	for (transcript in snakemake@config[['transcripts']]) {
 		if (!transcript %in% input$X5) {
-			write(stringr::str_interp("The transcript identifer '${transcript}' is not a valid identifier for the selected species for ensembl release ${snakemake@config[['ensembl_release']]}"), stderr())
+			write(stringr::str_interp("The transcript identifer '${transcript}' is not a valid identifier for the selected species for ensembl release ${snakemake@config[['ensembl_metazoa_release']]}"), stderr())
 		}
 	}
 

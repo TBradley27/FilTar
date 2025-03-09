@@ -96,4 +96,5 @@ wildcard_constraints:
     chrom="[A-Za-z0-9]{1,5}",
     feature="(3UTR|CDS)",
     ensembl_release="[0-9]{2,3}",
-    genus_species="[A-Z][a-z]+_[a-z]+"
+    ensembl_metazoa_release="[0-9]{2,3}",
+    genus_species="[A-Z][a-z]+_[a-z]+(_[a-z]+)?"

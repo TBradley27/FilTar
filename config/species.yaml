@@ -1,4 +1,5 @@
 ensembl_release: 113
+ensembl_metazoa_release: 60
 
 assembly_level:
         hsa: primary
@@ -23,6 +24,7 @@ assembly_level:
         tni: toplevel
         tgu: toplevel
         ppa: toplevel
+        aae: toplevel
 
 chromosomes:
         hsa: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y]
@@ -47,6 +49,7 @@ chromosomes:
         tni: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]
         tgu: [1,1A,1B,2,3,4,4A,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,LGE22,Z]
         ppa: [1,2A,2B,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X]
+        aae: [1,2,3]
 
 tax_ids: # for targetscan
         hsa: 9606
@@ -71,6 +74,7 @@ tax_ids: # for targetscan
         tni: 99883
         tgu: 59729
         ppa: 9597
+        aae: 7159
 
 sci_species_name:
         hsa: Homo_sapiens
@@ -95,6 +99,7 @@ sci_species_name:
         tni: Tetraodon_nigroviridis
         tgu: Taeniopygia_guttata
         ppa: Pan_paniscus
+        aae: Aedes_aegypti_lvpagwg
 
 genome_build:
         hsa: GRCh38
@@ -119,6 +124,7 @@ genome_build:
         tni: TETRAODON8
         tgu: btaeGut1_v1.p
         ppa: panpan1.1
+        aae: AaegL5
 
 TaxID: 
         hg38: "9606"
@@ -334,3 +340,4 @@ CommonName:
         anoCar2: Lizard
         xenTro7: Xenopus
         latCha1: Coelacanth
+        AaegL5: Yellow fever mosquito

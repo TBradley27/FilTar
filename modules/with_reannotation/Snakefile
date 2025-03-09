@@ -24,7 +24,7 @@ def get_gtf_file(wildcards):
         + sci_species_name
         + "."
         + genome_build
-        + ".{}.mod.chr.gtf".format(config["ensembl_release"])
+        + ".{}.mod.chr.gtf".format(config["ensembl_metazoa_release"])
     )
 
 
@@ -37,7 +37,7 @@ def get_bed_file(wildcards):
         + sci_species_name
         + "."
         + genome_build
-        + "_chr{}.{}.filtered.bed".format(wildcards.chrom, config["ensembl_release"])
+        + "_chr{}.{}.filtered.bed".format(wildcards.chrom, config["ensembl_metazoa_release"])
     )
 
 
@@ -50,7 +50,7 @@ def get_bed6_file(wildcards):
         + sci_species_name
         + "."
         + genome_build
-        + ".{}.chr{}.filtered.bed6".format(config["ensembl_release"], wildcards.chrom)
+        + ".{}.chr{}.filtered.bed6".format(config["ensembl_metazoa_release"], wildcards.chrom)
     )
 
 
@@ -74,28 +74,28 @@ def get_sample_level_bedgraph_file_names(wildcards):
 rule get_bed6_file:  #three_prime_utrs only
     input:
         script="scripts/gtf_to_bed.sh",
-        gtf="data/{genus_species}.{build}.{ensembl_release}.chr.gtf",
+        gtf="data/{genus_species}.{build}.{ensembl_metazoa_release}.chr.gtf",
     output:
-        "results/{genus_species}.{build}.{ensembl_release}.bed6",
+        "results/{genus_species}.{build}.{ensembl_metazoa_release}.bed6",
     shell:
         "{input.script} {input.gtf} {output}"
 
 
 rule filter_bed6_file:
     input:
-        "results/{genus_species}.{build}.{ensembl_release}.bed6",
+        "results/{genus_species}.{build}.{ensembl_metazoa_release}.bed6",
     output:
-        temp("results/{genus_species}.{build}.{ensembl_release}.filtered.bed6"),
+        temp("results/{genus_species}.{build}.{ensembl_metazoa_release}.filtered.bed6"),
     script:
         "filter_bed6.R"
 
 
 rule split_bed6_file:
     input:
-        "results/{genus_species}.{build}.{ensembl_release}.filtered.bed6",
+        "results/{genus_species}.{build}.{ensembl_metazoa_release}.filtered.bed6",
     output:
         temp(
-            "results/{genus_species}.{build}.{ensembl_release}.chr{chrom}.filtered.bed6"
+            "results/{genus_species}.{build}.{ensembl_metazoa_release}.chr{chrom}.filtered.bed6"
         ),
     shell:
         'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
@@ -106,9 +106,9 @@ rule split_bed6_file:
 
 rule convert_gtf_to_genepred:
     input:
-        gtf="data/{species_prefix}.{ensembl_release}.mod.chr.gtf",
+        gtf="data/{species_prefix}.{ensembl_metazoa_release}.mod.chr.gtf",
     output:
-        "results/{species_prefix}.{ensembl_release}.genePred",
+        "results/{species_prefix}.{ensembl_metazoa_release}.genePred",
     conda:
         "envs/ucsc.yaml"
     shell:
@@ -117,9 +117,9 @@ rule convert_gtf_to_genepred:
 
 rule convert_genepred_to_bed12:
     input:
-        genepred="results/{species_prefix}.{ensembl_release}.genePred",
+        genepred="results/{species_prefix}.{ensembl_metazoa_release}.genePred",
     output:
-        "results/{species_prefix}.{ensembl_release}.bed",
+        "results/{species_prefix}.{ensembl_metazoa_release}.bed",
     wildcard_constraints:
         species_prefix="((?!chr).)*",  # anything not containing chr
     conda:
@@ -218,18 +218,18 @@ rule avg_merged_bedgraph_by_sample:
 
 rule split_bed12:
     input:
-        "results/{species_prefix}.{ensembl_release}.bed",
+        "results/{species_prefix}.{ensembl_metazoa_release}.bed",
     output:
-        "results/{species_prefix}_chr{chrom}.{ensembl_release}.bed",
+        "results/{species_prefix}_chr{chrom}.{ensembl_metazoa_release}.bed",
     shell:
         'grep -E "^{wildcards.chrom}\s" {input} > {output}'
 
 
 rule filter_bed12:
     input:
-        "results/{species_prefix}_chr{chrom}.{ensembl_release}.bed",
+        "results/{species_prefix}_chr{chrom}.{ensembl_metazoa_release}.bed",
     output:
-        temp("results/{species_prefix}_chr{chrom}.{ensembl_release}.filtered.bed"),
+        temp("results/{species_prefix}_chr{chrom}.{ensembl_metazoa_release}.filtered.bed"),
     script:
         "filter_bed12.R"
 

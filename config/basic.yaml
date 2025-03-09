@@ -1,11 +1,11 @@
-mirnas: [mmu-miR-188-5p]                 # if blank, all miRNA for a given species are used 
+mirnas: [aae-miR-277-3p]                 # if blank, all miRNA for a given species are used 
 transcripts: []                          # if blank, all available transcripts for a given species are used
 
-species: mmu                             # use first letter of genus name, and first two letters of species name
-context: oocyte                          # for standard target prediction with no RNA-Seq data, set context to 'reference'
+species: aae                             # use first letter of genus name, and first two letters of species name
+context: reference                          # for standard target prediction with no RNA-Seq data, set context to 'reference'
 TPM_expression_threshold: 0.0
 prediction_algorithm: TargetScan7        # select from 'TargetScan7' or 'miRanda'
-reannotation: True                       # Whether to reannotate 3'UTRs or not
+reannotation: False                       # Whether to reannotate 3'UTRs or not
 conservation: False                      # Where possible, whether to determine conservation of target sites or not using MSAs
 sequence_data_source: ENA                # select from 'ENA','SRA' or 'User'
 
