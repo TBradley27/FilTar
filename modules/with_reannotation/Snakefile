@@ -98,7 +98,7 @@ rule split_bed6_file:
             "results/{genus_species}.{build}.{ensembl_release}.chr{chrom}.filtered.bed6"
         ),
     shell:
-        'grep -E "^{wildcards.chrom} " {input} > {output} || true'
+        'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
 
 
 # derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
@@ -148,7 +148,7 @@ rule split_bedgraph:
     output:
         "results/bam/run/{species}/{accession}_chr{chrom}.bedgraph",
     shell:
-        'grep -E "^{wildcards.chrom} " {input} > {output}'
+        'grep -E "^{wildcards.chrom}\s" {input} > {output}'
 
 
 def get_run_level_bedgraph_file_names(wildcards):
@@ -222,7 +222,7 @@ rule split_bed12:
     output:
         "results/{species_prefix}_chr{chrom}.{ensembl_release}.bed",
     shell:
-        'grep -E "^{wildcards.chrom} " {input} > {output}'
+        'grep -E "^{wildcards.chrom}\s" {input} > {output}'
 
 
 rule filter_bed12:
@@ -355,4 +355,4 @@ rule split_CDS:
     output:
         temp("results/bed/{species}_{tissue}_CDS.chr{chrom}.bed"),
     shell:
-        'grep -E "^{wildcards.chrom} " {input} > {output} || true'
+        'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
