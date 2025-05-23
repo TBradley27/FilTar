@@ -1,1 +1,1 @@
-snakemake==5.x.x
+snakemake==8.x.x
