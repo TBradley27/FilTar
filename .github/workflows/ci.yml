@@ -38,7 +38,7 @@ jobs:
           conda config --add channels r
           conda config --add channels conda-forge
           conda config --add channels bioconda
-          conda create -q -n test-environment snakemake=8.0.0 r r-devtools python=3.12
+          conda create -q -n test-environment snakemake=8.0.0 r r-remotes python=3.12
 
       - name: Activate environment and install dependencies
         env:
@@ -46,7 +46,7 @@ jobs:
         run: |
           conda activate test-environment
           conda install -c r r-testthat
-          Rscript -e 'devtools::install_github("TBradley27/filtar_R")'
+          Rscript -e 'remotes::install_github("TBradley27/filtar_R")'
           snakemake --version
 
       - name: Run Snakemake and R tests
