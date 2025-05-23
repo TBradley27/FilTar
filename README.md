@@ -1,3 +1,4 @@
+[![CI](https://github.com/TBradley27/FilTar/actions/workflows/ci.yml/badge.svg)](https://github.com/TBradley27/FilTar/actions/workflows/ci.yml)
 [![GitHub release](https://img.shields.io/github/release/TBradley27/FilTar.svg)](https://GitHub.com/TBradley27/FilTar/releases/)
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.24.0-brightgreen.svg?style=flat)](https://snakemake.readthedocs.io)
 

@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ beta3 ]
+  pull_request:
+    branches: [ beta3 ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.6
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gzip
+          sudo ln -s /bin/tar /bin/gtar || true
+
+      - name: Create conda environment
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda update -q conda
+          conda info -a
+          conda config --add channels defaults
+          conda config --add channels r
+          conda config --add channels conda-forge
+          conda config --add channels bioconda
+          conda create -q -n test-environment snakemake r r-devtools perl-app-cpanminus perl=5.26.2 python=3.6
+
+      - name: Activate environment and install dependencies
+        run: |
+          source activate test-environment
+          conda install -c r r-testthat
+          cpanm Bio::Perl
+          cpanm Statistics::Lite
+          Rscript -e 'devtools::install_github("TBradley27/filtar_R")'
+          snakemake --version
+
+      - name: Run Snakemake and R tests
+        run: |
+          source activate test-environment
+          snakemake --use-conda -p results/targets/mmu/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7
+          head results/targets/mmu/oocyte_chrY.contextpp.tsv || true
+          rm -f results/targets/mmu/oocyte_chrY.contextpp.tsv || true
+          snakemake --use-conda -p results/targets/miRanda/mmu/oocyte/chrY.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0 prediction_algorithm=miRanda
+          head results/targets/miRanda/mmu/oocyte/chrY.tsv || true
+          snakemake --use-conda -p results/targets/mmu/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=True reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.6']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7
+          head results/targets/mmu/oocyte_chrY.contextpp.tsv || true
+          R -e 'test=testthat::test_file("scripts/targetscan_test.R"); stopifnot(test[[1]]$results[[1]]$message=="success")'
