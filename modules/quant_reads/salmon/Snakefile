@@ -46,20 +46,32 @@ rule salmon_index_for_lib_types:
         "salmon index --threads {threads} -t {input} -i {output} -k 31"
 
 def get_input_files(wildcards):
+    perform_trimming = config.get("perform_trimming", True)
     if wildcards.run_accession in set(
         metadata.loc[(metadata["pe_or_se"] == "paired_end")]["run_accession"]
     ):
-        input_files = [
-            "results/trimmed_fastq/{}_1_val_1.fq.gz".format(wildcards.run_accession),
-            "results/trimmed_fastq/{}_2_val_2.fq.gz".format(wildcards.run_accession),
-        ]
+        if perform_trimming:
+            input_files = [
+                "results/trimmed_fastq/{}_1_val_1.fq.gz".format(wildcards.run_accession),
+                "results/trimmed_fastq/{}_2_val_2.fq.gz".format(wildcards.run_accession),
+            ]
+        else:
+            input_files = [
+                "data/paired_end/{}_1.fastq.gz".format(wildcards.run_accession),
+                "data/paired_end/{}_2.fastq.gz".format(wildcards.run_accession),
+            ]
         return input_files
     elif wildcards.run_accession in set(
         metadata.loc[(metadata["pe_or_se"] == "single_end")]["run_accession"]
     ):
-        input_file = [
-            "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.run_accession)
-        ]
+        if perform_trimming:
+            input_file = [
+                "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.run_accession)
+            ]
+        else:
+            input_file = [
+                "data/single_end/{}.fastq.gz".format(wildcards.run_accession)
+            ]
         return input_file
     else:
         raise Exception(
