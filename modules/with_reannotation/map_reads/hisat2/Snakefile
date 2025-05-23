@@ -72,20 +72,32 @@ def get_lib_type(wildcards):
 
 
 def get_read_files(wildcards):
+    perform_trimming = config.get("perform_trimming", True)
     if wildcards.accession in set(
         metadata.loc[(metadata["pe_or_se"] == "paired_end")]["run_accession"]
     ):
-        input_files = [
-            "results/trimmed_fastq/{}_1_val_1.fq.gz".format(wildcards.accession),
-            "results/trimmed_fastq/{}_2_val_2.fq.gz".format(wildcards.accession),
-        ]
+        if perform_trimming:
+            input_files = [
+                "results/trimmed_fastq/{}_1_val_1.fq.gz".format(wildcards.accession),
+                "results/trimmed_fastq/{}_2_val_2.fq.gz".format(wildcards.accession),
+            ]
+        else:
+            input_files = [
+                "data/paired_end/{}_1.fastq.gz".format(wildcards.accession),
+                "data/paired_end/{}_2.fastq.gz".format(wildcards.accession),
+            ]
         return input_files
     elif wildcards.accession in set(
         metadata.loc[(metadata["pe_or_se"] == "single_end")]["run_accession"]
     ):
-        input_file = [
-            "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
-        ]
+        if perform_trimming:
+            input_file = [
+                "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
+            ]
+        else:
+            input_file = [
+                "data/single_end/{}.fastq.gz".format(wildcards.accession)
+            ]
         return input_file
     else:
         raise Exception(
@@ -93,7 +105,6 @@ def get_read_files(wildcards):
                 wildcards.accession
             )
         )
-        return
 
 
 if config["genome_index_type"] == "splice-aware":

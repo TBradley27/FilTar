@@ -57,24 +57,24 @@ def get_paired_end_fastq_data(wildcards):
             )
 
 
-rule trim_single_end_reads:
-    input:
-        get_single_end_fastq_data,
-    output:
-        "results/trimmed_fastq/{accession}_trimmed.fq.gz",
-    conda:
-        "envs/trim-galore.yaml"
-    shell:
-        "trim_galore --output_dir results/trimmed_fastq/  --length {config[trim_galore.length]} --stringency {config[trim_galore.stringency]} {input}"
+if config.get("perform_trimming", True):
+    rule trim_single_end_reads:
+        input:
+            get_single_end_fastq_data,
+        output:
+            "results/trimmed_fastq/{accession}_trimmed.fq.gz",
+        conda:
+            "envs/trim-galore.yaml"
+        shell:
+            "trim_galore --output_dir results/trimmed_fastq/  --length {config[trim_galore.length]} --stringency {config[trim_galore.stringency]} {input}"
 
-
-rule trim_paired_end_reads:
-    input:
-        get_paired_end_fastq_data,
-    output:
-        "results/trimmed_fastq/{accession}_1_val_1.fq.gz",
-        "results/trimmed_fastq/{accession}_2_val_2.fq.gz",
-    conda:
-        "envs/trim-galore.yaml"
-    shell:
-        "trim_galore --output_dir results/trimmed_fastq/ --length  {config[trim_galore.length]} --stringency {config[trim_galore.stringency]}  --paired {input[0]} {input[1]}"
+    rule trim_paired_end_reads:
+        input:
+            get_paired_end_fastq_data,
+        output:
+            "results/trimmed_fastq/{accession}_1_val_1.fq.gz",
+            "results/trimmed_fastq/{accession}_2_val_2.fq.gz",
+        conda:
+            "envs/trim-galore.yaml"
+        shell:
+            "trim_galore --output_dir results/trimmed_fastq/ --length  {config[trim_galore.length]} --stringency {config[trim_galore.stringency]}  --paired {input[0]} {input[1]}"
