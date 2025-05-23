@@ -38,14 +38,12 @@ jobs:
           conda config --add channels r
           conda config --add channels conda-forge
           conda config --add channels bioconda
-          conda create -q -n test-environment snakemake=8.0.0 r r-remotes perl-app-cpanminus perl=5.26.2 python=3.12
+          conda create -q -n test-environment snakemake=8.0.0 r r-remotes python=3.12
 
       - name: Activate environment and install dependencies
         run: |
           conda activate test-environment
           conda install -c r r-testthat
-          cpanm Bio::Perl
-          cpanm Statistics::Lite
           Rscript -e 'remotes::install_github("TBradley27/filtar_R")'
           snakemake --version
 
