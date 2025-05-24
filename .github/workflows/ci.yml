@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, use_github_actions ]
+  pull_request:
+    branches: [ master, use_github_actions ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: r-${{ runner.os }}-${{ hashFiles('r-requirements.txt') }}
+          restore-keys: |
+            r-${{ runner.os }}-
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.12
+          miniforge-variant: Miniforge3
+          miniforge-version: latest
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gzip
+          sudo ln -s /bin/tar /bin/gtar || true
+
+      - name: Ensure conda cache directories exist
+        run: |
+          mkdir -p ~/.conda/pkgs
+          mkdir -p ~/.conda/envs
+
+      - name: Cache conda environment
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.conda/pkgs
+            ~/.conda/envs
+          key: conda-${{ runner.os }}-${{ hashFiles('**/environment.yml') }}
+          restore-keys: |
+            conda-${{ runner.os }}-
+
+      - name: Create conda environment
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda info -a
+          conda env update -n test-environment -f environment.yml || conda env create -f environment.yml
+
+      - name: Activate environment and install dependencies
+        env:
+          GITHUB_PAT: ${{ secrets.PAT }}
+        run: |
+          conda activate test-environment
+          Rscript -e 'install.packages("remotes", repos="https://cloud.r-project.org")'
+          Rscript -e 'remotes::install_github("TBradley27/filtar_R")'
+          Rscript -e 'install.packages("testthat", repos="https://cloud.r-project.org")'
+          snakemake --version
+
+      - name: Run Snakemake and R tests
+        run: |
+          conda activate test-environment
+          snakemake --cores 1 --use-conda -p results/targets/mmu/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.7']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7
+          head results/targets/mmu/oocyte_chrY.contextpp.tsv || true
+          rm -f results/targets/mmu/oocyte_chrY.contextpp.tsv || true
+          snakemake --cores 1 --use-conda -p results/targets/miRanda/mmu/oocyte/chrY.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.7']" TPM_expression_threshold=0 prediction_algorithm=miRanda
+          head results/targets/miRanda/mmu/oocyte/chrY.tsv || true
+          snakemake --cores 1 --use-conda -p results/targets/mmu/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=True reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.7']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7
+          head results/targets/mmu/oocyte_chrY.contextpp.tsv || true
+          R -e 'isTRUE(testthat::test_file("scripts/targetscan_test.R")[[1]]$passed)'

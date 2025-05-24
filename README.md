@@ -1,3 +1,4 @@
+[![CI](https://github.com/TBradley27/FilTar/actions/workflows/ci.yml/badge.svg)](https://github.com/TBradley27/FilTar/actions/workflows/ci.yml)
 [![GitHub release](https://img.shields.io/github/release/TBradley27/FilTar.svg)](https://GitHub.com/TBradley27/FilTar/releases/)
 [![Snakemake](https://img.shields.io/badge/snakemake-≥8.0.0-brightgreen.svg?style=flat)](https://snakemake.readthedocs.io)
 
@@ -33,6 +34,12 @@ The following video presents a concise demonstration of basic FilTar usage:
 https://www.youtube.com/watch?v=Xhl-nsg7_xo
 
 More detailed instructions can be found inside the full documentation: https://tbradley27.github.io/FilTar/
+
+## CI/CD and Contributing
+
+For details on the automated CI/CD setup, see the [contributing guide](docs/contributing.md).
+
+This document explains how FilTar uses GitHub Actions for continuous integration and deployment, including environment management, caching, and automated testing. Contributors should review it before making changes to the workflow or dependencies.
 
 ## Publication
 
