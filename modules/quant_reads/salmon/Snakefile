@@ -49,16 +49,18 @@ def get_input_files(wildcards):
     if wildcards.run_accession in set(
         metadata.loc[(metadata["pe_or_se"] == "paired_end")]["run_accession"]
     ):
+        # Reference trimmed paired end read outputs explicitly
         input_files = [
-            "results/trimmed_fastq/{}_1_val_1.fq.gz".format(wildcards.run_accession),
-            "results/trimmed_fastq/{}_2_val_2.fq.gz".format(wildcards.run_accession),
+            "results/trimmed_fastq/{run_accession}_1_val_1.fq.gz".format(run_accession=wildcards.run_accession),
+            "results/trimmed_fastq/{run_accession}_2_val_2.fq.gz".format(run_accession=wildcards.run_accession),
         ]
         return input_files
     elif wildcards.run_accession in set(
         metadata.loc[(metadata["pe_or_se"] == "single_end")]["run_accession"]
     ):
+        # Reference trimmed single end read output explicitly
         input_file = [
-            "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.run_accession)
+            "results/trimmed_fastq/{run_accession}_trimmed.fq.gz".format(run_accession=wildcards.run_accession)
         ]
         return input_file
     else:

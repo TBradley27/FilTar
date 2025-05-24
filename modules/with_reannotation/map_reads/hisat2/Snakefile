@@ -45,14 +45,14 @@ def get_assembly(wildcards):
 def get_lib_type(wildcards):
     hisat2_dict = {"IU": "", "ISF": "FR", "ISR": "RF", "U": "", "SF": "F", "SR": "R"}
     if not os.path.exists(
-        "results/salmon/{}/{}_lib_type.txt".format(
-            wildcards.species, wildcards.accession
+        "results/salmon/runs/{species}/{accession}_lib_type.txt".format(
+            species=wildcards.species, accession=wildcards.accession
         )
     ):
         return ""  # stmps an error being generated when this file is missing
     fp = open(
-        "results/salmon/{}/{}_lib_type.txt".format(
-            wildcards.species, wildcards.accession
+        "results/salmon/runs/{species}/{accession}_lib_type.txt".format(
+            species=wildcards.species, accession=wildcards.accession
         )
     )
     fp2 = fp.readlines()[0]
@@ -76,15 +76,15 @@ def get_read_files(wildcards):
         metadata.loc[(metadata["pe_or_se"] == "paired_end")]["run_accession"]
     ):
         input_files = [
-            "results/trimmed_fastq/{}_1_val_1.fq.gz".format(wildcards.accession),
-            "results/trimmed_fastq/{}_2_val_2.fq.gz".format(wildcards.accession),
+            "results/trimmed_fastq/{accession}_1_val_1.fq.gz".format(accession=wildcards.accession),
+            "results/trimmed_fastq/{accession}_2_val_2.fq.gz".format(accession=wildcards.accession),
         ]
         return input_files
     elif wildcards.accession in set(
         metadata.loc[(metadata["pe_or_se"] == "single_end")]["run_accession"]
     ):
         input_file = [
-            "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
+            "results/trimmed_fastq/{accession}_trimmed.fq.gz".format(accession=wildcards.accession)
         ]
         return input_file
     else:
