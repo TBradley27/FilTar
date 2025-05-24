@@ -24,6 +24,13 @@ configfile: "config/basic.yaml"
 configfile: "config/species.yaml"
 configfile: "config/dependencies.yaml"
 
+# Include modules with rules that other modules depend on first
+include: "modules/data_download/Snakefile"
+include: "modules/trim_reads/Snakefile"
+include: "modules/quant_reads/salmon/Snakefile"
+include: "modules/mirna/Snakefile"
+include: "modules/get_target_coordinates/Snakefile"
+
 if config['reannotation'] == True:
 	include: "modules/with_reannotation/Snakefile"
 	include: "modules/with_reannotation/map_reads/hisat2/Snakefile"
@@ -48,6 +55,7 @@ elif config['sequence_data_source'] == 'User':
 else:
 	raise Exception("\nPlease enter a value of either 'ENA' or 'SRA' or 'User' for the 'sequence_data_source' key. Default values can be set in config/basic.yaml\n")
 
+# Include target prediction algorithm Snakefiles last
 if config['prediction_algorithm'] == 'TargetScan7':
 	pass
 elif config['prediction_algorithm'] == 'miRanda':
@@ -83,12 +91,6 @@ for transcript in list(config['transcripts']):
 		pass
 	else:
 		raise Exception('\nInvalid transcript identifier "{}". Identifiers must adhere to official Ensembl identifier patterns e.g. "ENSMUST00000189888.6". Please revise.\n'.format(transcript))
-
-include: "modules/data_download/Snakefile"
-include: "modules/trim_reads/Snakefile"
-include: "modules/quant_reads/salmon/Snakefile"
-include: "modules/mirna/Snakefile"
-include: 'modules/get_target_coordinates/Snakefile'
 
 wildcard_constraints:
     species="[a-z]{3,4}",
