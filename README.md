@@ -35,6 +35,12 @@ https://www.youtube.com/watch?v=Xhl-nsg7_xo
 
 More detailed instructions can be found inside the full documentation: https://tbradley27.github.io/FilTar/
 
+## CI/CD and Contributing
+
+For details on the automated CI/CD setup, see the [contributing guide](docs/contributing.md).
+
+This document explains how FilTar uses GitHub Actions for continuous integration and deployment, including environment management, caching, and automated testing. Contributors should review it before making changes to the workflow or dependencies.
+
 ## Publication
 
 The article describing FilTar can be found in Volume 36, Issue 8 (pages 2410-2416) of the *Bioinformatics* journal published by Oxford University Press. An online, open access version of the article is available [here](https://doi.org/10.1093/bioinformatics/btaa007 "FilTar Bioinformatics article").
