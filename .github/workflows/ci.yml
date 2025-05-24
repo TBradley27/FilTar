@@ -26,6 +26,7 @@ jobs:
           python-version: 3.12
           miniforge-variant: Miniforge3
           miniforge-version: latest
+          conda-version: 25.3.0
 
       - name: Install system dependencies
         run: |
