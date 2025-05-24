@@ -1,7 +1,7 @@
 rule expression_filter_contextpp_scores_chr:
     input:
         contextpp_scores="results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tmp.tsv",
-        expression_values="results/salmon/{species}/{tissue}.sf",
+        expression_values=rules.salmon_average_quantmerge_samples.output,
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
     output:
@@ -12,16 +12,16 @@ rule expression_filter_contextpp_scores_chr:
 
 rule expression_filter_contextpp_scores:
     input:
-        contextpp_scores="results/targets/{species}/{tissue}.contextpp.tmp.tsv",
-        expression_values="results/salmon/{species}/{tissue}.sf",
+        contextpp_scores=rules.aggregate_contextpp_scores.output,
+        expression_values=rules.salmon_average_quantmerge_samples.output,
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
+        species=config["species"],
+        tissue=config["context"],
+    wildcard_constraints:
         species=config["species"],
         tissue=config["context"],
     output:
         "target_predictions.txt",
     script:
         "filter_contextpp_scores.R"
-    wildcard_constraints:
-        species=config["species"],
-        tissue=config["context"]

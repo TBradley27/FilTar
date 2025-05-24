@@ -151,8 +151,8 @@ else:
 rule map_reads:
     input:
         reads=get_read_files,
-        lib_type_file="results/salmon/runs/{species}/{accession}_lib_type.txt",
-        index="data/{species}.1.ht2",
+        lib_type_file=rules.salmon_get_lib_type.output,
+        index=rules.create_index.output,
     conda:
         "envs/hisat2.yaml"
     params:
@@ -166,7 +166,7 @@ rule map_reads:
 
 rule sam_to_bam:
     input:
-        "results/bam/run/{species}/{accession}.sam",
+        rules.map_reads.output,
     output:
         "results/bam/run/{species}/{accession}.bam",
     threads: config["samtools.view.num_threads"]
@@ -178,7 +178,7 @@ rule sam_to_bam:
 
 rule samtools_sort:
     input:
-        "results/bam/run/{species}/{accession}.bam",
+        rules.sam_to_bam.output,
     output:
         "results/bam/run/{species}/{accession}.bam.sorted",
     params:

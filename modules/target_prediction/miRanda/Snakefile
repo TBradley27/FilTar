@@ -50,7 +50,7 @@ rule fix_fasta_output:
 
 rule miRanda:
     input:
-        utr="results/msa/{species}_{tissue}_chr{chrom}.fa",
+        utr=rules.fix_fasta_output.output,
         mirna="data/mirbase_mature_{species}.filtered.fa",
     output:
         temp("results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt"),
@@ -64,7 +64,7 @@ rule miRanda:
 
 rule convert_miRanda_to_tsv:
     input:
-        "results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt",
+        rules.miRanda.output,
     output:
         temp("results/targets/miRanda/{species}/{tissue}_chr{chrom}.temp.tsv"),
     shell:
@@ -89,7 +89,7 @@ rule aggregate_miRanda_output_no_reannotation:
 
 rule add_miRanda_header:
     input:
-        "results/targets/miRanda/{species}/{tissue}.temp.tsv",
+        rules.aggregate_miRanda_output_no_reannotation.output,
     output:
         temp("results/targets/miRanda/{species}/{tissue}.temp2.tsv"),
     script:

@@ -105,7 +105,7 @@ rule salmon_quant:
 
 rule salmon_get_lib_type:
     input:
-        "results/salmon/runs/{species}/lib_type_identification/{run_accession}",
+        rules.salmon_quant_lib_type.output,
     output:
         "results/salmon/runs/{species}/{run_accession}_lib_type.txt",  # written this way because you cannot create files inside snakemake created directories
     wildcard_constraints:
@@ -143,7 +143,7 @@ rule salmon_quantmerge_by_run:
 
 rule salmon_average_quantmerge_runs:
     input:
-        "results/salmon/samples/{species}/{sample}.quant.tmp.sf",
+        rules.salmon_quantmerge_by_run.output,
     output:
         directory("results/salmon/samples/{species}/{sample}"),
     wildcard_constraints:
@@ -181,7 +181,7 @@ rule salmon_quantmerge_by_sample:
 
 rule salmon_average_quantmerge_samples:
     input:
-        "results/salmon/{species}/{tissue}.sf.tmp",
+        rules.salmon_quantmerge_by_sample.output,
     output:
         "results/salmon/{species}/{tissue}.sf",
     script:
