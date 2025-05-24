@@ -26,7 +26,6 @@ jobs:
           python-version: 3.12
           miniforge-variant: Miniforge3
           miniforge-version: latest
-          conda-version: 25.3.0
 
       - name: Install system dependencies
         run: |
@@ -34,14 +33,21 @@ jobs:
           sudo apt-get install -y gzip
           sudo ln -s /bin/tar /bin/gtar || true
 
+      - name: Cache conda environment
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.conda/pkgs
+            ~/.conda/envs
+          key: conda-${{ runner.os }}-${{ hashFiles('**/environment.yml') }}
+          restore-keys: |
+            conda-${{ runner.os }}-
+
       - name: Create conda environment
         run: |
           conda config --set always_yes yes --set changeps1 no
           conda info -a
-          conda config --add channels defaults
-          conda config --add channels conda-forge
-          conda config --add channels bioconda
-          conda create -q -n test-environment snakemake=8.30.0 python=3.12
+          conda env update -n test-environment -f environment.yml || conda env create -f environment.yml
 
       - name: Activate environment and install dependencies
         env:
