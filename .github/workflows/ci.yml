@@ -18,9 +18,14 @@ jobs:
 
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
+
+      - name: Cache R packages
+        uses: actions/cache@v4
         with:
-          cache: true
-          cache-key: ${{ runner.os }}-r-${{ hashFiles('r-requirements.txt') }}
+          path: ${{ env.R_LIBS_USER }}
+          key: r-${{ runner.os }}-${{ hashFiles('r-requirements.txt') }}
+          restore-keys: |
+            r-${{ runner.os }}-
 
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v3
@@ -35,6 +40,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gzip
           sudo ln -s /bin/tar /bin/gtar || true
+
+      - name: Ensure conda cache directories exist
+        run: |
+          mkdir -p ~/.conda/pkgs
+          mkdir -p ~/.conda/envs
 
       - name: Cache conda environment
         uses: actions/cache@v4
