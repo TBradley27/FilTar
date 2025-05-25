@@ -45,13 +45,13 @@ def get_assembly(wildcards):
 def get_lib_type(wildcards):
     hisat2_dict = {"IU": "", "ISF": "FR", "ISR": "RF", "U": "", "SF": "F", "SR": "R"}
     if not os.path.exists(
-        "results/salmon/runs/{species}/{accession}_lib_type.txt".format(
+        "results/salmon/{species}/{accession}_lib_type.txt".format(
             species=wildcards.species, accession=wildcards.accession
         )
     ):
         return ""  # stmps an error being generated when this file is missing
     fp = open(
-        "results/salmon/runs/{species}/{accession}_lib_type.txt".format(
+        "results/salmon/{species}/{accession}_lib_type.txt".format(
             species=wildcards.species, accession=wildcards.accession
         )
     )

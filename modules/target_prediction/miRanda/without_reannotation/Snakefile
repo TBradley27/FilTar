@@ -1,6 +1,6 @@
 rule expression_filter_miRanda_nr_chr:
     input:
-        miRanda_scores=rules.convert_miRanda_to_tsv_no_reannotation.output,
+        miRanda_scores=rules.convert_miRanda_to_tsv.output,
         expression_values=rules.salmon_average_quantmerge_samples.output,
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
@@ -14,7 +14,7 @@ if config["context"] != "reference":
 
     rule expression_filter_miRanda_nr:
         input:
-            miRanda_scores=rules.add_miRanda_header_nr.output,
+            miRanda_scores=rules.add_miRanda_header.output,
             expression_values=rules.salmon_average_quantmerge_samples.output,
         params:
             tpm_expression_threshold=config["TPM_expression_threshold"],
@@ -32,7 +32,7 @@ elif config["context"] == "reference":
 
     rule expression_filter_miRanda_nr:
         input:
-            miRanda_scores=rules.add_miRanda_header_nr.output,
+            miRanda_scores=rules.add_miRanda_header.output,
         params:
             species=config["species"],
         wildcard_constraints:
