@@ -6,16 +6,16 @@ def get_single_end_fastq_data(wildcards):
         config["sequence_data_source"] == "ENA"
         or config["sequence_data_source"] == "SRA"
     ):
-        return "data/single_end/{}.fastq.gz".format(wildcards.accession)
+        return "data/single_end/{accession}.fastq.gz".format(accession=wildcards.accession)
     elif config["sequence_data_source"] == "User":
-        if os.path.isfile("data/single_end/{}.fastq.gz".format(wildcards.accession)):
-            return "data/single_end/{}.fastq.gz".format(wildcards.accession)
-        elif os.path.isfile("data/single_end/{}.fq.gz".format(wildcards.accession)):
-            return "data/single_end/{}.fq.gz".format(wildcards.accession)
+        if os.path.isfile("data/single_end/{accession}.fastq.gz".format(accession=wildcards.accession)):
+            return "data/single_end/{accession}.fastq.gz".format(accession=wildcards.accession)
+        elif os.path.isfile("data/single_end/{accession}.fq.gz".format(accession=wildcards.accession)):
+            return "data/single_end/{accession}.fq.gz".format(accession=wildcards.accession)
         else:
             raise Exception(
-                "You don't seem to have anything stored in data/single_end for {}".format(
-                    wildcards.accession
+                "You don't seem to have anything stored in data/single_end for {accession}".format(
+                    accession=wildcards.accession
                 )
             )
 
@@ -26,33 +26,33 @@ def get_paired_end_fastq_data(wildcards):
         or config["sequence_data_source"] == "SRA"
     ):
         fastq_list = [
-            "data/paired_end/{}_1.fastq.gz".format(wildcards.accession),
-            "data/paired_end/{}_2.fastq.gz".format(wildcards.accession),
+            "data/paired_end/{accession}_1.fastq.gz".format(accession=wildcards.accession),
+            "data/paired_end/{accession}_2.fastq.gz".format(accession=wildcards.accession),
         ]
         return fastq_list
     elif config["sequence_data_source"] == "User":
         if os.path.isfile(
-            "data/paired_end/{}_1.fastq.gz".format(wildcards.accession)
+            "data/paired_end/{accession}_1.fastq.gz".format(accession=wildcards.accession)
         ) and os.path.isfile(
-            "data/paired_end/{}_2.fastq.gz".format(wildcards.accession)
+            "data/paired_end/{accession}_2.fastq.gz".format(accession=wildcards.accession)
         ):
             fastq_list = [
-                "data/paired_end/{}_1.fastq.gz".format(wildcards.accession),
-                "data/paired_end/{}_2.fastq.gz".format(wildcards.accession),
+                "data/paired_end/{accession}_1.fastq.gz".format(accession=wildcards.accession),
+                "data/paired_end/{accession}_2.fastq.gz".format(accession=wildcards.accession),
             ]
             return fastq_list
         elif os.path.isfile(
-            "data/paired_end/{}_1.fq.gz".format(wildcards.accession)
-        ) and os.path.isfile("data/paired_end/{}_2.fq.gz".format(wildcards.accession)):
+            "data/paired_end/{accession}_1.fq.gz".format(accession=wildcards.accession)
+        ) and os.path.isfile("data/paired_end/{accession}_2.fq.gz".format(accession=wildcards.accession)):
             fastq_list = [
-                "data/paired_end/{}_1.fq.gz".format(wildcards.accession),
-                "data/paired_end/{}_2.fq.gz".format(wildcards.accession),
+                "data/paired_end/{accession}_1.fq.gz".format(accession=wildcards.accession),
+                "data/paired_end/{accession}_2.fq.gz".format(accession=wildcards.accession),
             ]
             return fastq_list
         else:
             raise Exception(
-                "You don't seem to have both mate files for {} stored in data/paired_end".format(
-                    wildcards.accession
+                "You don't seem to have both mate files for {accession} stored in data/paired_end".format(
+                    accession=wildcards.accession
                 )
             )
 

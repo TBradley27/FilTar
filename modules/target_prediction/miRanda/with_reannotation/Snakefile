@@ -1,7 +1,7 @@
 rule expression_filter_miRanda_chr:
     input:
-        miRanda_scores="results/targets/miRanda/{species}/{tissue}_chr{chrom}.temp.tsv",
-        expression_values="results/salmon/{species}/{tissue}.sf",
+        miRanda_scores=rules.convert_miRanda_to_tsv.output,
+        expression_values=rules.salmon_average_quantmerge_samples.output,
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
     output:
@@ -12,16 +12,15 @@ rule expression_filter_miRanda_chr:
 
 rule expression_filter_miRanda:
     input:
-        miRanda_scores="results/targets/miRanda/{}/{}.temp2.tsv".format(
-            config["species"], config["context"]
-        ),
-        expression_values="results/salmon/{}/{}.sf".format(
-            config["species"], config["context"]
-        ),
+        miRanda_scores=rules.add_miRanda_header.output,
+        expression_values=rules.salmon_average_quantmerge_samples.output,
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
+        species=config["species"],
+        tissue=config["context"],
     wildcard_constraints:
         tissue="((?!temp).)*",
+        species=config["species"],
     output:
         "target_predictions.txt",
     script:

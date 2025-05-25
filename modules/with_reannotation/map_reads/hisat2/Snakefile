@@ -45,14 +45,14 @@ def get_assembly(wildcards):
 def get_lib_type(wildcards):
     hisat2_dict = {"IU": "", "ISF": "FR", "ISR": "RF", "U": "", "SF": "F", "SR": "R"}
     if not os.path.exists(
-        "results/salmon/{}/{}_lib_type.txt".format(
-            wildcards.species, wildcards.accession
+        "results/salmon/{species}/{accession}_lib_type.txt".format(
+            species=wildcards.species, accession=wildcards.accession
         )
     ):
         return ""  # stmps an error being generated when this file is missing
     fp = open(
-        "results/salmon/{}/{}_lib_type.txt".format(
-            wildcards.species, wildcards.accession
+        "results/salmon/{species}/{accession}_lib_type.txt".format(
+            species=wildcards.species, accession=wildcards.accession
         )
     )
     fp2 = fp.readlines()[0]
@@ -76,15 +76,15 @@ def get_read_files(wildcards):
         metadata.loc[(metadata["pe_or_se"] == "paired_end")]["run_accession"]
     ):
         input_files = [
-            "results/trimmed_fastq/{}_1_val_1.fq.gz".format(wildcards.accession),
-            "results/trimmed_fastq/{}_2_val_2.fq.gz".format(wildcards.accession),
+            "results/trimmed_fastq/{accession}_1_val_1.fq.gz".format(accession=wildcards.accession),
+            "results/trimmed_fastq/{accession}_2_val_2.fq.gz".format(accession=wildcards.accession),
         ]
         return input_files
     elif wildcards.accession in set(
         metadata.loc[(metadata["pe_or_se"] == "single_end")]["run_accession"]
     ):
         input_file = [
-            "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.accession)
+            "results/trimmed_fastq/{accession}_trimmed.fq.gz".format(accession=wildcards.accession)
         ]
         return input_file
     else:
@@ -151,8 +151,8 @@ else:
 rule map_reads:
     input:
         reads=get_read_files,
-        lib_type_file="results/salmon/runs/{species}/{accession}_lib_type.txt",
-        index="data/{species}.1.ht2",
+        lib_type_file=rules.salmon_get_lib_type.output,
+        index=rules.create_index.output,
     conda:
         "envs/hisat2.yaml"
     params:
@@ -166,7 +166,7 @@ rule map_reads:
 
 rule sam_to_bam:
     input:
-        "results/bam/run/{species}/{accession}.sam",
+        rules.map_reads.output,
     output:
         "results/bam/run/{species}/{accession}.bam",
     threads: config["samtools.view.num_threads"]
@@ -178,7 +178,7 @@ rule sam_to_bam:
 
 rule samtools_sort:
     input:
-        "results/bam/run/{species}/{accession}.bam",
+        rules.sam_to_bam.output,
     output:
         "results/bam/run/{species}/{accession}.bam.sorted",
     params:
