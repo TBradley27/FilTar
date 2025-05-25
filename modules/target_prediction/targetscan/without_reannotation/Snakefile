@@ -1,7 +1,7 @@
 rule expression_filter_contextpp_scores_chr_no_reannotation:
     input:
         contextpp_scores="results/targets/{species}_nr_chr{chrom}_msa.contextpp.tmp.tsv",
-        expression_values="results/salmon/{species}/{tissue}.sf",
+        expression_values=rules.salmon_average_quantmerge_samples.output,
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
     output:
@@ -14,14 +14,15 @@ if config["context"] != "reference":
 
     rule expression_filter_contextpp_scores_no_reannotation:
         input:
-            contextpp_scores="results/targets/{}/nr.contextpp.tmp.tsv".format(
-                config["species"]
-            ),
-            expression_values="results/salmon/{}/{}.sf".format(
-                config["species"], config["context"]
-            ),
+            contextpp_scores=rules.aggregate_contextpp_scores.output,
+            expression_values=rules.salmon_average_quantmerge_samples.output,
         params:
             tpm_expression_threshold=config["TPM_expression_threshold"],
+            species=config["species"],
+            tissue=config["context"],
+        wildcard_constraints:
+            species=config["species"],
+            tissue=config["context"],
         output:
             "target_predictions.txt",
         script:
@@ -31,9 +32,11 @@ elif config["context"] == "reference":
 
     rule expression_filter_contextpp_scores_no_reannotation:
         input:
-            contextpp_scores="results/targets/{}/nr.contextpp.tmp.tsv".format(
-                config["species"]
-            ),
+            contextpp_scores=rules.aggregate_contextpp_scores.output,
+        params:
+            species=config["species"],
+        wildcard_constraints:
+            species=config["species"],
         output:
             "target_predictions.txt",
         shell:

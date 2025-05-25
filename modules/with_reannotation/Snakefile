@@ -24,7 +24,7 @@ def get_gtf_file(wildcards):
         + sci_species_name
         + "."
         + genome_build
-        + ".{}.mod.chr.gtf".format(config["ensembl_release"])
+        + ".{ensembl_release}.mod.chr.gtf".format(ensembl_release=config["ensembl_release"])
     )
 
 
@@ -37,7 +37,10 @@ def get_bed_file(wildcards):
         + sci_species_name
         + "."
         + genome_build
-        + "_chr{}.{}.filtered.bed".format(wildcards.chrom, config["ensembl_release"])
+        + "_chr{chrom}.{ensembl_release}.filtered.bed".format(
+            chrom=wildcards.chrom, 
+            ensembl_release=config["ensembl_release"]
+        )
     )
 
 
@@ -183,7 +186,7 @@ rule merge_bedgraphs_by_run:
 
 rule avg_merged_bedgraph_by_run:
     input:
-        "results/bam/sample/{species}/{sample}_chr{chrom}_tmp.bedgraph",
+        rules.merge_bedgraphs_by_run.output,
     output:
         temp("results/bam/sample/{species}/{sample}_chr{chrom}.bedgraph"),
     wildcard_constraints:
@@ -207,7 +210,7 @@ rule merge_bedgraphs_by_sample:
 
 rule avg_merged_bedgraph_by_sample:
     input:
-        "results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp",
+        rules.merge_bedgraphs_by_sample.output,
     output:
         temp("results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph"),
     wildcard_constraints:
@@ -218,7 +221,7 @@ rule avg_merged_bedgraph_by_sample:
 
 rule split_bed12:
     input:
-        "results/{species_prefix}.{ensembl_release}.bed",
+        rules.convert_genepred_to_bed12.output,
     output:
         "results/{species_prefix}_chr{chrom}.{ensembl_release}.bed",
     shell:
@@ -227,7 +230,7 @@ rule split_bed12:
 
 rule filter_bed12:
     input:
-        "results/{species_prefix}_chr{chrom}.{ensembl_release}.bed",
+        rules.split_bed12.output,
     output:
         temp("results/{species_prefix}_chr{chrom}.{ensembl_release}.filtered.bed"),
     script:
