@@ -46,13 +46,13 @@ def get_lib_type(wildcards):
     hisat2_dict = {"IU": "", "ISF": "FR", "ISR": "RF", "U": "", "SF": "F", "SR": "R"}
     if not os.path.exists(
         "results/salmon/{species}/{accession}_lib_type.txt".format(
-            species=wildcards.species, accession=wildcards.accession
+            species=wildcards.species, accession=wildcards.run_accession
         )
     ):
         return ""  # stmps an error being generated when this file is missing
     fp = open(
         "results/salmon/{species}/{accession}_lib_type.txt".format(
-            species=wildcards.species, accession=wildcards.accession
+            species=wildcards.species, accession=wildcards.run_accession
         )
     )
     fp2 = fp.readlines()[0]
@@ -72,25 +72,25 @@ def get_lib_type(wildcards):
 
 
 def get_read_files(wildcards):
-    if wildcards.accession in set(
+    if wildcards.run_accession in set(
         metadata.loc[(metadata["pe_or_se"] == "paired_end")]["run_accession"]
     ):
         input_files = [
-            "results/trimmed_fastq/{accession}_1_val_1.fq.gz".format(accession=wildcards.accession),
-            "results/trimmed_fastq/{accession}_2_val_2.fq.gz".format(accession=wildcards.accession),
+            "results/trimmed_fastq/{accession}_1_val_1.fq.gz".format(accession=wildcards.run_accession),
+            "results/trimmed_fastq/{accession}_2_val_2.fq.gz".format(accession=wildcards.run_accession),
         ]
         return input_files
-    elif wildcards.accession in set(
+    elif wildcards.run_accession in set(
         metadata.loc[(metadata["pe_or_se"] == "single_end")]["run_accession"]
     ):
         input_file = [
-            "results/trimmed_fastq/{accession}_trimmed.fq.gz".format(accession=wildcards.accession)
+            "results/trimmed_fastq/{accession}_trimmed.fq.gz".format(accession=wildcards.run_accession)
         ]
         return input_file
     else:
         raise Exception(
             "\n\nPlease indicate whether the accession: '{}' corresponds to a single-end or a paired-end RNA-seq library\n".format(
-                wildcards.accession
+                wildcards.run_accession
             )
         )
         return
@@ -159,7 +159,7 @@ rule map_reads:
         get_lib_type,
     threads: config["hisat2.num_threads_for_mapping"]
     output:
-        "results/bam/run/{species}/{accession}.sam",
+        "results/bam/run/{species}/{run_accession}.sam",
     script:
         "map_reads.py"
 
@@ -168,7 +168,7 @@ rule sam_to_bam:
     input:
         rules.map_reads.output,
     output:
-        "results/bam/run/{species}/{accession}.bam",
+        "results/bam/run/{species}/{run_accession}.bam",
     threads: config["samtools.view.num_threads"]
     conda:
         "envs/hisat2.yaml"
@@ -180,7 +180,7 @@ rule samtools_sort:
     input:
         rules.sam_to_bam.output,
     output:
-        "results/bam/run/{species}/{accession}.bam.sorted",
+        "results/bam/run/{species}/{run_accession}.bam.sorted",
     params:
         "-m 2G",
     threads: config["samtools.sort.num_threads"]
