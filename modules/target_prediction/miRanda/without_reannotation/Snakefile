@@ -1,6 +1,6 @@
 rule expression_filter_miRanda_nr_chr:
     input:
-        miRanda_scores="results/targets/miRanda/{species}/nr_chr{chrom}.temp.tsv",
+        miRanda_scores=rules.convert_miRanda_to_tsv.output,
         expression_values=rules.salmon_average_quantmerge_samples.output,
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
