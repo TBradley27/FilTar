@@ -323,11 +323,11 @@ rule get_utr_lengths_chr:
 
 rule get_utr_lengths:
     input:
-        "results/bed/{species}_{tissue}_3UTR.bed",
+        "results/bed/{species}_{tissue_tx_model}_3UTR.bed",
     output:
-        temp("results/utrs/{species}_{tissue}.utr.lengths.tsv"),
+        temp("results/utrs/{species}_{tissue_tx_model}.utr.lengths.tsv"),
     wildcard_constraints:
-        tissue=config["context"]
+        tissue_tx_model=config["context"]
     script:
         "get_utr_lengths.R"
 
