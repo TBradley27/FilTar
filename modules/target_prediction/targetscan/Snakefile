@@ -18,9 +18,63 @@
 def get_tax_id(wildcards):
     return config["tax_ids"][wildcards.species]
 
+# download and patch scripts ----
+
+rule download_targetscan_data1:
+    output:
+        "scripts/targetscan7/targetscan_70.pl",
+    shell:
+        "cd scripts/targetscan7 && wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70.zip && unzip targetscan_70.zip && rm UTR_Sequences_sample.txt miR_Family_info_sample.txt\
+ targetscan_70_output.txt README_70.txt targetscan_70.zip"
+
+rule download_targetscan_data2:
+    output:
+        bins_script="scripts/targetscan7/targetscan_70_BL_bins.pl",
+        PCT_script="scripts/targetscan7/targetscan_70_BL_PCT.pl",
+        PCT_parameters=directory("data/PCT_parameters"),
+    shell:
+        "wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70_BL_PCT.zip && unzip targetscan_70_BL_PCT.zip && mv\
+  TargetScan7_BL_PCT/PCT_parameters data/ && mv TargetScan7_BL_PCT/targetscan_70_BL_bins.pl TargetScan7_BL_PCT/targetscan_70_BL_PCT.pl scripts/targetscan7 && rm -rf targetscan_70_BL_PCT.zip TargetScan7_BL_PCT/"
+
+
+rule download_targetscan_data3:
+    output:
+        agarwal_par="scripts/targetscan7/Agarwal_2015_parameters.txt",
+        contextpp_script="scripts/targetscan7/targetscan_70_context_scores.pl",
+        eightmer_script="scripts/targetscan7/targetscan_count_8mers.pl",
+        TA_pars="scripts/targetscan7/TA_SPS_by_seed_region.txt",
+    shell:
+        "wget http://www.targetscan.org/vert_72/vert_72_data_download/TargetScan7_context_scores.zip && unzip TargetScan7_context_scores.zip && mv TargetScan7_context_scores/Agarwal_2015_parameters.txt TargetScan7_context_scores/TA_SPS_by_seed_region.txt TargetScan7_context_scores/targetscan_count_8mers.pl TargetScan7_context_scores/targetscan_70_context_scores.pl scripts/targetscan7/ && rm -rf TargetScan7_context_scores/ TargetScan7_context_scores.zip"
+
+
+rule patch_bin_lengths_script:
+    input:
+        rules.download_targetscan_data2.output.bins_script,
+    output:
+        "scripts/targetscan7/targetscan_70_BL_bins.patch.pl",
+    shell:
+        "sed -e '40 s/9606/$ARGV[1]/g' {input} | sed -e '38 s;PCT_parameters;data\/PCT_parameters;g' > {output} && chmod +x {output}"
+
+
+rule patch_PCT_script:
+    input:
+        rules.download_targetscan_data2.output.PCT_script,
+    output:
+        "scripts/targetscan7/targetscan_70_BL_PCT.patch.pl",
+    shell:
+        "sed -e '55 s;PCT_parameters;data\/PCT_parameters;g' {input} > {output} && chmod +x {output}"
+
+
+rule patch_contextpp_script:
+    input:
+        contextpp=rules.download_targetscan_data3.output.contextpp_script,
+        patch="scripts/targetscan7/patch_context_scores.sh",
+    output:
+        "scripts/targetscan7/targetscan_70_context_scores.patch.pl",
+    shell:
+        "{input.patch} {input.contextpp} {output} && chmod +x {output}"  # force reference species as a parameter
 
 ### miRNA prep ###
-
 
 rule prep_mirna_seeds:
     input:
@@ -202,7 +256,6 @@ rule aggregate_targetscan_sites:
 
 ### other ###
 
-
 rule get_all_transcripts:
     input:
         "results/bed/{species}_{tissue}.utr.full.bed",
@@ -210,59 +263,3 @@ rule get_all_transcripts:
         "results/bed/{species}_{tissue}_all_transcripts.txt",
     shell:
         "awk '{{ print $5}}' {input} | sort | uniq > {output}"
-
-
-rule download_targetscan_data1:
-    output:
-        "scripts/targetscan7/targetscan_70.pl",
-    shell:
-        "cd scripts/targetscan7 && wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70.zip && unzip targetscan_70.zip && rm UTR_Sequences_sample.txt miR_Family_info_sample.txt\
- targetscan_70_output.txt README_70.txt targetscan_70.zip"
-
-
-rule download_targetscan_data2:
-    output:
-        bins_script="scripts/targetscan7/targetscan_70_BL_bins.pl",
-        PCT_script="scripts/targetscan7/targetscan_70_BL_PCT.pl",
-        PCT_parameters=directory("data/PCT_parameters"),
-    shell:
-        "wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70_BL_PCT.zip && unzip targetscan_70_BL_PCT.zip && mv\
-  TargetScan7_BL_PCT/PCT_parameters data/ && mv TargetScan7_BL_PCT/targetscan_70_BL_bins.pl TargetScan7_BL_PCT/targetscan_70_BL_PCT.pl scripts/targetscan7 && rm -rf targetscan_70_BL_PCT.zip TargetScan7_BL_PCT/"
-
-
-rule download_targetscan_data3:
-    output:
-        agarwal_par="scripts/targetscan7/Agarwal_2015_parameters.txt",
-        contextpp_script="scripts/targetscan7/targetscan_70_context_scores.pl",
-        eightmer_script="scripts/targetscan7/targetscan_count_8mers.pl",
-        TA_pars="scripts/targetscan7/TA_SPS_by_seed_region.txt",
-    shell:
-        "wget http://www.targetscan.org/vert_72/vert_72_data_download/TargetScan7_context_scores.zip && unzip TargetScan7_context_scores.zip && mv TargetScan7_context_scores/Agarwal_2015_parameters.txt TargetScan7_context_scores/TA_SPS_by_seed_region.txt TargetScan7_context_scores/targetscan_count_8mers.pl TargetScan7_context_scores/targetscan_70_context_scores.pl scripts/targetscan7/ && rm -rf TargetScan7_context_scores/ TargetScan7_context_scores.zip"
-
-
-rule patch_bin_lengths_script:
-    input:
-        rules.download_targetscan_data2.output.bins_script,
-    output:
-        "scripts/targetscan7/targetscan_70_BL_bins.patch.pl",
-    shell:
-        "sed -e '40 s/9606/$ARGV[1]/g' {input} | sed -e '38 s;PCT_parameters;data\/PCT_parameters;g' > {output} && chmod +x {output}"
-
-
-rule patch_PCT_script:
-    input:
-        rules.download_targetscan_data2.output.PCT_script,
-    output:
-        "scripts/targetscan7/targetscan_70_BL_PCT.patch.pl",
-    shell:
-        "sed -e '55 s;PCT_parameters;data\/PCT_parameters;g' {input} > {output} && chmod +x {output}"
-
-
-rule patch_contextpp_script:
-    input:
-        contextpp=rules.download_targetscan_data3.output.contextpp_script,
-        patch="scripts/targetscan7/patch_context_scores.sh",
-    output:
-        "scripts/targetscan7/targetscan_70_context_scores.patch.pl",
-    shell:
-        "{input.patch} {input.contextpp} {output} && chmod +x {output}"  # force reference species as a parameter
