@@ -43,7 +43,7 @@ def add_alignment():
            big_alignment += new_multiple_alignment.format('fasta')
            return()
 
-if os.stat(snakemake.input['bed']).st_size == 0:
+if os.stat(snakemake.input['bed'][0]).st_size == 0:
      target = open(snakemake.output[0], 'w')
 else:
     if snakemake.wildcards['species'] == "hsa":    #Identify the species identifier passed through the command line
@@ -58,7 +58,7 @@ else:
     start_pos = []
     end_pos = []
     accession = 'empty'
-    with open(snakemake.input['bed'] ) as f:
+    with open(snakemake.input['bed'][0] ) as f:
        big_alignment = ''
        for line in f:    #Open and loop through line-by-line the relevant BED file
           parts = line.split()  
