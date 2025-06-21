@@ -5,9 +5,9 @@ rule expression_filter_miRanda_chr:
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
     output:
-        temp("results/targets/miRanda/{species}/{tissue}/chr{chrom}.tsv"),
+        temp("results/targets/miRanda/{species}/{tissue_tx_exp}/chr{chrom}.tsv"),
     wildcard_constraints:
-        tissue=config["context"]
+        tissue_tx_exp=config["context"]
     script:
         "filter_miRanda_scores.R"
 
@@ -19,9 +19,9 @@ rule expression_filter_miRanda:
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
         species=config["species"],
-        tissue=config["context"],
+        tissue_tx_exp=config["context"],
     wildcard_constraints:
-        tissue="((?!temp).)*",
+        tissue_tx_exp="((?!temp).)*",
         species=config["species"],
     output:
         "target_predictions.txt",
