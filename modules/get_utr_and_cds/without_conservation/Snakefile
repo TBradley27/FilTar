@@ -37,8 +37,6 @@ rule reformat_bed_file_for_bedtools:
         "results/bed/{species}_{tissue}_{feature}.chr{chrom}.bed",
     output:
         temp("results/bed/{species}_{tissue}_{feature}.chr{chrom}.bedtools.bed"),
-    wildcard_constraints:
-        tissue=config["context"]
     shell:
         "scripts/get_bedtools_bed.sh {input} {output}"
 
@@ -49,8 +47,6 @@ rule get_single_species_seq_fa:
         bed=rules.reformat_bed_file_for_bedtools.output,
     output:
         temp("results/msa/{species}_{tissue}_chr{chrom}_{feature}.tmp.fa"),
-    wildcard_constraints:
-        tissue=config["context"]
     conda:
         "envs/bedtools.yaml"
     shell:
@@ -62,8 +58,6 @@ rule merge_fasta:
         rules.get_single_species_seq_fa.output,
     output:
         temp("results/msa/{species}_{tissue}_chr{chrom}_{feature}.tmp2.fa"),
-    wildcard_constraints:
-        tissue=config["context"]
     script:
         "merge_fasta.R"
 
@@ -73,8 +67,6 @@ rule convert_fasta_to_tsv:
         rules.merge_fasta.output,
     output:
         temp("results/msa/{species}_{tissue}_chr{chrom}_{feature}_msa.tsv"),
-    wildcard_constraints:
-        tissue=config["context"]
     params:
         get_NCBI_taxonomic_id,
     shell:

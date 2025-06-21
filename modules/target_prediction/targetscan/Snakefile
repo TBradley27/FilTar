@@ -149,8 +149,6 @@ rule targetscan_sites:
         "envs/targetscan.yaml"
     output:
         temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv"),
-    wildcard_constraints:
-        tissue=config["context"]
     shell:
         "{input.script} {input.mirna_families} {input.msa} {output}"
 
@@ -163,8 +161,6 @@ rule targetscan_branch_lengths:
         temp("results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv"),
     params:
         tax_id=get_tax_id,
-    wildcard_constraints:
-        tissue=config["context"]
     conda:
         "envs/targetscan.yaml"
     shell:
@@ -183,8 +179,6 @@ rule targetscan_PCTs:
     output:
         temp("results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv"),
         temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv.sort.txt"),  # this has to be deleted
-    wildcard_constraints:
-        tissue=config["context"]
     shell:
         "{input.script} {input.mirna_family} {input.mirna_sites} {input.branch_lengths} > {output}"
 
@@ -203,8 +197,6 @@ rule targetscan_eightmers:
         CDS_lengths=temp(
             "results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv.lengths.txt"
         ),
-    wildcard_constraints:
-        tissue=config["context"]
     shell:
         "{input.script} {input.mirna_seeds} {input.CDS} > {output.eightmer_counts}"
 
@@ -229,8 +221,6 @@ rule targetscan_context_scores:
     params:
         RNAplfold_dir="results/targets/RNAplfold/{species}/{tissue}",
         tax_id=get_tax_id,
-    wildcard_constraints:
-        tissue=config["context"]
     shell:
         "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {params.tax_id} {input.AIRs} {params.RNAplfold_dir}"
 
@@ -241,14 +231,12 @@ rule aggregate_contextpp_scores:
             rules.targetscan_context_scores.output[0],
             chrom=config["chromosomes"][wildcards.species],
             species=wildcards.species,
-            tissue=config["context"],
+            tissue=wildcards.tissue,
         ),
     conda:
         "envs/targetscan.yaml"
     output:
         temp("results/targets/{species}/{tissue}.contextpp.tmp.tsv"),
-    wildcard_constraints:
-        tissue=config["context"]
     shell:
         "cat {input} | sed '1b;/Gene/d' > {output}"
 
@@ -259,12 +247,10 @@ rule aggregate_targetscan_sites:
             rules.targetscan_sites.output[0],
             chrom=config["chromosomes"][wildcards.species],
             species=wildcards.species,
-            tissue=config["context"],
+            tissue=wildcards.tissue,
         ),
     output:
         temp("results/targets/{species}/{tissue}.sites.tsv"),
-    wildcard_constraints:
-        tissue=config["context"]
     shell:
         "cat {input} | sed '1b;/Gene/d' > {output}"
 
@@ -276,7 +262,5 @@ rule get_all_transcripts:
         "results/bed/{species}_{tissue}.utr.full.bed",
     output:
         "results/bed/{species}_{tissue}_all_transcripts.txt",
-    wildcard_constraints:
-        tissue=config["context"]
     shell:
         "awk '{{ print $5}}' {input} | sort | uniq > {output}"
