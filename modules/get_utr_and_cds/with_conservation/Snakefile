@@ -20,7 +20,7 @@ def get_bed_file_by_feature(wildcards):
         if config['reannotation'] == True:
             return rules.get_extended_bed_file.output
         else:
-            return rules.split_bed6.output
+            return rules.split_filtered_bed6.output
     elif wildcards.feature == "CDS":
         if config['reannotation'] == True:
             return rules.split_CDS.output
