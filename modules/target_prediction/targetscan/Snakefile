@@ -142,23 +142,23 @@ rule filter_mir_families:
 
 rule targetscan_sites:
     input:
-        msa="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
+        msa="results/msa/{species}_{tissue_tx_model}_chr{chrom}_3UTR_msa.tsv",
         mirna_families=rules.filter_mir_families.output,
         script=rules.download_targetscan_data1.output,
     conda:
         "envs/targetscan.yaml"
     output:
-        temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv"),
+        temp("results/targets/{species}_{tissue_tx_model}_chr{chrom}_msa.sites.tsv"),
     shell:
         "{input.script} {input.mirna_families} {input.msa} {output}"
 
 
 rule targetscan_branch_lengths:
     input:
-        msa_3UTR="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
+        msa_3UTR="results/msa/{species}_{tissue_tx_model}_chr{chrom}_3UTR_msa.tsv",
         script=rules.patch_bin_lengths_script.output,
     output:
-        temp("results/targets/{species}_{tissue}_chr{chrom}_msa.branch_lengths.tsv"),
+        temp("results/targets/{species}_{tissue_tx_model}_chr{chrom}_msa.branch_lengths.tsv"),
     params:
         tax_id=get_tax_id,
     conda:
@@ -177,8 +177,8 @@ rule targetscan_PCTs:
     conda:
         "envs/targetscan.yaml"
     output:
-        temp("results/targets/{species}_{tissue}_chr{chrom}_msa.PCTs.tsv"),
-        temp("results/targets/{species}_{tissue}_chr{chrom}_msa.sites.tsv.sort.txt"),  # this has to be deleted
+        temp("results/targets/{species}_{tissue_tx_model}_chr{chrom}_msa.PCTs.tsv"),
+        temp("results/targets/{species}_{tissue_tx_model}_chr{chrom}_msa.sites.tsv.sort.txt"),  # this has to be deleted
     shell:
         "{input.script} {input.mirna_family} {input.mirna_sites} {input.branch_lengths} > {output}"
 
@@ -186,16 +186,16 @@ rule targetscan_PCTs:
 rule targetscan_eightmers:
     input:
         mirna_seeds=rules.filter_mir_families.output,
-        CDS="results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv",
+        CDS="results/msa/{species}_{tissue_tx_model}_chr{chrom}_CDS_msa.tsv",
         script=rules.download_targetscan_data3.output.eightmer_script,
     conda:
         "envs/targetscan.yaml"
     output:
         eightmer_counts=temp(
-            "results/targets/{species}_{tissue}_chr{chrom}_msa.eightmers.tsv"
+            "results/targets/{species}_{tissue_tx_model}_chr{chrom}_msa.eightmers.tsv"
         ),
         CDS_lengths=temp(
-            "results/msa/{species}_{tissue}_chr{chrom}_CDS_msa.tsv.lengths.txt"
+            "results/msa/{species}_{tissue_tx_model}_chr{chrom}_CDS_msa.tsv.lengths.txt"
         ),
     shell:
         "{input.script} {input.mirna_seeds} {input.CDS} > {output.eightmer_counts}"
@@ -204,22 +204,22 @@ rule targetscan_eightmers:
 rule targetscan_context_scores:
     input:
         mirnas=rules.filter_mir_for_context_scores.output,
-        msa="results/msa/{species}_{tissue}_chr{chrom}_3UTR_msa.tsv",
+        msa="results/msa/{species}_{tissue_tx_model}_chr{chrom}_3UTR_msa.tsv",
         PCTs=rules.targetscan_PCTs.output[0],
         CDS_lengths=rules.targetscan_eightmers.output.CDS_lengths,
         eightmer_counts=rules.targetscan_eightmers.output.eightmer_counts,
         contextpp_script=rules.patch_contextpp_script.output,
         agarwal_param=rules.download_targetscan_data3.output.agarwal_par,
-        AIRs="results/targets/{species}_{tissue}_chr{chrom}.AIRs.txt",
+        AIRs="results/targets/{species}_{tissue_tx_model}_chr{chrom}.AIRs.txt",
         TA_SPS_param=rules.download_targetscan_data3.output.TA_pars,
         script=rules.patch_contextpp_script.output,
     conda:
         "envs/targetscan.yaml"
     # "envs/viennarna.yaml"
     output:
-        temp("results/targets/{species}_{tissue}_chr{chrom}_msa.contextpp.tmp.tsv"),
+        temp("results/targets/{species}_{tissue_tx_model}_chr{chrom}_msa.contextpp.tmp.tsv"),
     params:
-        RNAplfold_dir="results/targets/RNAplfold/{species}/{tissue}",
+        RNAplfold_dir="results/targets/RNAplfold/{species}/{tissue_tx_model}",
         tax_id=get_tax_id,
     shell:
         "{input.script} {input.mirnas} {input.msa} {input.PCTs} {input.CDS_lengths} {input.eightmer_counts} {output} {params.tax_id} {input.AIRs} {params.RNAplfold_dir}"
@@ -231,12 +231,12 @@ rule aggregate_contextpp_scores:
             rules.targetscan_context_scores.output[0],
             chrom=config["chromosomes"][wildcards.species],
             species=wildcards.species,
-            tissue=wildcards.tissue,
+            tissue_tx_model=wildcards.tissue_tx_model,
         ),
     conda:
         "envs/targetscan.yaml"
     output:
-        temp("results/targets/{species}/{tissue}.contextpp.tmp.tsv"),
+        temp("results/targets/{species}/{tissue_tx_model}.contextpp.tmp.tsv"),
     shell:
         "cat {input} | sed '1b;/Gene/d' > {output}"
 
@@ -247,10 +247,10 @@ rule aggregate_targetscan_sites:
             rules.targetscan_sites.output[0],
             chrom=config["chromosomes"][wildcards.species],
             species=wildcards.species,
-            tissue=wildcards.tissue,
+            tissue_tx_model=wildcards.tissue_tx_model,
         ),
     output:
-        temp("results/targets/{species}/{tissue}.sites.tsv"),
+        temp("results/targets/{species}/{tissue_tx_model}.sites.tsv"),
     shell:
         "cat {input} | sed '1b;/Gene/d' > {output}"
 
@@ -259,8 +259,8 @@ rule aggregate_targetscan_sites:
 
 rule get_all_transcripts:
     input:
-        "results/bed/{species}_{tissue}.utr.full.bed",
+        "results/bed/{species}_{tissue_tx_model}.utr.full.bed",
     output:
-        "results/bed/{species}_{tissue}_all_transcripts.txt",
+        "results/bed/{species}_{tissue_tx_model}_all_transcripts.txt",
     shell:
         "awk '{{ print $5}}' {input} | sort | uniq > {output}"

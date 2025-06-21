@@ -155,7 +155,7 @@ rule salmon_average_quantmerge_runs:
 def get_salmon_sample_directory_names(wildcards):
     metadata_tmp = metadata.loc[
         (metadata["species"] == wildcards.species)
-        & (metadata["biological_context"] == wildcards.tissue)
+        & (metadata["biological_context"] == wildcards.tissue_tx_exp)
     ]
     metadata_tmp = metadata_tmp["sample_accession"]
     metadata_tmp = set(metadata_tmp)
@@ -172,7 +172,7 @@ rule salmon_quantmerge_by_sample:
     input:
         get_salmon_sample_directory_names,
     output:
-        temp("results/salmon/{species}/{tissue}.sf.tmp"),
+        temp("results/salmon/{species}/{tissue_tx_exp}.sf.tmp"),
     conda:
         "envs/salmon.yaml"
     shell:
@@ -183,6 +183,6 @@ rule salmon_average_quantmerge_samples:
     input:
         rules.salmon_quantmerge_by_sample.output,
     output:
-        "results/salmon/{species}/{tissue}.sf",
+        "results/salmon/{species}/{tissue_tx_exp}.sf",
     script:
         "get_average_quant2.R"
