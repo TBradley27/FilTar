@@ -17,7 +17,10 @@
 
 def get_bed_file_by_feature(wildcards):
     if wildcards.feature == "3UTR":
-        return rules.get_extended_bed_file.output
+        if config['reannotation'] == True:
+            return rules.get_extended_bed_file.output
+        else:
+            return rules.split_bed6.output
     elif wildcards.feature == "CDS":
         return rules.split_CDS.output
     else:
