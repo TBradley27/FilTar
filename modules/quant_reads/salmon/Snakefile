@@ -49,16 +49,18 @@ def get_input_files(wildcards):
     if wildcards.run_accession in set(
         metadata.loc[(metadata["pe_or_se"] == "paired_end")]["run_accession"]
     ):
+        # Reference trimmed paired end read outputs explicitly
         input_files = [
-            "results/trimmed_fastq/{}_1_val_1.fq.gz".format(wildcards.run_accession),
-            "results/trimmed_fastq/{}_2_val_2.fq.gz".format(wildcards.run_accession),
+            "results/trimmed_fastq/{run_accession}_1_val_1.fq.gz".format(run_accession=wildcards.run_accession),
+            "results/trimmed_fastq/{run_accession}_2_val_2.fq.gz".format(run_accession=wildcards.run_accession),
         ]
         return input_files
     elif wildcards.run_accession in set(
         metadata.loc[(metadata["pe_or_se"] == "single_end")]["run_accession"]
     ):
+        # Reference trimmed single end read output explicitly
         input_file = [
-            "results/trimmed_fastq/{}_trimmed.fq.gz".format(wildcards.run_accession)
+            "results/trimmed_fastq/{run_accession}_trimmed.fq.gz".format(run_accession=wildcards.run_accession)
         ]
         return input_file
     else:
@@ -76,7 +78,7 @@ rule salmon_quant_lib_type:
         ),
     input:
         reads=get_input_files,
-        index="results/salmon/indexes/lib_type_identification/{species}",
+        index=rules.salmon_index_for_lib_types.output,
     conda:
         "envs/salmon.yaml"
     wildcard_constraints:
@@ -91,7 +93,7 @@ rule salmon_quant:
         directory("results/salmon/runs/{species}/{run_accession}"),
     input:
         reads=get_input_files,
-        index="results/salmon/indexes/{species}",
+        index=rules.salmon_index.output,
     conda:
         "envs/salmon.yaml"
     wildcard_constraints:
@@ -103,7 +105,7 @@ rule salmon_quant:
 
 rule salmon_get_lib_type:
     input:
-        "results/salmon/runs/{species}/lib_type_identification/{run_accession}",
+        rules.salmon_quant_lib_type.output,
     output:
         "results/salmon/runs/{species}/{run_accession}_lib_type.txt",  # written this way because you cannot create files inside snakemake created directories
     wildcard_constraints:
@@ -141,7 +143,7 @@ rule salmon_quantmerge_by_run:
 
 rule salmon_average_quantmerge_runs:
     input:
-        "results/salmon/samples/{species}/{sample}.quant.tmp.sf",
+        rules.salmon_quantmerge_by_run.output,
     output:
         directory("results/salmon/samples/{species}/{sample}"),
     wildcard_constraints:
@@ -179,7 +181,7 @@ rule salmon_quantmerge_by_sample:
 
 rule salmon_average_quantmerge_samples:
     input:
-        "results/salmon/{species}/{tissue}.sf.tmp",
+        rules.salmon_quantmerge_by_sample.output,
     output:
         "results/salmon/{species}/{tissue}.sf",
     script:

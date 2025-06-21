@@ -15,6 +15,21 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 
+def get_bed_file_by_feature(wildcards):
+    if wildcards.feature == "3UTR":
+        if config['reannotation'] == True:
+            return rules.get_extended_bed_file.output
+        else:
+            return rules.split_filtered_bed6.output
+    elif wildcards.feature == "CDS":
+        if config['reannotation'] == True:
+            return rules.split_CDS.output
+        else:
+            return rules.split_filtered_bed6.output
+    else:
+        raise Exception(f"Unknown feature: {wildcards.feature}")
+
+
 rule index_maf_files:
     input:
         maf="data/maf_{species}/chr{chrom}.maf",
@@ -29,8 +44,8 @@ rule index_maf_files:
 rule biopython_get_msa:
     input:
         maf="data/maf_{species}/chr{chrom}.maf",
-        bed="results/bed/{species}_{tissue}_{feature}.chr{chrom}.bed",
-        maf_index="data/{species}_chr{chrom}.mafindex",
+        bed=get_bed_file_by_feature,
+        maf_index=rules.index_maf_files.output,
         shell_script="scripts/targetscan7/convert_fasta_to_tsv.sh",
     output:
         temp("results/msa/{species}_{tissue}_chr{chrom}_{feature}_msa.tsv"),

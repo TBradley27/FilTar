@@ -33,7 +33,7 @@ rule mirna_species_fasta:
 
 rule filter_mirna_species_fasta:
     input:
-        "data/mirbase_mature_{species}.fa",
+        rules.mirna_species_fasta.output,
     output:
         temp("data/mirbase_mature_{species}.filtered.fa"),
     conda:

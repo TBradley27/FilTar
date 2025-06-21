@@ -22,13 +22,14 @@ def get_tax_id(wildcards):
 def get_gtf_file(wildcards):
     sci_species_name = config["sci_species_name"][wildcards.species]
     genome_build = config["genome_build"][wildcards.species]
+    ensembl_release = config["ensembl_release"]
 
     return (
         "data/"
         + sci_species_name
         + "."
         + genome_build
-        + ".{}.mod.chr.gtf".format(config["ensembl_release"])
+        + ".{ensembl_release}.mod.chr.gtf".format(ensembl_release=ensembl_release)
     )
 
 
@@ -56,7 +57,7 @@ rule get_utr_lengths_no_reannotation:
 
 rule get_air_file_no_reannotation:
     input:
-        "results/targets/{species}_chr{chrom}.utr.lengths.tsv",
+        rules.get_utr_lengths_no_reannotation.output[0],
     output:
         "results/targets/{species}_nr_chr{chrom}.AIRs.txt",
     script:
@@ -66,7 +67,7 @@ rule get_air_file_no_reannotation:
 rule aggregate_chromosomal_AIR_files:
     input:
         lambda wildcards: expand(
-            "results/targets/{species}_chr{chrom}.utr.lengths.tsv",
+            rules.get_utr_lengths_no_reannotation.output[0],
             chrom=config["chromosomes"][wildcards.species],
             species=wildcards.species,
         ),
