@@ -24,8 +24,9 @@ rule download_targetscan_data1:
     output:
         "scripts/targetscan7/targetscan_70.pl",
     shell:
-        "cd scripts/targetscan7 && wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70.zip && unzip targetscan_70.zip && rm UTR_Sequences_sample.txt miR_Family_info_sample.txt\
- targetscan_70_output.txt README_70.txt targetscan_70.zip"
+        "cd scripts/targetscan7 && wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70.zip && \\"
+        "unzip targetscan_70.zip && \\"
+        "rm UTR_Sequences_sample.txt miR_Family_info_sample.txt targetscan_70_output.txt README_70.txt targetscan_70.zip"
 
 rule download_targetscan_data2:
     output:
