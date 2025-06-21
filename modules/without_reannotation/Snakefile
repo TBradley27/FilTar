@@ -57,7 +57,7 @@ rule get_utr_lengths_no_reannotation:
 
 rule get_air_file_no_reannotation:
     input:
-        rules.get_utr_lengths_no_reannotation.output,
+        rules.get_utr_lengths_no_reannotation.output[0],
     output:
         "results/targets/{species}_nr_chr{chrom}.AIRs.txt",
     script:
