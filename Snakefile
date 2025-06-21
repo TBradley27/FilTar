@@ -24,18 +24,6 @@ configfile: "config/basic.yaml"
 configfile: "config/species.yaml"
 configfile: "config/dependencies.yaml"
 
-# Define tissue wildcard mappings based on reannotation setting
-def get_tissue_tx_model(wildcards):
-    """Return tissue context for 3'UTR transcript model reannotation"""
-    if config['reannotation'] == True:
-        return config["context"]
-    else:
-        return "nr"
-
-def get_tissue_tx_exp(wildcards):  
-    """Return tissue context for transcript expression filtering"""
-    return config["context"]
-
 # Include modules with rules that other modules depend on first
 include: "modules/data_download/Snakefile"
 include: "modules/trim_reads/Snakefile"
@@ -107,8 +95,6 @@ for transcript in list(config['transcripts']):
 wildcard_constraints:
     species="[a-z]{3,4}",
     tissue="((?!chr([A-Z]|\d)).)*", # pattern to ensure tissue wildcard does not contain the following pattern: chr[0-9] or chr[A-Z]
-    tissue_tx_model="((?!chr([A-Z]|\d)).)*", # tissue context for 3'UTR transcript model reannotation
-    tissue_tx_exp="((?!chr([A-Z]|\d)).)*", # tissue context for transcript expression filtering
     chrom="[A-Za-z0-9]{1,5}",
     feature="(3UTR|CDS)",
     ensembl_release="[0-9]{2,3}",
