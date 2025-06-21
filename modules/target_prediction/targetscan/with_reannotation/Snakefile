@@ -5,7 +5,9 @@ rule expression_filter_contextpp_scores_chr:
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
     output:
-        temp("results/targets/{species}/{tissue_tx_exp}_chr{chrom}.contextpp.tsv"),
+        temp("results/targets/{species}/{tissue}_chr{chrom}.contextpp.tsv"),
+    wildcard_constraints:
+        tissue=config["context"]
     script:
         "filter_contextpp_scores.R"
 
@@ -17,10 +19,10 @@ rule expression_filter_contextpp_scores:
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
         species=config["species"],
-        tissue_tx_exp=config["context"],
+        tissue=config["context"],
     wildcard_constraints:
         species=config["species"],
-        tissue_tx_exp=config["context"],
+        tissue=config["context"],
     output:
         "target_predictions.txt",
     script:

@@ -48,7 +48,9 @@ rule biopython_get_msa:
         maf_index=rules.index_maf_files.output,
         shell_script="scripts/targetscan7/convert_fasta_to_tsv.sh",
     output:
-        temp("results/msa/{species}_{tissue_tx_model}_chr{chrom}_{feature}_msa.tsv"),
+        temp("results/msa/{species}_{tissue}_chr{chrom}_{feature}_msa.tsv"),
+    wildcard_constraints:
+        tissue=config["context"]
     conda:
         "envs/biopython.yaml"
     script:
