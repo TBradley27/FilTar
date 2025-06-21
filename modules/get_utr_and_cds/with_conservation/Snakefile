@@ -22,7 +22,10 @@ def get_bed_file_by_feature(wildcards):
         else:
             return rules.split_bed6.output
     elif wildcards.feature == "CDS":
-        return rules.split_CDS.output
+        if config['reannotation'] == True:
+            return rules.split_CDS.output
+        else:
+            raise Exception("CDS processing is only available when reannotation is enabled. Please set 'reannotation: True' in config/basic.yaml")
     else:
         raise Exception(f"Unknown feature: {wildcards.feature}")
 
