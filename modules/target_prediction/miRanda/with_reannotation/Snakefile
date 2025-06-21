@@ -5,7 +5,7 @@ rule expression_filter_miRanda_chr:
     params:
         tpm_expression_threshold=config["TPM_expression_threshold"],
     output:
-        temp("results/targets/miRanda/{species}/{tissue_tx_exp}/chr{chrom}.tsv"),
+        temp("results/targets/miRanda/{species}/{tissue_tx_model}_3UTRs/{tissue_tx_exp}/chr{chrom}.tsv"),
     wildcard_constraints:
         tissue_tx_exp=config["context"]
     script:
