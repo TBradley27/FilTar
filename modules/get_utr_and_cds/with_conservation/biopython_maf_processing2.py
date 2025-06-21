@@ -53,7 +53,7 @@ else:
     else:
        build = ''
 
-    idx = AlignIO.MafIO.MafIndex(snakemake.input['maf_index'], snakemake.input['maf'], "{}.chr{}".format(build, snakemake.wildcards['chrom'])  )
+    idx = AlignIO.MafIO.MafIndex(snakemake.input['maf_index'][0], snakemake.input['maf'], "{}.chr{}".format(build, snakemake.wildcards['chrom'])  )
 
     start_pos = []
     end_pos = []
