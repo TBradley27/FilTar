@@ -78,7 +78,7 @@ rule salmon_quant_lib_type:
         ),
     input:
         reads=get_input_files,
-        index="results/salmon/indexes/lib_type_identification/{species}",
+        index=rules.salmon_index_for_lib_types.output,
     conda:
         "envs/salmon.yaml"
     wildcard_constraints:
@@ -93,7 +93,7 @@ rule salmon_quant:
         directory("results/salmon/runs/{species}/{run_accession}"),
     input:
         reads=get_input_files,
-        index="results/salmon/indexes/{species}",
+        index=rules.salmon_index.output,
     conda:
         "envs/salmon.yaml"
     wildcard_constraints:

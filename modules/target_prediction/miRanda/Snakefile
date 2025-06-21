@@ -51,7 +51,7 @@ rule fix_fasta_output:
 rule miRanda:
     input:
         utr=rules.fix_fasta_output.output,
-        mirna="data/mirbase_mature_{species}.filtered.fa",
+        mirna=rules.filter_mirna_species_fasta.output,
     output:
         temp("results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt"),
     conda:

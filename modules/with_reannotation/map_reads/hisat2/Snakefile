@@ -119,8 +119,8 @@ if config["genome_index_type"] == "splice-aware":
     rule create_index:
         input:
             assembly=get_assembly,
-            splice_sites="results/{species}_hisat2_splice_sites.txt",
-            exons="results/{species}_hisat2_exons.txt",
+            splice_sites=rules.get_splice_sites_for_hisat2.output,
+            exons=rules.get_exons_for_hisat2.output,
         conda:
             "envs/hisat2.yaml"
         output:

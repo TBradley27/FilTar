@@ -86,7 +86,7 @@ rule get_bed6_file:  #three_prime_utrs only
 
 rule filter_bed6_file:
     input:
-        "results/{genus_species}.{build}.{ensembl_release}.bed6",
+        rules.get_bed6_file.output,
     output:
         temp("results/{genus_species}.{build}.{ensembl_release}.filtered.bed6"),
     script:
@@ -95,7 +95,7 @@ rule filter_bed6_file:
 
 rule split_bed6_file:
     input:
-        "results/{genus_species}.{build}.{ensembl_release}.filtered.bed6",
+        rules.filter_bed6_file.output,
     output:
         temp(
             "results/{genus_species}.{build}.{ensembl_release}.chr{chrom}.filtered.bed6"
@@ -120,7 +120,7 @@ rule convert_gtf_to_genepred:
 
 rule convert_genepred_to_bed12:
     input:
-        genepred="results/{species_prefix}.{ensembl_release}.genePred",
+        genepred=rules.convert_gtf_to_genepred.output,
     output:
         "results/{species_prefix}.{ensembl_release}.bed",
     wildcard_constraints:
@@ -147,7 +147,7 @@ rule get_bedgraph:
 
 rule split_bedgraph:
     input:
-        "results/bam/run/{species}/{accession}.bedgraph",
+        rules.get_bedgraph.output,
     output:
         "results/bam/run/{species}/{accession}_chr{chrom}.bedgraph",
     shell:
@@ -241,7 +241,7 @@ rule reannotate_3utrs:
     input:
         script="scripts/APAtrap/identifyDistal3UTR",
         bed=get_bed_file,
-        bedgraphs="results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph",
+        bedgraphs=rules.avg_merged_bedgraph_by_sample.output,
     output:
         temp("results/bed/{species}_{cell_line}_chr{chrom}.utr.bed"),
     shell:
@@ -251,9 +251,9 @@ rule reannotate_3utrs:
 rule get_extended_bed_file:
     input:
         normal_bed=get_bed6_file,
-        extended_bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed",
+        extended_bed=rules.reannotate_3utrs.output,
         all_transcripts="results/bed/{species}_chr{chrom}_all_transcripts.txt",
-        tx_quant="results/salmon/{species}/{tissue}.sf",
+        tx_quant=rules.salmon_average_quantmerge_samples.output,
     output:
         temp("results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed"),
     script:
@@ -280,8 +280,8 @@ rule aggregrate_extended_bed_files:
 rule identify_APA_sites:
     input:
         script="scripts/APAtrap/predictAPA",
-        bedgraphs="results/bam/tissue/{species}/{tissue}_chr{chrom}.bedgraph",
-        bed="results/bed/{species}_{tissue}_chr{chrom}.utr.bed",
+        bedgraphs=rules.avg_merged_bedgraph_by_sample.output,
+        bed=rules.reannotate_3utrs.output,
     output:
         temp("results/targets/{species}_{tissue}_chr{chrom}.APA.txt"),
     shell:
@@ -304,7 +304,7 @@ rule aggregate_APA_sites:
 
 rule get_utr_lengths_chr:
     input:
-        "results/bed/{species}_{tissue}_3UTR.chr{chrom}.bed",
+        rules.get_extended_bed_file.output,
     output:
         temp("results/utrs/{species}_{tissue}_chr{chrom}.utr.lengths.tsv"),
     script:
@@ -322,8 +322,8 @@ rule get_utr_lengths:
 
 rule get_AIR_file:
     input:
-        "results/targets/{species}_{tissue}_chr{chrom}.APA.txt",
-        "results/utrs/{species}_{tissue}_chr{chrom}.utr.lengths.tsv",  #output from APA usage file
+        rules.identify_APA_sites.output,
+        rules.get_utr_lengths_chr.output,  #output from APA usage file
     output:
         temp("results/targets/{species}_{tissue}_chr{chrom}.AIRs.txt"),
     script:
