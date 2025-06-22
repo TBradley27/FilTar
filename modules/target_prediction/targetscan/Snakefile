@@ -297,7 +297,7 @@ if config["context"] != "reference":
             ),
             expression_values="results/salmon/{species}/{context}.sf".format(
                 species=config["species"], 
-                context=config["context"] if config["reannotation"] else "nr"
+                context=config["context"]
             ),
         params:
             tpm_expression_threshold=config["TPM_expression_threshold"],
