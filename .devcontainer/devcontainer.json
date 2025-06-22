@@ -12,8 +12,10 @@
 				
 				"reditorsupport.r",
 				"rdebugger.r-debugger",
+				"posit.r",
 				
 				"snakemake-lang.snakemake-lang",
+				"tfehlmann.snakefmt",
 				
 				"github.vscode-github-actions",
 				"github.vscode-pull-request-github",

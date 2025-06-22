@@ -12,7 +12,7 @@ conda init bash
 source ~/.bashrc
 
 # Update conda
-conda update -n base -c defaults conda
+conda update -y -n base -c defaults conda
 
 # Install system dependencies that are commonly needed
 sudo apt-get update
