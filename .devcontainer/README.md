@@ -46,7 +46,7 @@ conda activate test-environment
 ## Included Extensions
 
 - **Python**: `ms-python.python`, `ms-python.pylint`, `ms-python.flake8`, `ms-python.autopep8`
-- **R**: `reditorsupport.r`, `rdebugger.r-debugger`, `posit.r`
+- **R**: `reditorsupport.r`, `rdebugger.r-debugger`, `posit.air-vscode`
 - **Snakemake**: `snakemake-lang.snakemake-lang`, `tfehlmann.snakefmt`
 - **GitHub**: `github.vscode-github-actions`, `github.vscode-pull-request-github`
 - **Additional**: JSON, YAML support

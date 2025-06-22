@@ -12,7 +12,7 @@
 				
 				"reditorsupport.r",
 				"rdebugger.r-debugger",
-				"posit.r",
+				"posit.air-vscode",
 				
 				"snakemake-lang.snakemake-lang",
 				"tfehlmann.snakefmt",
