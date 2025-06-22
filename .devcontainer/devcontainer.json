@@ -12,21 +12,14 @@
 				
 				"reditorsupport.r",
 				"rdebugger.r-debugger",
-				"ikuyadeu.r",
-				"adrianwilczynski.r-syntax",
-				"ritwickdey.r-lsp",
 				
 				"snakemake-lang.snakemake-lang",
-				"chrissly31415.snakemake",
 				
 				"github.vscode-github-actions",
 				"github.vscode-pull-request-github",
 				
 				"ms-vscode.vscode-json",
-				"redhat.vscode-yaml",
-				"ms-toolsai.jupyter",
-				"ms-toolsai.jupyter-keymap",
-				"ms-toolsai.jupyter-renderers"
+				"redhat.vscode-yaml"
 			],
 			"settings": {
 				"python.defaultInterpreterPath": "/opt/conda/envs/test-environment/bin/python",

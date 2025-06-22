@@ -9,7 +9,7 @@ This directory contains the development container configuration for the FilTar p
 - **Snakemake 8**: Snakemake 8.30.0 installed for workflow management
 
 ### Desired Requirements ✓
-- **R Support**: Complete R development environment with syntax highlighting, linting, and styling extensions
+- **R Support**: R development environment with syntax highlighting and debugging extensions
 - **Snakemake Extensions**: Syntax highlighting and language support for Snakemake workflows
 - **GitHub Integration**: GitHub Actions and Pull Request extensions for seamless GitHub workflow
 - **Python Support**: Full Python development environment with linting and debugging capabilities
@@ -46,10 +46,10 @@ conda activate test-environment
 ## Included Extensions
 
 - **Python**: `ms-python.python`, `ms-python.pylint`, `ms-python.flake8`, `ms-python.autopep8`
-- **R**: `reditorsupport.r`, `rdebugger.r-debugger`, `ikuyadeu.r`, `adrianwilczynski.r-syntax`, `ritwickdey.r-lsp`
-- **Snakemake**: `snakemake-lang.snakemake-lang`, `chrissly31415.snakemake`
+- **R**: `reditorsupport.r`, `rdebugger.r-debugger`
+- **Snakemake**: `snakemake-lang.snakemake-lang`
 - **GitHub**: `github.vscode-github-actions`, `github.vscode-pull-request-github`
-- **Additional**: JSON, YAML, Jupyter support
+- **Additional**: JSON, YAML support
 
 ## Troubleshooting
 
