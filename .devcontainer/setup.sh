@@ -23,6 +23,9 @@ sudo ln -s /bin/tar /bin/gtar || true
 echo "Creating conda environment from environment.yml..."
 conda env create -f environment.yml
 
+# Reinitialize conda to ensure conda activate function is available
+eval "$(conda shell.bash hook)"
+
 # Activate the environment
 echo "Activating test-environment..."
 conda activate test-environment
