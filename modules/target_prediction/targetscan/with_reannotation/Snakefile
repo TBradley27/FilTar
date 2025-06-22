@@ -7,7 +7,8 @@ rule expression_filter_contextpp_scores_chr:
     output:
         temp("results/targets/{species}/{tissue_tx_model}_3UTRs/{tissue_tx_exp}_chr{chrom}.contextpp.tsv"),
     wildcard_constraints:
-        tissue_tx_exp=config["context"]
+        tissue_tx_exp=config["context"],
+        tissue_tx_model=config["context"]
     script:
         "filter_contextpp_scores.R"
 
