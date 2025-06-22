@@ -1,0 +1,53 @@
+{
+	"name": "FilTar Development Environment",
+	"image": "mcr.microsoft.com/devcontainers/miniconda:0-3",
+	
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.pylint",
+				"ms-python.flake8",
+				"ms-python.autopep8",
+				
+				"reditorsupport.r",
+				"rdebugger.r-debugger",
+				"ikuyadeu.r",
+				"adrianwilczynski.r-syntax",
+				"ritwickdey.r-lsp",
+				
+				"snakemake-lang.snakemake-lang",
+				"chrissly31415.snakemake",
+				
+				"github.vscode-github-actions",
+				"github.vscode-pull-request-github",
+				
+				"ms-vscode.vscode-json",
+				"redhat.vscode-yaml",
+				"ms-toolsai.jupyter",
+				"ms-toolsai.jupyter-keymap",
+				"ms-toolsai.jupyter-renderers"
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "/opt/conda/envs/test-environment/bin/python",
+				"python.terminal.activateEnvironment": true,
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "/bin/bash",
+						"args": ["-l"]
+					}
+				}
+			}
+		}
+	},
+
+	"postCreateCommand": "bash .devcontainer/setup.sh",
+
+	"remoteUser": "vscode",
+	
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	}
+}
