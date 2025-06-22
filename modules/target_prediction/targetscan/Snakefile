@@ -268,6 +268,11 @@ rule get_all_transcripts:
 
 # Expression filtering rules (merged from with_reannotation and without_reannotation)
 
+# This rule is intended for testing and CI/CD purposes.
+# It allows running the pipeline on smaller, per-chromosome data inputs,
+# enabling faster and more efficient testing of the codebase.
+# By filtering context++ scores using expression values and a configurable TPM threshold,
+# this rule helps validate the workflow logic without requiring full-scale data processing.
 rule expression_filter_contextpp_scores_chr:
     input:
         contextpp_scores=rules.targetscan_context_scores.output,

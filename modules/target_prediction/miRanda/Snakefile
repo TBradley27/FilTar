@@ -98,6 +98,11 @@ rule add_miRanda_header:
 
 # Expression filtering rules (merged from with_reannotation and without_reannotation)
 
+# This rule is intended for testing and CI/CD purposes.
+# It allows running the pipeline on smaller, per-chromosome data inputs,
+# enabling faster and more efficient testing of the codebase.
+# By filtering miRanda predictions using expression values and a configurable TPM threshold,
+# this rule helps validate the workflow logic without requiring full-scale data processing.
 rule expression_filter_miRanda_chr:
     input:
         miRanda_scores=rules.convert_miRanda_to_tsv.output,
