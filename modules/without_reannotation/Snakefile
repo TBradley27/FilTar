@@ -59,7 +59,9 @@ rule get_air_file_no_reannotation:
     input:
         rules.get_utr_lengths_no_reannotation.output[0],
     output:
-        "results/targets/{species}_nr_chr{chrom}.AIRs.txt",
+        "results/targets/{species}_{tissue_tx_model}_chr{chrom}.AIRs.txt",
+    wildcard_constraints:
+        tissue_tx_model="nr"
     script:
         "get_canonical_AIR.R"
 
@@ -72,7 +74,9 @@ rule aggregate_chromosomal_AIR_files:
             species=wildcards.species,
         ),
     output:
-        "results/targets/{species}_nr.AIRs.txt",
+        "results/targets/{species}_{tissue_tx_model}.AIRs.txt",
+    wildcard_constraints:
+        tissue_tx_model="nr"
     script:
         "get_canonical_AIR.R"
 
@@ -93,7 +97,9 @@ rule filter_bed6_file_no_reannotation:
     input:
         "results/bed/{species}_{feature}.bed",
     output:
-        temp("results/bed/{species}_nr_{feature}.bed"),
+        temp("results/bed/{species}_{tissue_tx_model}_{feature}.bed"),
+    wildcard_constraints:
+        tissue_tx_model="nr"
     script:
         "filter_bed6.R"
 
@@ -102,6 +108,8 @@ rule split_filtered_bed6:
     input:
         rules.filter_bed6_file_no_reannotation.output,
     output:
-        temp("results/bed/{species}_nr_{feature}.chr{chrom}.bed"),
+        temp("results/bed/{species}_{tissue_tx_model}_{feature}.chr{chrom}.bed"),
+    wildcard_constraints:
+        tissue_tx_model="nr"
     shell:
         'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'

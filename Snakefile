@@ -63,18 +63,10 @@ elif config['prediction_algorithm'] == 'miRanda':
 else:
     raise Exception("\nPlease enter a valid name for a miRNA target prediction algorithm. Choose either 'TargetScan7' or 'miRanda'\n")
 
-if config['prediction_algorithm'] == 'TargetScan7' and config['reannotation'] == True:
+if config['prediction_algorithm'] == 'TargetScan7':
     include: "modules/target_prediction/targetscan/Snakefile"
-    include: "modules/target_prediction/targetscan/with_reannotation/Snakefile"
-elif config['prediction_algorithm'] == 'TargetScan7' and config['reannotation'] == False:
-    include: "modules/target_prediction/targetscan/Snakefile"
-    include: "modules/target_prediction/targetscan/without_reannotation/Snakefile"
-elif config['prediction_algorithm'] == 'miRanda' and config['reannotation'] == True:
+elif config['prediction_algorithm'] == 'miRanda':
     include: "modules/target_prediction/miRanda/Snakefile"
-    include: "modules/target_prediction/miRanda/with_reannotation/Snakefile"
-elif config['prediction_algorithm'] == 'miRanda' and config['reannotation'] == False:
-    include: "modules/target_prediction/miRanda/Snakefile"
-    include: "modules/target_prediction/miRanda/without_reannotation/Snakefile"
 
 if config['conservation'] == True and config['prediction_algorithm'] == 'miRanda':
     raise Exception("miRanda cannot be used when the conservation option is set to True")
@@ -94,7 +86,8 @@ for transcript in list(config['transcripts']):
 
 wildcard_constraints:
     species="[a-z]{3,4}",
-    tissue="((?!chr([A-Z]|\d)).)*", # pattern to ensure tissue wildcard does not contain the following pattern: chr[0-9] or chr[A-Z]
+    tissue_tx_model="((?!chr([A-Z]|\d)).)*", # pattern to ensure tissue_tx_model wildcard does not contain the following pattern: chr[0-9] or chr[A-Z]
+    tissue_tx_exp="((?!chr([A-Z]|\d)).)*", # pattern to ensure tissue_tx_exp wildcard does not contain the following pattern: chr[0-9] or chr[A-Z]
     chrom="[A-Za-z0-9]{1,5}",
     feature="(3UTR|CDS)",
     ensembl_release="[0-9]{2,3}",

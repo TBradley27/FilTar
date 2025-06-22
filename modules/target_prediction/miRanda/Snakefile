@@ -41,9 +41,9 @@ def get_miRanda_strict_bool(wildcards):
 
 rule fix_fasta_output:
     input:
-        "results/msa/{species}_{tissue}_chr{chrom}_3UTR.tmp2.fa",
+        "results/msa/{species}_{tissue_tx_model}_chr{chrom}_3UTR.tmp2.fa",
     output:
-        temp("results/msa/{species}_{tissue}_chr{chrom}.fa"),
+        temp("results/msa/{species}_{tissue_tx_model}_chr{chrom}.fa"),
     shell:
         "sed 's/(+)//g' {input} | sed 's/(-)//g' > {output}"
 
@@ -53,7 +53,7 @@ rule miRanda:
         utr=rules.fix_fasta_output.output,
         mirna=rules.filter_mirna_species_fasta.output,
     output:
-        temp("results/targets/miRanda/{species}/{tissue}_chr{chrom}.txt"),
+        temp("results/targets/miRanda/{species}/{tissue_tx_model}_chr{chrom}.txt"),
     conda:
         "envs/miRanda.yaml"
     params:
@@ -66,7 +66,7 @@ rule convert_miRanda_to_tsv:
     input:
         rules.miRanda.output,
     output:
-        temp("results/targets/miRanda/{species}/{tissue}_chr{chrom}.temp.tsv"),
+        temp("results/targets/miRanda/{species}/{tissue_tx_model}_chr{chrom}.temp.tsv"),
     shell:
         "scripts/convert_miRanda_to_tsv.sh {input} {output}"
 
@@ -74,15 +74,15 @@ rule convert_miRanda_to_tsv:
 rule aggregate_miRanda_output_no_reannotation:
     input:
         lambda wildcards: expand(
-            "results/targets/miRanda/{species}/{tissue}_chr{chrom}.temp.tsv",
+            "results/targets/miRanda/{species}/{tissue_tx_model}_chr{chrom}.temp.tsv",
             chrom=config["chromosomes"][wildcards.species],
             species=wildcards.species,
-            tissue=wildcards.tissue,
+            tissue_tx_model=wildcards.tissue_tx_model,
         ),
     output:
-        temp("results/targets/miRanda/{species}/{tissue}.temp.tsv"),
+        temp("results/targets/miRanda/{species}/{tissue_tx_model}.temp.tsv"),
     wildcard_constraints:
-        tissue="((?!_chr).)*",
+        tissue_tx_model="((?!_chr).)*",
     shell:
         "cat {input} > {output}"
 
@@ -91,6 +91,60 @@ rule add_miRanda_header:
     input:
         rules.aggregate_miRanda_output_no_reannotation.output,
     output:
-        temp("results/targets/miRanda/{species}/{tissue}.temp2.tsv"),
+        temp("results/targets/miRanda/{species}/{tissue_tx_model}.temp2.tsv"),
     script:
         "add_miRanda_header.R"
+
+
+# Expression filtering rules (merged from with_reannotation and without_reannotation)
+
+# This rule is intended for testing and CI/CD purposes.
+# It allows running the pipeline on smaller, per-chromosome data inputs,
+# enabling faster and more efficient testing of the codebase.
+# By filtering miRanda predictions using expression values and a configurable TPM threshold,
+# this rule helps validate the workflow logic without requiring full-scale data processing.
+rule expression_filter_miRanda_chr:
+    input:
+        miRanda_scores=rules.convert_miRanda_to_tsv.output,
+        expression_values=rules.salmon_average_quantmerge_samples.output,
+    params:
+        tpm_expression_threshold=config["TPM_expression_threshold"],
+    output:
+        temp("results/targets/miRanda/{species}/{tissue_tx_model}_3UTRs/{tissue_tx_exp}/chr{chrom}.tsv"),
+    wildcard_constraints:
+        tissue_tx_exp=config["context"],
+    script:
+        "filter_miRanda_scores.R"
+
+
+if config["context"] != "reference":
+
+    rule expression_filter_miRanda:
+        input:
+            miRanda_scores=rules.add_miRanda_header.output,
+            expression_values=rules.salmon_average_quantmerge_samples.output,
+        params:
+            tpm_expression_threshold=config["TPM_expression_threshold"],
+            species=config["species"],
+            tissue_tx_exp=config["context"],
+        wildcard_constraints:
+            species=config["species"],
+            tissue_tx_exp=config["context"],
+        output:
+            "target_predictions.txt",
+        script:
+            "filter_miRanda_scores.R"
+
+elif config["context"] == "reference":
+
+    rule expression_filter_miRanda:
+        input:
+            miRanda_scores=rules.add_miRanda_header.output,
+        params:
+            species=config["species"],
+        wildcard_constraints:
+            species=config["species"],
+        output:
+            "target_predictions.txt",
+        shell:
+            "cp {input} {output}"
