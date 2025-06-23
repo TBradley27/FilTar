@@ -11,6 +11,9 @@ echo "Setting up FilTar development environment..."
 conda init bash
 source ~/.bashrc
 
+# Configure conda to not auto-activate base environment
+conda config --set auto_activate_base false
+
 # Update conda
 conda update -y -n base -c defaults conda
 
@@ -35,6 +38,7 @@ echo "Installing R dependencies..."
 Rscript -e 'install.packages("remotes", repos="https://cloud.r-project.org")'
 Rscript -e 'remotes::install_github("TBradley27/filtar_R")'
 Rscript -e 'install.packages("testthat", repos="https://cloud.r-project.org")'
+Rscript -e 'install.packages("languageserver", repos="https://cloud.r-project.org")'
 
 # Verify installations
 echo "Verifying installations..."
@@ -55,3 +59,10 @@ EOF
 
 echo "Development environment setup complete!"
 echo "To activate the environment, run: conda activate test-environment"
+
+# Configure shell to auto-activate test-environment for new terminals
+echo "" >> ~/.bashrc
+echo "# Auto-activate test-environment for FilTar development" >> ~/.bashrc
+echo "if [[ \$CONDA_DEFAULT_ENV != 'test-environment' ]]; then" >> ~/.bashrc
+echo "    conda activate test-environment 2>/dev/null || true" >> ~/.bashrc
+echo "fi" >> ~/.bashrc

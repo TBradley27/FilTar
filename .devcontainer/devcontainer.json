@@ -34,7 +34,7 @@
 			"settings": {
 				"python.terminal.activateEnvironment": true,
 				"python.condaPath": "/opt/conda/bin/conda",
-				"python.defaultInterpreterPath": "/opt/conda/bin/python",
+				"python.defaultInterpreterPath": "/opt/conda/envs/test-environment/bin/python",
 				"r.rterm.linux": "/opt/conda/envs/test-environment/bin/R",
 				"r.rpath.linux": "/opt/conda/envs/test-environment/bin/R",
 				"terminal.integrated.defaultProfile.linux": "bash",
@@ -43,6 +43,9 @@
 						"path": "/bin/bash",
 						"args": ["-l"]
 					}
+				},
+				"terminal.integrated.env.linux": {
+					"CONDA_AUTO_ACTIVATE_BASE": "false"
 				}
 			}
 		}

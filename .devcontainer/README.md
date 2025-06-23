@@ -33,12 +33,12 @@ This directory contains the development container configuration for the FilTar p
 The container automatically:
 1. Creates a conda environment named `test-environment` from `environment.yml`
 2. Installs Snakemake 8.30.0 and Python 3.12
-3. Installs R dependencies from `r-requirements.txt`
+3. Installs R dependencies from `r-requirements.txt` including the languageserver package for VS Code integration
 4. Configures VS Code with appropriate extensions for R, Python, Snakemake, and GitHub workflows
 
 ## Activating the Environment
 
-Once the container is running, you can activate the conda environment with:
+The conda environment `test-environment` is automatically activated when you open a new terminal. If you need to manually activate it, use:
 ```bash
 conda activate test-environment
 ```
