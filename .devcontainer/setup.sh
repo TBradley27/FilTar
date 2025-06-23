@@ -20,6 +20,15 @@ conda update -y -n base -c defaults conda
 # Install system dependencies that are commonly needed
 sudo apt-get update
 sudo apt-get install -y gzip wget curl
+
+# Install R (consistent with CI/CD setup)
+echo "Installing R..."
+sudo apt-get install -y software-properties-common dirmngr
+wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+sudo apt-get update
+sudo apt-get install -y r-base r-base-dev
+
 sudo ln -s /bin/tar /bin/gtar || true
 
 # Create the conda environment from environment.yml
