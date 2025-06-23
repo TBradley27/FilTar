@@ -5,7 +5,7 @@ This directory contains the development container configuration for the FilTar p
 ## Features
 
 ### Essential Requirements ✓
-- **Conda Environment**: Pre-configured with conda for package management
+- **R Environment**: Pre-installed R environment with conda for additional package management
 - **Snakemake 8**: Snakemake 8.30.0 installed for workflow management
 
 ### Desired Requirements ✓
@@ -31,10 +31,11 @@ This directory contains the development container configuration for the FilTar p
 ## Environment Setup
 
 The container automatically:
-1. Creates a conda environment named `test-environment` from `environment.yml`
-2. Installs Snakemake 8.30.0 and Python 3.12
-3. Installs R dependencies from `r-requirements.txt`
-4. Configures VS Code with appropriate extensions for R, Python, Snakemake, and GitHub workflows
+1. Uses a pre-installed R environment
+2. Creates a conda environment named `test-environment` from `environment.yml`
+3. Installs Snakemake 8.30.0 and Python 3.12 via conda
+4. Installs additional R dependencies from `r-requirements.txt`
+5. Configures VS Code with appropriate extensions for R, Python, Snakemake, and GitHub workflows
 
 ## Activating the Environment
 
