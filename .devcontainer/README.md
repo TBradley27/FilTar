@@ -53,8 +53,19 @@ conda activate test-environment
 
 ## Troubleshooting
 
+### Common Issues and Solutions
+
+**R Terminal Issues**: If R terminals cannot attach, the devcontainer automatically configures `r.rterm.linux` and `r.rpath.linux` to point to the conda environment's R installation.
+
+**Python Interpreter Issues**: The devcontainer creates workspace-specific settings to ensure the correct Python interpreter from the conda environment is used. If VS Code doesn't detect it automatically, check the bottom-left status bar and select the correct interpreter.
+
+**GitHub Extension Issues**: If GitHub-related extensions show commit errors during initial setup, these typically resolve once the environment is fully built and VS Code restarts.
+
+### Manual Troubleshooting Steps
 If you encounter issues with the environment setup:
 1. Check the terminal output during container creation
 2. Manually run the setup script: `bash .devcontainer/setup.sh`
 3. Verify the conda environment: `conda env list`
 4. Check Snakemake installation: `snakemake --version`
+5. Verify R installation: `R --version`
+6. Check Python interpreter: look for `/opt/conda/envs/test-environment/bin/python` in VS Code status bar

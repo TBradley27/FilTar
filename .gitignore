@@ -30,3 +30,6 @@ reports/fastqc/
 *.pl
 PCT_parameters/
 *.out
+
+# VS Code workspace settings (devcontainer creates these)
+.vscode/

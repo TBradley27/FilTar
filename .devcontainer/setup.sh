@@ -43,5 +43,15 @@ conda --version
 snakemake --version
 R --version
 
+# Create workspace settings for Python interpreter
+echo "Configuring workspace settings..."
+mkdir -p .vscode
+cat > .vscode/settings.json << EOF
+{
+    "python.defaultInterpreterPath": "/opt/conda/envs/test-environment/bin/python",
+    "python.terminal.activateEnvironment": true
+}
+EOF
+
 echo "Development environment setup complete!"
 echo "To activate the environment, run: conda activate test-environment"
