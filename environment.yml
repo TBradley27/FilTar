@@ -2,6 +2,7 @@ name: test-environment
 dependencies:
   - python=3.12
   - snakemake=8.30.0
+  - r-base
 channels:
   - bioconda
   - conda-forge
