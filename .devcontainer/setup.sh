@@ -21,14 +21,6 @@ conda update -y -n base -c defaults conda
 sudo apt-get update
 sudo apt-get install -y gzip wget curl
 
-# Install R (consistent with CI/CD setup)
-echo "Installing R..."
-sudo apt-get install -y software-properties-common dirmngr
-wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
-sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
-sudo apt-get update
-sudo apt-get install -y r-base r-base-dev
-
 sudo ln -s /bin/tar /bin/gtar || true
 
 # Create the conda environment from environment.yml
@@ -42,12 +34,9 @@ eval "$(conda shell.bash hook)"
 echo "Activating test-environment..."
 conda activate test-environment
 
-# Install R dependencies
-echo "Installing R dependencies..."
-Rscript -e 'install.packages("remotes", repos="https://cloud.r-project.org")'
+# Install additional R dependencies that are not in the features
+echo "Installing additional R dependencies..."
 Rscript -e 'remotes::install_github("TBradley27/filtar_R")'
-Rscript -e 'install.packages("testthat", repos="https://cloud.r-project.org")'
-Rscript -e 'install.packages("languageserver", repos="https://cloud.r-project.org")'
 
 # Verify installations
 echo "Verifying installations..."

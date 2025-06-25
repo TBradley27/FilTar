@@ -31,10 +31,12 @@ This directory contains the development container configuration for the FilTar p
 ## Environment Setup
 
 The container automatically:
-1. Creates a conda environment named `test-environment` from `environment.yml`
-2. Installs Snakemake 8.30.0 and Python 3.12
-3. Installs R dependencies from `r-requirements.txt` including the languageserver package for VS Code integration
-4. Configures VS Code with appropriate extensions for R, Python, Snakemake, and GitHub workflows
+1. Uses the Rocker R 4.2 base image with R pre-installed
+2. Installs essential R packages (remotes, testthat, languageserver) via devcontainer features
+3. Creates a conda environment named `test-environment` from `environment.yml`
+4. Installs Snakemake 8.30.0 and Python 3.12
+5. Installs the FilTar R package from GitHub
+6. Configures VS Code with appropriate extensions for R, Python, Snakemake, and GitHub workflows
 
 ## Activating the Environment
 
@@ -55,7 +57,7 @@ conda activate test-environment
 
 ### Common Issues and Solutions
 
-**R Terminal Issues**: If R terminals cannot attach, the devcontainer automatically configures `r.rterm.linux` and `r.rpath.linux` to point to the conda environment's R installation.
+**R Terminal Issues**: If R terminals cannot attach, the devcontainer automatically configures `r.rterm.linux` and `r.rpath.linux` to point to the R installation provided by the Rocker base image.
 
 **Python Interpreter Issues**: The devcontainer creates workspace-specific settings to ensure the correct Python interpreter from the conda environment is used. If VS Code doesn't detect it automatically, check the bottom-left status bar and select the correct interpreter.
 

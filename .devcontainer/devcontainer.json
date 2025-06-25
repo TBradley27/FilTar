@@ -1,12 +1,15 @@
 {
 	"name": "FilTar Development Environment",
-	"image": "mcr.microsoft.com/devcontainers/python:1-3.12-bullseye",
+	"image": "ghcr.io/rocker-org/devcontainer/r-ver:4.2",
 	
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {},
 		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/devcontainers/features/conda:1": {
 			"version": "latest"
+		},
+		"ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
+			"packages": "remotes,testthat,languageserver"
 		}
 	},
 	
@@ -35,8 +38,8 @@
 				"python.terminal.activateEnvironment": true,
 				"python.condaPath": "/opt/conda/bin/conda",
 				"python.defaultInterpreterPath": "/opt/conda/envs/test-environment/bin/python",
-				"r.rterm.linux": "/usr/bin/R",
-				"r.rpath.linux": "/usr/bin/R",
+				"r.rterm.linux": "/usr/local/bin/R",
+				"r.rpath.linux": "/usr/local/bin/R",
 				"terminal.integrated.defaultProfile.linux": "bash",
 				"terminal.integrated.profiles.linux": {
 					"bash": {
