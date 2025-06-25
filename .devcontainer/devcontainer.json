@@ -9,7 +9,7 @@
 			"version": "latest"
 		},
 		"ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
-			"packages": "remotes,testthat,languageserver"
+			"packages": "remotes,testthat,languageserver,github::TBradley27/filtar_R"
 		}
 	},
 	

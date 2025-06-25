@@ -34,10 +34,6 @@ eval "$(conda shell.bash hook)"
 echo "Activating test-environment..."
 conda activate test-environment
 
-# Install additional R dependencies that are not in the features
-echo "Installing additional R dependencies..."
-Rscript -e 'remotes::install_github("TBradley27/filtar_R")'
-
 # Verify installations
 echo "Verifying installations..."
 python --version
