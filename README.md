@@ -35,6 +35,17 @@ https://www.youtube.com/watch?v=Xhl-nsg7_xo
 
 More detailed instructions can be found inside the full documentation: https://tbradley27.github.io/FilTar/
 
+## Containerisation
+
+FilTar provides a development container configuration that offers a consistent, pre-configured development environment for seamless collaboration and development. The containerised environment includes all necessary dependencies (R, Python, Snakemake, conda) and VS Code extensions optimised for FilTar development.
+
+This approach is particularly useful for:
+- **GitHub Codespaces**: One-click cloud development environment
+- **VS Code Remote Containers**: Local containerised development
+- **Consistent environments**: Eliminates "works on my machine" issues
+
+To get started with the containerised environment, simply open the repository in GitHub Codespaces or use VS Code's Remote Containers extension. For detailed setup instructions, troubleshooting, and feature documentation, see the [development container README](.devcontainer/README.md).
+
 ## CI/CD and Contributing
 
 For details on the automated CI/CD setup, see the [contributing guide](docs/contributing.md).

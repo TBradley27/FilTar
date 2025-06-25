@@ -1,0 +1,60 @@
+{
+	"name": "FilTar Development Environment",
+	"image": "ghcr.io/rocker-org/devcontainer/r-ver:4.2",
+	
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers/features/conda:1": {
+			"version": "latest"
+		},
+		"ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
+			"packages": "remotes,testthat,languageserver,github::TBradley27/filtar_R"
+		}
+	},
+	
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.pylint",
+				"ms-python.flake8",
+				"ms-python.autopep8",
+				
+				"reditorsupport.r",
+				"rdebugger.r-debugger",
+				"posit.air-vscode",
+				
+				"snakemake-lang.snakemake-lang",
+				"tfehlmann.snakefmt",
+				
+				"github.vscode-github-actions",
+				"github.vscode-pull-request-github",
+				
+				"ms-vscode.vscode-json",
+				"redhat.vscode-yaml"
+			],
+			"settings": {
+				"python.terminal.activateEnvironment": true,
+				"python.condaPath": "/opt/conda/bin/conda",
+				"python.defaultInterpreterPath": "/opt/conda/envs/test-environment/bin/python",
+				"r.rterm.linux": "/usr/local/bin/R",
+				"r.rpath.linux": "/usr/local/bin/R",
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "/bin/bash",
+						"args": ["-l"]
+					}
+				},
+				"terminal.integrated.env.linux": {
+					"CONDA_AUTO_ACTIVATE_BASE": "false"
+				}
+			}
+		}
+	},
+
+	"postCreateCommand": "bash .devcontainer/setup.sh",
+
+	"remoteUser": "rstudio"
+}
