@@ -48,15 +48,14 @@ FilTar/
 │   └── envs/             # Conda environment definitions
 ├── config/               # Configuration files
 ├── data/                 # Input data (downloaded/user-provided)
-├── results/              # Analysis outputs
-└── Snakefile            # Main entry point (includes workflow/)
+└── results/              # Analysis outputs
 ```
 
 The workflow structure ensures:
 - **Modularity**: Clear separation of different analysis components
 - **Reproducibility**: Consolidated environment and script management
 - **Maintainability**: Organized codebase following established conventions
-- **Backward Compatibility**: Existing usage patterns remain unchanged
+- **Standards Compliance**: Follows Snakemake's automatic workflow detection
 
 ## Containerisation
 

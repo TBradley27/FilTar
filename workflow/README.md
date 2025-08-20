@@ -26,7 +26,7 @@ workflow/
 
 3. **Modules → Rules**: The `modules/` directory has been renamed to `rules/` following Snakemake conventions.
 
-4. **Backward Compatibility**: The root `Snakefile` includes this workflow, so existing usage patterns remain unchanged:
+4. **Automatic Detection**: Snakemake automatically detects and uses this workflow directory, so existing usage patterns remain unchanged:
    ```bash
    snakemake --use-conda --cores $N target_predictions.txt
    ```
