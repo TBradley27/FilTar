@@ -1,0 +1,11 @@
+# the reannotation option needs to be set to 'false'
+
+
+rule get_genome_postions:
+    input:
+        targets="target_predictions.txt",
+        bed_file="results/bed/{species}_3UTR.bed",
+    output:
+        "results/{species}_target_predictions_with_gene_coords.txt",
+    script:
+        "workflow/scripts/get_target_genomic_coordinates.R"

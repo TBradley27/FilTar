@@ -1,0 +1,381 @@
+#    FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#    Copyright (C) 2019 Thomas Bradley
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+
+def get_gtf_file(wildcards):
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
+
+    return (
+        "data/"
+        + sci_species_name
+        + "."
+        + genome_build
+        + ".{ensembl_release}.mod.chr.gtf".format(ensembl_release=config["ensembl_release"])
+    )
+
+
+def get_bed_file(wildcards):
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
+
+    return (
+        "results/"
+        + sci_species_name
+        + "."
+        + genome_build
+        + "_chr{chrom}.{ensembl_release}.filtered.bed".format(
+            chrom=wildcards.chrom, 
+            ensembl_release=config["ensembl_release"]
+        )
+    )
+
+
+def get_bed6_file(wildcards):
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
+
+    return (
+        "results/"
+        + sci_species_name
+        + "."
+        + genome_build
+        + ".{}.chr{}.filtered.bed6".format(config["ensembl_release"], wildcards.chrom)
+    )
+
+
+def get_sample_level_bedgraph_file_names(wildcards):
+    metadata_tmp = metadata.loc[
+        (metadata["species"] == wildcards.species)
+        & (metadata["biological_context"] == wildcards.cell_line)
+    ]
+    metadata_tmp = metadata_tmp["sample_accession"]
+    metadata_tmp = set(metadata_tmp)
+
+    file_names = expand(
+        "results/bam/sample/{species}/{sample}_chr{chrom}.bedgraph",
+        species=wildcards.species,
+        sample=metadata_tmp,
+        chrom=wildcards.chrom,
+    )
+    return file_names
+
+
+rule get_bed6_file:  #three_prime_utrs only
+    input:
+        script="workflow/scripts/gtf_to_bed.sh",
+        gtf="data/{genus_species}.{build}.{ensembl_release}.chr.gtf",
+    output:
+        "results/{genus_species}.{build}.{ensembl_release}.bed6",
+    shell:
+        "{input.script} {input.gtf} {output}"
+
+
+rule filter_bed6_file:
+    input:
+        rules.get_bed6_file.output,
+    output:
+        temp("results/{genus_species}.{build}.{ensembl_release}.filtered.bed6"),
+    script:
+        "workflow/scripts/filter_bed6.R"
+
+
+rule split_bed6_file:
+    input:
+        rules.filter_bed6_file.output,
+    output:
+        temp(
+            "results/{genus_species}.{build}.{ensembl_release}.chr{chrom}.filtered.bed6"
+        ),
+    shell:
+        'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'
+
+
+# derived from https://gist.github.com/gireeshkbogu/f478ad8495dca56545746cd391615b93
+
+
+rule convert_gtf_to_genepred:
+    input:
+        gtf="data/{species_prefix}.{ensembl_release}.mod.chr.gtf",
+    output:
+        "results/{species_prefix}.{ensembl_release}.genePred",
+    conda:
+        "workflow/envs/ucsc.yaml"
+    shell:
+        "gtfToGenePred {input.gtf} {output}"
+
+
+rule convert_genepred_to_bed12:
+    input:
+        genepred=rules.convert_gtf_to_genepred.output,
+    output:
+        "results/{species_prefix}.{ensembl_release}.bed",
+    wildcard_constraints:
+        species_prefix="((?!chr).)*",  # anything not containing chr
+    conda:
+        "workflow/envs/ucsc.yaml"
+    shell:
+        "genePredToBed {input.genepred} {output}"
+
+
+rule get_bedgraph:
+    input:
+        sorted_bam="results/bam/run/{species}/{accession}.bam.sorted",
+    output:
+        "results/bam/run/{species}/{accession}.bedgraph",
+    conda:
+        "workflow/envs/bedtools-general.yaml"
+    wildcard_constraints:
+        accession="((?!_chr).)*",
+    priority: 10
+    shell:
+        "genomeCoverageBed -bg -ibam {input.sorted_bam} -split > {output}"
+
+
+rule split_bedgraph:
+    input:
+        rules.get_bedgraph.output,
+    output:
+        "results/bam/run/{species}/{accession}_chr{chrom}.bedgraph",
+    shell:
+        'grep -E "^{wildcards.chrom}\s" {input} > {output}'
+
+
+def get_run_level_bedgraph_file_names(wildcards):
+    metadata_tmp = metadata.loc[
+        (metadata["species"] == wildcards.species)
+        & (metadata["sample_accession"] == wildcards.sample)
+    ]
+    metadata_tmp = metadata_tmp["run_accession"]
+    metadata_tmp = set(metadata_tmp)
+
+    file_names = expand(
+        "results/bam/run/{species}/{accession}_chr{chrom}.bedgraph",
+        species=wildcards.species,
+        accession=metadata_tmp,
+        chrom=wildcards.chrom,
+    )
+    return file_names
+
+
+rule merge_bedgraphs_by_run:
+    input:
+        get_run_level_bedgraph_file_names,
+    output:
+        temp("results/bam/sample/{species}/{sample}_chr{chrom}_tmp.bedgraph"),
+    wildcard_constraints:
+        sample="((?!tmp).)*",
+    conda:
+        "workflow/envs/bedtools-general.yaml"
+    script:
+        "workflow/scripts/merge_bedgraphs.py"
+
+
+rule avg_merged_bedgraph_by_run:
+    input:
+        rules.merge_bedgraphs_by_run.output,
+    output:
+        temp("results/bam/sample/{species}/{sample}_chr{chrom}.bedgraph"),
+    wildcard_constraints:
+        sample="((?!tmp).)*",
+    script:
+        "workflow/scripts/get_average_bedgraph.R"
+
+
+rule merge_bedgraphs_by_sample:
+    input:
+        get_sample_level_bedgraph_file_names,
+    output:
+        temp("results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph.tmp"),
+    wildcard_constraints:
+        cell_line="((?!chr).)*",
+    conda:
+        "workflow/envs/bedtools-general.yaml"
+    script:
+        "workflow/scripts/merge_bedgraphs.py"
+
+
+rule avg_merged_bedgraph_by_sample:
+    input:
+        rules.merge_bedgraphs_by_sample.output,
+    output:
+        temp("results/bam/tissue/{species}/{cell_line}_chr{chrom}.bedgraph"),
+    wildcard_constraints:
+        cell_line="((?!chr).)*",
+    script:
+        "workflow/scripts/get_average_bedgraph.R"
+
+
+rule split_bed12:
+    input:
+        rules.convert_genepred_to_bed12.output,
+    output:
+        "results/{species_prefix}_chr{chrom}.{ensembl_release}.bed",
+    shell:
+        'grep -E "^{wildcards.chrom}\s" {input} > {output}'
+
+
+rule filter_bed12:
+    input:
+        rules.split_bed12.output,
+    output:
+        temp("results/{species_prefix}_chr{chrom}.{ensembl_release}.filtered.bed"),
+    script:
+        "workflow/scripts/filter_bed12.R"
+
+
+rule reannotate_3utrs:
+    input:
+        script="workflow/scripts/APAtrap/identifyDistal3UTR",
+        bed=get_bed_file,
+        bedgraphs=rules.avg_merged_bedgraph_by_sample.output,
+    output:
+        temp("results/bed/{species}_{cell_line}_chr{chrom}.utr.bed"),
+    shell:
+        "./{input.script} -i {input.bedgraphs} -p {config[APAtrap.min_proportion_of_valid_nucleotides_in_window]} -c {config[APAtrap.min_window_coverage]} -w {config[APAtrap.window_size]} -e {config[APAtrap.utr_extension_size]} -m {input.bed} -o {output}"
+
+
+rule get_extended_bed_file:
+    input:
+        normal_bed=get_bed6_file,
+        extended_bed=rules.reannotate_3utrs.output,
+        all_transcripts="results/bed/{species}_chr{chrom}_all_transcripts.txt",
+        tx_quant=rules.salmon_average_quantmerge_samples.output,
+    output:
+        temp("results/bed/{species}_{tissue_tx_model}_3UTR.chr{chrom}.bed"),
+    wildcard_constraints:
+        tissue_tx_model=config["context"]
+    script:
+        "workflow/scripts/extend_bed2.R"
+
+
+rule aggregrate_extended_bed_files:
+    input:
+        lambda wildcards: expand(
+            "results/bed/{species}_{tissue_tx_model}_3UTR.chr{chrom}.bed",
+            chrom=config["chromosomes"][wildcards.species],
+            species=wildcards.species,
+            tissue_tx_model=wildcards.tissue_tx_model,
+        ),
+    output:
+        temp("results/bed/{species}_{tissue_tx_model}_3UTR.bed"),
+    wildcard_constraints:
+        tissue_tx_model=config["context"]
+    shell:
+        "cat {input} > {output}"
+
+
+### Generate AIR file
+
+
+rule identify_APA_sites:
+    input:
+        script="workflow/scripts/APAtrap/predictAPA",
+        bedgraphs=rules.avg_merged_bedgraph_by_sample.output,
+        bed=rules.reannotate_3utrs.output,
+    output:
+        temp("results/targets/{species}_{tissue_tx_model}_chr{chrom}.APA.txt"),
+    wildcard_constraints:
+        tissue_tx_model=config["context"]
+    shell:
+        "./{input.script} -i {input.bedgraphs} -g 1 -n 1 -d {config[APAtrap.min_cov_variation_between_APA_sites]} -c {config[APAtrap.min_average_cov]} -a {config[APAtrap.min_distance_between_APA_sites]} -w {config[APAtrap.predictAPA_window_size]} -u {input.bed}  -o {output}"
+
+
+rule aggregate_APA_sites:
+    input:
+        lambda wildcards: expand(
+            "results/targets/{species}_{tissue_tx_model}_chr{chrom}.APA.txt",
+            chrom=config["chromosomes"][wildcards.species],
+            species=wildcards.species,
+            tissue_tx_model=wildcards.tissue_tx_model,
+        ),
+    output:
+        temp("results/targets/{species}_{tissue_tx_model}.APA.txt"),
+    wildcard_constraints:
+        tissue_tx_model=config["context"]
+    shell:
+        "cat {input} | sed '1b;/Gene/d' > {output}"
+
+
+rule get_utr_lengths_chr:
+    input:
+        rules.get_extended_bed_file.output,
+    output:
+        temp("results/utrs/{species}_{tissue_tx_model}_chr{chrom}.utr.lengths.tsv"),
+    wildcard_constraints:
+        tissue_tx_model=config["context"]
+    script:
+        "workflow/scripts/get_utr_lengths.R"
+
+
+rule get_utr_lengths:
+    input:
+        "results/bed/{species}_{tissue_tx_model}_3UTR.bed",
+    output:
+        temp("results/utrs/{species}_{tissue_tx_model}.utr.lengths.tsv"),
+    wildcard_constraints:
+        tissue_tx_model=config["context"]
+    script:
+        "workflow/scripts/get_utr_lengths.R"
+
+
+rule get_AIR_file:
+    input:
+        rules.identify_APA_sites.output,
+        rules.get_utr_lengths_chr.output,  #output from APA usage file
+    output:
+        temp("results/targets/{species}_{tissue_tx_model}_chr{chrom}.AIRs.txt"),
+    wildcard_constraints:
+        tissue_tx_model=config["context"]
+    script:
+        "workflow/scripts/get_tissue_specific_APA_file.R"
+
+
+### Get CDS bed file
+
+
+rule gtf_to_bed_CDS:
+    input:
+        gtf=get_gtf_file,
+        script="workflow/scripts/pre-processing/gtf_to_bed.sh",
+    output:
+        temp("results/bed/{species}_{tissue_tx_model}_CDS.tmp.bed"),
+    wildcard_constraints:
+        tissue_tx_model=config["context"]
+    shell:
+        "{input.script} {input.gtf} CDS {output}"
+
+
+rule filter_CDS:
+    input:
+        "results/bed/{species}_{tissue_tx_model}_CDS.tmp.bed",
+    output:
+        temp("results/bed/{species}_{tissue_tx_model}_CDS.filtered.bed"),
+    wildcard_constraints:
+        tissue_tx_model=config["context"]
+    script:
+        "workflow/scripts/filter_bed6.R"
+
+
+rule split_CDS:
+    input:
+        "results/bed/{species}_{tissue_tx_model}_CDS.filtered.bed",
+    output:
+        temp("results/bed/{species}_{tissue_tx_model}_CDS.chr{chrom}.bed"),
+    wildcard_constraints:
+        tissue_tx_model=config["context"]
+    shell:
+        'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'

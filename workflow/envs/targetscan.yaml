@@ -1,0 +1,5 @@
+channels:
+ - bioconda
+dependencies:
+ - perl-bioperl
+ - perl-statistics-lite
