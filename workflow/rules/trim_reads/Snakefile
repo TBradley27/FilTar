@@ -63,7 +63,7 @@ rule trim_single_end_reads:
     output:
         "results/trimmed_fastq/{accession}_trimmed.fq.gz",
     conda:
-        "workflow/envs/trim-galore.yaml"
+        "../envs/trim-galore.yaml"
     shell:
         "trim_galore --output_dir results/trimmed_fastq/  --length {config[trim_galore.length]} --stringency {config[trim_galore.stringency]} {input}"
 
@@ -75,6 +75,6 @@ rule trim_paired_end_reads:
         "results/trimmed_fastq/{accession}_1_val_1.fq.gz",
         "results/trimmed_fastq/{accession}_2_val_2.fq.gz",
     conda:
-        "workflow/envs/trim-galore.yaml"
+        "../envs/trim-galore.yaml"
     shell:
         "trim_galore --output_dir results/trimmed_fastq/ --length  {config[trim_galore.length]} --stringency {config[trim_galore.stringency]}  --paired {input[0]} {input[1]}"

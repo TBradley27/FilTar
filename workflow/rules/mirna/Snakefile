@@ -37,6 +37,6 @@ rule filter_mirna_species_fasta:
     output:
         temp("data/mirbase_mature_{species}.filtered.fa"),
     conda:
-        "workflow/envs/biopython.yaml"
+        "../envs/biopython.yaml"
     script:
         "workflow/scripts/filter_mirna_fasta.py"

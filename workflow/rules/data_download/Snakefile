@@ -100,7 +100,7 @@ rule decompress_dna_file:
     output:
         "data/{species_prefix}.dna.{assembly_level}.fa",
     conda:
-        "workflow/envs/pigz.yaml"
+        "../envs/pigz.yaml"
     threads: 8
     shell:
         "pigz -p {threads} -d {input}"

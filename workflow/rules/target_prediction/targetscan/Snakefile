@@ -146,7 +146,7 @@ rule targetscan_sites:
         mirna_families=rules.filter_mir_families.output,
         script=rules.download_targetscan_data1.output,
     conda:
-        "workflow/envs/targetscan.yaml"
+        "../../envs/targetscan.yaml"
     output:
         temp("results/targets/{species}_{tissue_tx_model}_chr{chrom}_msa.sites.tsv"),
     shell:
@@ -162,7 +162,7 @@ rule targetscan_branch_lengths:
     params:
         tax_id=get_tax_id,
     conda:
-        "workflow/envs/targetscan.yaml"
+        "../../envs/targetscan.yaml"
     shell:
         "{input.script} {input.msa_3UTR} {params.tax_id}  > {output}"
 
@@ -175,7 +175,7 @@ rule targetscan_PCTs:
         script=rules.patch_PCT_script.output,
         PCT_param=rules.download_targetscan_data2.output.PCT_parameters,
     conda:
-        "workflow/envs/targetscan.yaml"
+        "../../envs/targetscan.yaml"
     output:
         temp("results/targets/{species}_{tissue_tx_model}_chr{chrom}_msa.PCTs.tsv"),
         temp("results/targets/{species}_{tissue_tx_model}_chr{chrom}_msa.sites.tsv.sort.txt"),  # this has to be deleted
@@ -189,7 +189,7 @@ rule targetscan_eightmers:
         CDS="results/msa/{species}_{tissue_tx_model}_chr{chrom}_CDS_msa.tsv",
         script=rules.download_targetscan_data3.output.eightmer_script,
     conda:
-        "workflow/envs/targetscan.yaml"
+        "../../envs/targetscan.yaml"
     output:
         eightmer_counts=temp(
             "results/targets/{species}_{tissue_tx_model}_chr{chrom}_msa.eightmers.tsv"
@@ -214,8 +214,8 @@ rule targetscan_context_scores:
         TA_SPS_param=rules.download_targetscan_data3.output.TA_pars,
         script=rules.patch_contextpp_script.output,
     conda:
-        "workflow/envs/targetscan.yaml"
-    # "workflow/envs/viennarna.yaml"
+        "../../envs/targetscan.yaml"
+    # "../../envs/viennarna.yaml"
     output:
         temp("results/targets/{species}_{tissue_tx_model}_chr{chrom}_msa.contextpp.tmp.tsv"),
     params:
@@ -234,7 +234,7 @@ rule aggregate_contextpp_scores:
             tissue_tx_model=wildcards.tissue_tx_model,
         ),
     conda:
-        "workflow/envs/targetscan.yaml"
+        "../../envs/targetscan.yaml"
     output:
         temp("results/targets/{species}/{tissue_tx_model}.contextpp.tmp.tsv"),
     shell:

@@ -28,7 +28,7 @@ rule get_index:
     output:
         "results/kallisto/{assembly}.idx",
     conda:
-        "workflow/envs/kallisto.yaml"
+        "../../envs/kallisto.yaml"
     shell:
         "kallisto index -i {output} {input}"
 
@@ -73,7 +73,7 @@ rule kallisto_quant:
         index=get_index_file,
         fastq=get_input_files,
     conda:
-        "workflow/envs/kallisto.yaml"
+        "../../envs/kallisto.yaml"
     log:
         "logs/{accession}_kallisto.out",
     params:

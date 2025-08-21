@@ -29,7 +29,7 @@ rule salmon_index:
         directory("results/salmon/indexes/{species}"),
     threads: config["salmon.index_threads"]
     conda:
-        "workflow/envs/salmon.yaml"
+        "../../envs/salmon.yaml"
     shell:
         "salmon index --threads {threads} -t {input} -i {output} -k 31"
 
@@ -41,7 +41,7 @@ rule salmon_index_for_lib_types:
         directory("results/salmon/indexes/lib_type_identification/{species}"),
     threads: config["salmon.index_threads"]
     conda:
-        "workflow/envs/salmon.yaml"
+        "../../envs/salmon.yaml"
     shell:
         "salmon index --threads {threads} -t {input} -i {output} -k 31"
 
@@ -80,7 +80,7 @@ rule salmon_quant_lib_type:
         reads=get_input_files,
         index=rules.salmon_index_for_lib_types.output,
     conda:
-        "workflow/envs/salmon.yaml"
+        "../../envs/salmon.yaml"
     wildcard_constraints:
         run_accession="((?!lib_type).)*",  # excludes substring 'lib_type'
     threads: config["salmon.quant_threads"]
@@ -95,7 +95,7 @@ rule salmon_quant:
         reads=get_input_files,
         index=rules.salmon_index.output,
     conda:
-        "workflow/envs/salmon.yaml"
+        "../../envs/salmon.yaml"
     wildcard_constraints:
         run_accession="((?!lib_type).)*",
     threads: config["salmon.quant_threads"]
@@ -136,7 +136,7 @@ rule salmon_quantmerge_by_run:
     output:
         temp("results/salmon/samples/{species}/{sample}.quant.tmp.sf"),
     conda:
-        "workflow/envs/salmon.yaml"
+        "../../envs/salmon.yaml"
     shell:
         "salmon quantmerge --quants {input} --names {input} -o {output}"
 
@@ -176,7 +176,7 @@ rule salmon_quantmerge_by_sample:
     wildcard_constraints:
         tissue_tx_exp=config["context"]
     conda:
-        "workflow/envs/salmon.yaml"
+        "../../envs/salmon.yaml"
     shell:
         "salmon quantmerge --quants {input} --names {input} -o {output}"
 

@@ -55,7 +55,7 @@ rule miRanda:
     output:
         temp("results/targets/miRanda/{species}/{tissue_tx_model}_chr{chrom}.txt"),
     conda:
-        "workflow/envs/miRanda.yaml"
+        "../../envs/miRanda.yaml"
     params:
         get_miRanda_strict_bool,
     shell:

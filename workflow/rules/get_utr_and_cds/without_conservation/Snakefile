@@ -48,7 +48,7 @@ rule get_single_species_seq_fa:
     output:
         temp("results/msa/{species}_{tissue_tx_model}_chr{chrom}_{feature}.tmp.fa"),
     conda:
-        "workflow/envs/bedtools-v2-27-1.yaml"
+        "../../envs/bedtools-v2-27-1.yaml"
     shell:
         "bedtools getfasta -name -s -fi {input.dna} -bed {input.bed} -fo {output}"
 

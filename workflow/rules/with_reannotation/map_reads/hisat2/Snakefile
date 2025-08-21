@@ -122,7 +122,7 @@ if config["genome_index_type"] == "splice-aware":
             splice_sites=rules.get_splice_sites_for_hisat2.output,
             exons=rules.get_exons_for_hisat2.output,
         conda:
-            "workflow/envs/hisat2.yaml"
+            "../../../envs/hisat2.yaml"
         output:
             "data/{species}.1.ht2",
         threads: config["hisat2.num_threads_for_indexing"]
@@ -135,7 +135,7 @@ elif config["genome_index_type"] == "standard":
         input:
             assembly=get_assembly,
         conda:
-            "workflow/envs/hisat2.yaml"
+            "../../../envs/hisat2.yaml"
         output:
             "data/{species}.1.ht2",
         threads: config["hisat2.num_threads_for_indexing"]
@@ -154,7 +154,7 @@ rule map_reads:
         lib_type_file=rules.salmon_get_lib_type.output,
         index=rules.create_index.output,
     conda:
-        "workflow/envs/hisat2.yaml"
+        "../../../envs/hisat2.yaml"
     params:
         get_lib_type,
     threads: config["hisat2.num_threads_for_mapping"]
@@ -171,7 +171,7 @@ rule sam_to_bam:
         "results/bam/run/{species}/{run_accession}.bam",
     threads: config["samtools.view.num_threads"]
     conda:
-        "workflow/envs/hisat2.yaml"
+        "../../../envs/hisat2.yaml"
     shell:
         "samtools view -@ {threads} -Sb  {input}  >  {output}"
 
