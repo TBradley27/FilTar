@@ -113,7 +113,7 @@ rule convert_gtf_to_genepred:
     output:
         "results/{species_prefix}.{ensembl_release}.genePred",
     conda:
-        "../envs/ucsc.yaml"
+        "../../envs/ucsc.yaml"
     shell:
         "gtfToGenePred {input.gtf} {output}"
 
@@ -126,7 +126,7 @@ rule convert_genepred_to_bed12:
     wildcard_constraints:
         species_prefix="((?!chr).)*",  # anything not containing chr
     conda:
-        "../envs/ucsc.yaml"
+        "../../envs/ucsc.yaml"
     shell:
         "genePredToBed {input.genepred} {output}"
 
@@ -137,7 +137,7 @@ rule get_bedgraph:
     output:
         "results/bam/run/{species}/{accession}.bedgraph",
     conda:
-        "../envs/bedtools-general.yaml"
+        "../../envs/bedtools-general.yaml"
     wildcard_constraints:
         accession="((?!_chr).)*",
     priority: 10
@@ -179,7 +179,7 @@ rule merge_bedgraphs_by_run:
     wildcard_constraints:
         sample="((?!tmp).)*",
     conda:
-        "../envs/bedtools-general.yaml"
+        "../../envs/bedtools-general.yaml"
     script:
         "workflow/scripts/merge_bedgraphs.py"
 
@@ -203,7 +203,7 @@ rule merge_bedgraphs_by_sample:
     wildcard_constraints:
         cell_line="((?!chr).)*",
     conda:
-        "../envs/bedtools-general.yaml"
+        "../../envs/bedtools-general.yaml"
     script:
         "workflow/scripts/merge_bedgraphs.py"
 

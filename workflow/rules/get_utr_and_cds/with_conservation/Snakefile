@@ -36,7 +36,7 @@ rule index_maf_files:
     output:
         protected("data/{species}_chr{chrom}.mafindex"),
     conda:
-        "../../envs/biopython.yaml"
+        "../../../envs/biopython.yaml"
     script:
         "workflow/scripts/biopython_maf_processing.py"
 
@@ -50,6 +50,6 @@ rule biopython_get_msa:
     output:
         temp("results/msa/{species}_{tissue_tx_model}_chr{chrom}_{feature}_msa.tsv"),
     conda:
-        "../../envs/biopython.yaml"
+        "../../../envs/biopython.yaml"
     script:
         "workflow/scripts/biopython_maf_processing2.py"
