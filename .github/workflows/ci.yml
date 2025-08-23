@@ -84,4 +84,4 @@ jobs:
           head results/targets/miRanda/mmu/nr_3UTRs/oocyte/chrY.tsv || true
           snakemake --cores 1 --use-conda -p results/targets/mmu/nr_3UTRs/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=True reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.7']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7
           head results/targets/mmu/nr_3UTRs/oocyte_chrY.contextpp.tsv || true
-          R -e 'isTRUE(testthat::test_file("scripts/targetscan_test.R")[[1]]$passed)'
+          R -e 'isTRUE(testthat::test_file("workflow/scripts/targetscan_test.R")[[1]]$passed)'
