@@ -38,7 +38,7 @@ rule index_maf_files:
     conda:
         "../../../envs/biopython.yaml"
     script:
-        "../../../scripts/biopython_maf_processing.py"
+        "workflow/scripts/biopython_maf_processing.py"
 
 
 rule biopython_get_msa:
@@ -52,4 +52,4 @@ rule biopython_get_msa:
     conda:
         "../../../envs/biopython.yaml"
     script:
-        "../../../scripts/biopython_maf_processing2.py"
+        "workflow/scripts/biopython_maf_processing2.py"
