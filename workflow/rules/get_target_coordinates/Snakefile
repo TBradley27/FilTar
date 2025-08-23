@@ -8,4 +8,4 @@ rule get_genome_postions:
     output:
         "results/{species}_target_predictions_with_gene_coords.txt",
     script:
-        "workflow/scripts/get_target_genomic_coordinates.R"
+        "../../scripts/get_target_genomic_coordinates.R"

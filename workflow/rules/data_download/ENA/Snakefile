@@ -21,11 +21,11 @@ rule download_single_end_fastq_file:
     output:
         "data/single_end/{accession}.fastq.gz",
     script:
-        "workflow/scripts/download_fastq.py"
+        "../../../scripts/download_fastq.py"
 
 
 rule download_paired_end_fastq_files:
     output:
         "data/paired_end/{accession}_{mate_number}.fastq.gz",
     script:
-        "workflow/scripts/download_fastq.py"
+        "../../../scripts/download_fastq.py"

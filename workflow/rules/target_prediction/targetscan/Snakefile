@@ -22,7 +22,7 @@ def get_tax_id(wildcards):
 
 rule download_targetscan_data1:
     output:
-        "workflow/scripts/targetscan7/targetscan_70.pl",
+        "../../../scripts/targetscan7/targetscan_70.pl",
     shell:
         "cd workflow/scripts/targetscan7 && wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70.zip && \\"
         "unzip targetscan_70.zip && \\"
@@ -30,8 +30,8 @@ rule download_targetscan_data1:
 
 rule download_targetscan_data2:
     output:
-        bins_script="workflow/scripts/targetscan7/targetscan_70_BL_bins.pl",
-        PCT_script="workflow/scripts/targetscan7/targetscan_70_BL_PCT.pl",
+        bins_script="../../../scripts/targetscan7/targetscan_70_BL_bins.pl",
+        PCT_script="../../../scripts/targetscan7/targetscan_70_BL_PCT.pl",
         PCT_parameters=directory("data/PCT_parameters"),
     shell:
         "wget http://www.targetscan.org/vert_72/vert_72_data_download/targetscan_70_BL_PCT.zip && unzip targetscan_70_BL_PCT.zip && mv\
@@ -40,10 +40,10 @@ rule download_targetscan_data2:
 
 rule download_targetscan_data3:
     output:
-        agarwal_par="workflow/scripts/targetscan7/Agarwal_2015_parameters.txt",
-        contextpp_script="workflow/scripts/targetscan7/targetscan_70_context_scores.pl",
-        eightmer_script="workflow/scripts/targetscan7/targetscan_count_8mers.pl",
-        TA_pars="workflow/scripts/targetscan7/TA_SPS_by_seed_region.txt",
+        agarwal_par="../../../scripts/targetscan7/Agarwal_2015_parameters.txt",
+        contextpp_script="../../../scripts/targetscan7/targetscan_70_context_scores.pl",
+        eightmer_script="../../../scripts/targetscan7/targetscan_count_8mers.pl",
+        TA_pars="../../../scripts/targetscan7/TA_SPS_by_seed_region.txt",
     shell:
         "wget http://www.targetscan.org/vert_72/vert_72_data_download/TargetScan7_context_scores.zip && unzip TargetScan7_context_scores.zip && mv TargetScan7_context_scores/Agarwal_2015_parameters.txt TargetScan7_context_scores/TA_SPS_by_seed_region.txt TargetScan7_context_scores/targetscan_count_8mers.pl TargetScan7_context_scores/targetscan_70_context_scores.pl workflow/scripts/targetscan7/ && rm -rf TargetScan7_context_scores/ TargetScan7_context_scores.zip"
 
@@ -52,7 +52,7 @@ rule patch_bin_lengths_script:
     input:
         rules.download_targetscan_data2.output.bins_script,
     output:
-        "workflow/scripts/targetscan7/targetscan_70_BL_bins.patch.pl",
+        "../../../scripts/targetscan7/targetscan_70_BL_bins.patch.pl",
     shell:
         "sed -e '40 s/9606/$ARGV[1]/g' {input} | sed -e '38 s;PCT_parameters;data\/PCT_parameters;g' > {output} && chmod +x {output}"
 
@@ -61,7 +61,7 @@ rule patch_PCT_script:
     input:
         rules.download_targetscan_data2.output.PCT_script,
     output:
-        "workflow/scripts/targetscan7/targetscan_70_BL_PCT.patch.pl",
+        "../../../scripts/targetscan7/targetscan_70_BL_PCT.patch.pl",
     shell:
         "sed -e '55 s;PCT_parameters;data\/PCT_parameters;g' {input} > {output} && chmod +x {output}"
 
@@ -69,9 +69,9 @@ rule patch_PCT_script:
 rule patch_contextpp_script:
     input:
         contextpp=rules.download_targetscan_data3.output.contextpp_script,
-        patch="workflow/scripts/targetscan7/patch_context_scores.sh",
+        patch="../../../scripts/targetscan7/patch_context_scores.sh",
     output:
-        "workflow/scripts/targetscan7/targetscan_70_context_scores.patch.pl",
+        "../../../scripts/targetscan7/targetscan_70_context_scores.patch.pl",
     shell:
         "{input.patch} {input.contextpp} {output} && chmod +x {output}"  # force reference species as a parameter
 
@@ -80,7 +80,7 @@ rule patch_contextpp_script:
 rule prep_mirna_seeds:
     input:
         data="data/mature.fa",
-        script="workflow/scripts/get_mirna_seeds.sh",
+        script="../../../scripts/get_mirna_seeds.sh",
     output:
         "results/mature_mirna_seed.tsv",
     shell:
@@ -93,13 +93,13 @@ rule prep_mirna_family_file:
     output:
         temp("results/{species}_mirna_family_tmp.tsv"),
     script:
-        "workflow/scripts/get_mirna_family.R"
+        "../../../scripts/get_mirna_family.R"
 
 
 rule prep_mirna_mature_alt:
     input:
         data="data/mature.fa",
-        script="workflow/scripts/prep_mirna_mature_alt.sh",
+        script="../../../scripts/prep_mirna_mature_alt.sh",
     output:
         temp("results/{species}_mature_mirna.tsv"),
     params:
@@ -115,7 +115,7 @@ rule prep_mir_for_context_scores:
     output:
         temp("results/{species}_mir_for_context_scores_tmp.tsv"),
     script:
-        "workflow/scripts/get_mirna_context.R"
+        "../../../scripts/get_mirna_context.R"
 
 
 rule filter_mir_for_context_scores:
@@ -124,7 +124,7 @@ rule filter_mir_for_context_scores:
     output:
         temp("results/{species}_mir_for_context_scores.tsv"),
     script:
-        "workflow/scripts/filter_mir_for_context_scores.R"
+        "../../../scripts/filter_mir_for_context_scores.R"
 
 
 rule filter_mir_families:
@@ -134,7 +134,7 @@ rule filter_mir_families:
     output:
         temp("results/{species}_mirna_family.tsv"),
     script:
-        "workflow/scripts/filter_mir_families.R"
+        "../../../scripts/filter_mir_families.R"
 
 
 ### main ###
@@ -284,7 +284,7 @@ rule expression_filter_contextpp_scores_chr:
     wildcard_constraints:
         tissue_tx_exp=config["context"],
     script:
-        "workflow/scripts/filter_contextpp_scores.R"
+        "../../../scripts/filter_contextpp_scores.R"
 
 
 if config["context"] != "reference":
@@ -304,7 +304,7 @@ if config["context"] != "reference":
         output:
             "target_predictions.txt",
         script:
-            "workflow/scripts/filter_contextpp_scores.R"
+            "../../../scripts/filter_contextpp_scores.R"
 
 elif config["context"] == "reference":
 

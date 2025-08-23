@@ -68,7 +68,7 @@ rule convert_miRanda_to_tsv:
     output:
         temp("results/targets/miRanda/{species}/{tissue_tx_model}_chr{chrom}.temp.tsv"),
     shell:
-        "workflow/scripts/convert_miRanda_to_tsv.sh {input} {output}"
+        "../../../scripts/convert_miRanda_to_tsv.sh {input} {output}"
 
 
 rule aggregate_miRanda_output_no_reannotation:
@@ -93,7 +93,7 @@ rule add_miRanda_header:
     output:
         temp("results/targets/miRanda/{species}/{tissue_tx_model}.temp2.tsv"),
     script:
-        "workflow/scripts/add_miRanda_header.R"
+        "../../../scripts/add_miRanda_header.R"
 
 
 # Expression filtering rules (merged from with_reannotation and without_reannotation)
@@ -114,7 +114,7 @@ rule expression_filter_miRanda_chr:
     wildcard_constraints:
         tissue_tx_exp=config["context"],
     script:
-        "workflow/scripts/filter_miRanda_scores.R"
+        "../../../scripts/filter_miRanda_scores.R"
 
 
 if config["context"] != "reference":
@@ -134,7 +134,7 @@ if config["context"] != "reference":
         output:
             "target_predictions.txt",
         script:
-            "workflow/scripts/filter_miRanda_scores.R"
+            "../../../scripts/filter_miRanda_scores.R"
 
 elif config["context"] == "reference":
 

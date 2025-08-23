@@ -76,7 +76,7 @@ def get_sample_level_bedgraph_file_names(wildcards):
 
 rule get_bed6_file:  #three_prime_utrs only
     input:
-        script="workflow/scripts/gtf_to_bed.sh",
+        script="../../scripts/gtf_to_bed.sh",
         gtf="data/{genus_species}.{build}.{ensembl_release}.chr.gtf",
     output:
         "results/{genus_species}.{build}.{ensembl_release}.bed6",
@@ -90,7 +90,7 @@ rule filter_bed6_file:
     output:
         temp("results/{genus_species}.{build}.{ensembl_release}.filtered.bed6"),
     script:
-        "workflow/scripts/filter_bed6.R"
+        "../../scripts/filter_bed6.R"
 
 
 rule split_bed6_file:
@@ -181,7 +181,7 @@ rule merge_bedgraphs_by_run:
     conda:
         "../../envs/bedtools-general.yaml"
     script:
-        "workflow/scripts/merge_bedgraphs.py"
+        "../../scripts/merge_bedgraphs.py"
 
 
 rule avg_merged_bedgraph_by_run:
@@ -192,7 +192,7 @@ rule avg_merged_bedgraph_by_run:
     wildcard_constraints:
         sample="((?!tmp).)*",
     script:
-        "workflow/scripts/get_average_bedgraph.R"
+        "../../scripts/get_average_bedgraph.R"
 
 
 rule merge_bedgraphs_by_sample:
@@ -205,7 +205,7 @@ rule merge_bedgraphs_by_sample:
     conda:
         "../../envs/bedtools-general.yaml"
     script:
-        "workflow/scripts/merge_bedgraphs.py"
+        "../../scripts/merge_bedgraphs.py"
 
 
 rule avg_merged_bedgraph_by_sample:
@@ -216,7 +216,7 @@ rule avg_merged_bedgraph_by_sample:
     wildcard_constraints:
         cell_line="((?!chr).)*",
     script:
-        "workflow/scripts/get_average_bedgraph.R"
+        "../../scripts/get_average_bedgraph.R"
 
 
 rule split_bed12:
@@ -234,12 +234,12 @@ rule filter_bed12:
     output:
         temp("results/{species_prefix}_chr{chrom}.{ensembl_release}.filtered.bed"),
     script:
-        "workflow/scripts/filter_bed12.R"
+        "../../scripts/filter_bed12.R"
 
 
 rule reannotate_3utrs:
     input:
-        script="workflow/scripts/APAtrap/identifyDistal3UTR",
+        script="../../scripts/APAtrap/identifyDistal3UTR",
         bed=get_bed_file,
         bedgraphs=rules.avg_merged_bedgraph_by_sample.output,
     output:
@@ -259,7 +259,7 @@ rule get_extended_bed_file:
     wildcard_constraints:
         tissue_tx_model=config["context"]
     script:
-        "workflow/scripts/extend_bed2.R"
+        "../../scripts/extend_bed2.R"
 
 
 rule aggregrate_extended_bed_files:
@@ -283,7 +283,7 @@ rule aggregrate_extended_bed_files:
 
 rule identify_APA_sites:
     input:
-        script="workflow/scripts/APAtrap/predictAPA",
+        script="../../scripts/APAtrap/predictAPA",
         bedgraphs=rules.avg_merged_bedgraph_by_sample.output,
         bed=rules.reannotate_3utrs.output,
     output:
@@ -318,7 +318,7 @@ rule get_utr_lengths_chr:
     wildcard_constraints:
         tissue_tx_model=config["context"]
     script:
-        "workflow/scripts/get_utr_lengths.R"
+        "../../scripts/get_utr_lengths.R"
 
 
 rule get_utr_lengths:
@@ -329,7 +329,7 @@ rule get_utr_lengths:
     wildcard_constraints:
         tissue_tx_model=config["context"]
     script:
-        "workflow/scripts/get_utr_lengths.R"
+        "../../scripts/get_utr_lengths.R"
 
 
 rule get_AIR_file:
@@ -341,7 +341,7 @@ rule get_AIR_file:
     wildcard_constraints:
         tissue_tx_model=config["context"]
     script:
-        "workflow/scripts/get_tissue_specific_APA_file.R"
+        "../../scripts/get_tissue_specific_APA_file.R"
 
 
 ### Get CDS bed file
@@ -350,7 +350,7 @@ rule get_AIR_file:
 rule gtf_to_bed_CDS:
     input:
         gtf=get_gtf_file,
-        script="workflow/scripts/pre-processing/gtf_to_bed.sh",
+        script="../../scripts/pre-processing/gtf_to_bed.sh",
     output:
         temp("results/bed/{species}_{tissue_tx_model}_CDS.tmp.bed"),
     wildcard_constraints:
@@ -367,7 +367,7 @@ rule filter_CDS:
     wildcard_constraints:
         tissue_tx_model=config["context"]
     script:
-        "workflow/scripts/filter_bed6.R"
+        "../../scripts/filter_bed6.R"
 
 
 rule split_CDS:

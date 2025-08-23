@@ -85,7 +85,7 @@ rule salmon_quant_lib_type:
         run_accession="((?!lib_type).)*",  # excludes substring 'lib_type'
     threads: config["salmon.quant_threads"]
     script:
-        "workflow/scripts/quant_salmon.py"
+        "../../../scripts/quant_salmon.py"
 
 
 rule salmon_quant:
@@ -100,7 +100,7 @@ rule salmon_quant:
         run_accession="((?!lib_type).)*",
     threads: config["salmon.quant_threads"]
     script:
-        "workflow/scripts/quant_salmon.py"
+        "../../../scripts/quant_salmon.py"
 
 
 rule salmon_get_lib_type:
@@ -149,7 +149,7 @@ rule salmon_average_quantmerge_runs:
     wildcard_constraints:
         sample="((?!quant.tmp).)*",  # anything not containing quant.tmp
     script:
-        "workflow/scripts/get_average_quant.R"
+        "../../../scripts/get_average_quant.R"
 
 
 def get_salmon_sample_directory_names(wildcards):
@@ -189,4 +189,4 @@ rule salmon_average_quantmerge_samples:
     wildcard_constraints:
         tissue_tx_exp=config["context"]
     script:
-        "workflow/scripts/get_average_quant2.R"
+        "../../../scripts/get_average_quant2.R"

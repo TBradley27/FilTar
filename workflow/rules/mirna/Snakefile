@@ -39,4 +39,4 @@ rule filter_mirna_species_fasta:
     conda:
         "../../envs/biopython.yaml"
     script:
-        "workflow/scripts/filter_mirna_fasta.py"
+        "../../scripts/filter_mirna_fasta.py"

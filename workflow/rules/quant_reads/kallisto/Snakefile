@@ -81,4 +81,4 @@ rule kallisto_quant:
         frag_length_sd=20,
     threads: 5
     script:
-        "workflow/scripts/kallisto_quant.py"
+        "../../../scripts/kallisto_quant.py"

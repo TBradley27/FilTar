@@ -39,7 +39,7 @@ def get_gtf_file(wildcards):
 rule gtf_to_bed_no_reannotation:
     input:
         gtf=get_gtf_file,
-        script="workflow/scripts/pre-processing/gtf_to_bed.sh",
+        script="../../scripts/pre-processing/gtf_to_bed.sh",
     output:
         "results/bed/{species}_{feature}.bed",
     shell:
@@ -52,7 +52,7 @@ rule get_utr_lengths_no_reannotation:
     output:
         "results/targets/{species}_chr{chrom}.utr.lengths.tsv",
     script:
-        "workflow/scripts/get_utr_lengths.R"
+        "../../scripts/get_utr_lengths.R"
 
 
 rule get_air_file_no_reannotation:
@@ -63,7 +63,7 @@ rule get_air_file_no_reannotation:
     wildcard_constraints:
         tissue_tx_model="nr"
     script:
-        "workflow/scripts/get_canonical_AIR.R"
+        "../../scripts/get_canonical_AIR.R"
 
 
 rule aggregate_chromosomal_AIR_files:
@@ -78,7 +78,7 @@ rule aggregate_chromosomal_AIR_files:
     wildcard_constraints:
         tissue_tx_model="nr"
     script:
-        "workflow/scripts/get_canonical_AIR.R"
+        "../../scripts/get_canonical_AIR.R"
 
 
 ###
@@ -101,7 +101,7 @@ rule filter_bed6_file_no_reannotation:
     wildcard_constraints:
         tissue_tx_model="nr"
     script:
-        "workflow/scripts/filter_bed6.R"
+        "../../scripts/filter_bed6.R"
 
 
 rule split_filtered_bed6:
