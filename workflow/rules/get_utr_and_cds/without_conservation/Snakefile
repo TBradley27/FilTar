@@ -38,7 +38,7 @@ rule reformat_bed_file_for_bedtools:
     output:
         temp("results/bed/{species}_{tissue_tx_model}_{feature}.chr{chrom}.bedtools.bed"),
     shell:
-        "../../../scripts/get_bedtools_bed.sh {input} {output}"
+        "workflow/scripts/get_bedtools_bed.sh {input} {output}"
 
 
 rule get_single_species_seq_fa:
@@ -59,7 +59,7 @@ rule merge_fasta:
     output:
         temp("results/msa/{species}_{tissue_tx_model}_chr{chrom}_{feature}.tmp2.fa"),
     script:
-        "../../../scripts/merge_fasta.R"
+        "workflow/scripts/merge_fasta.R"
 
 
 rule convert_fasta_to_tsv:
@@ -70,4 +70,4 @@ rule convert_fasta_to_tsv:
     params:
         get_NCBI_taxonomic_id,
     shell:
-        "../../../scripts/convert_fa_to_tsv2.sh {input} {params} {output}"
+        "workflow/scripts/convert_fa_to_tsv2.sh {input} {params} {output}"
