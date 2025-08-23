@@ -1,0 +1,115 @@
+#    FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#    Copyright (C) 2019 Thomas Bradley
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+
+def get_tax_id(wildcards):
+    return config["tax_ids"][wildcards.species]
+
+
+def get_gtf_file(wildcards):
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
+    ensembl_release = config["ensembl_release"]
+
+    return (
+        "data/"
+        + sci_species_name
+        + "."
+        + genome_build
+        + ".{ensembl_release}.mod.chr.gtf".format(ensembl_release=ensembl_release)
+    )
+
+
+### get AIR file
+
+
+rule gtf_to_bed_no_reannotation:
+    input:
+        gtf=get_gtf_file,
+        script="workflow/scripts/pre-processing/gtf_to_bed.sh",
+    output:
+        "results/bed/{species}_{feature}.bed",
+    shell:
+        "{input.script} {input.gtf} {wildcards.feature} {output}"
+
+
+rule get_utr_lengths_no_reannotation:
+    input:
+        "results/bed/{species}_3UTR.chr{chrom}.bed",
+    output:
+        "results/targets/{species}_chr{chrom}.utr.lengths.tsv",
+    script:
+        "../../scripts/get_utr_lengths.R"
+
+
+rule get_air_file_no_reannotation:
+    input:
+        rules.get_utr_lengths_no_reannotation.output[0],
+    output:
+        "results/targets/{species}_{tissue_tx_model}_chr{chrom}.AIRs.txt",
+    wildcard_constraints:
+        tissue_tx_model="nr"
+    script:
+        "../../scripts/get_canonical_AIR.R"
+
+
+rule aggregate_chromosomal_AIR_files:
+    input:
+        lambda wildcards: expand(
+            rules.get_utr_lengths_no_reannotation.output[0],
+            chrom=config["chromosomes"][wildcards.species],
+            species=wildcards.species,
+        ),
+    output:
+        "results/targets/{species}_{tissue_tx_model}.AIRs.txt",
+    wildcard_constraints:
+        tissue_tx_model="nr"
+    script:
+        "../../scripts/get_canonical_AIR.R"
+
+
+###
+
+
+rule split_bed6:
+    input:
+        "results/bed/{species}_3UTR.bed",
+    output:
+        "results/bed/{species}_3UTR.chr{chrom}.bed",
+    shell:
+        'grep -E "^{wildcards.chrom}\s" {input} > {output}'
+
+
+rule filter_bed6_file_no_reannotation:
+    input:
+        "results/bed/{species}_{feature}.bed",
+    output:
+        temp("results/bed/{species}_{tissue_tx_model}_{feature}.bed"),
+    wildcard_constraints:
+        tissue_tx_model="nr"
+    script:
+        "../../scripts/filter_bed6.R"
+
+
+rule split_filtered_bed6:
+    input:
+        rules.filter_bed6_file_no_reannotation.output,
+    output:
+        temp("results/bed/{species}_{tissue_tx_model}_{feature}.chr{chrom}.bed"),
+    wildcard_constraints:
+        tissue_tx_model="nr"
+    shell:
+        'grep -E "^{wildcards.chrom}\s" {input} > {output} || true'

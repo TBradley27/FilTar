@@ -1,0 +1,146 @@
+#!/bin/bash
+
+#    FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#    Copyright (C) 2019 Thomas Bradley
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+
+def get_species(wildcards):
+    return wildcards.genus_species.lower()
+
+
+def get_gtf_file(wildcards):
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
+
+    return (
+        "data/"
+        + sci_species_name
+        + "."
+        + genome_build
+        + ".{}.mod.chr.gtf".format(config["ensembl_release"])
+    )
+
+
+### GTF
+
+
+rule get_gtf_file:
+    output:
+        "data/{genus_species}.{build}.{ensembl_release}.chr.gtf",
+    params:
+        get_species,
+    shell:
+        "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/gtf/{params}/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf.gz data/ && gunzip data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf.gz && sed 's/^chr//g' data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf > tmp && mv tmp data/{wildcards.genus_species}.{wildcards.build}.{config[ensembl_release]}.chr.gtf"
+
+
+rule modify_gtf_file:  # remove 'chr' prefix if it exists in the gtf file - remove contigs and mitochondrial records
+    input:
+        "data/{species_prefix}.{ensembl_release}.chr.gtf",
+    output:
+        "data/{species_prefix}.{ensembl_release}.mod.chr.gtf",
+    shell:
+        "sed -r 's/^MT//g' {input} | sed '/^\t/d'  > {output}"  # delete mitochondiral records and records not assigned to a chromosome
+
+
+rule get_transcript_ids:
+    input:
+        gtf=get_gtf_file,
+    output:
+        "results/bed/{species}_chr{chrom}_all_transcripts.txt",
+    shell:
+        "workflow/scripts/get_all_transcripts.sh {input} {wildcards.chrom} > {output}"
+
+
+# Genome assemblies
+
+
+rule download_toplevel_dna:
+    output:
+        "data/{genus_species}.{build}.dna.toplevel.fa.gz",
+    params:
+        get_species,
+    shell:
+        "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/fasta/{params}/dna/{wildcards.genus_species}.{wildcards.build}.dna.toplevel.fa.gz data/"
+
+
+rule download_primary_assembly_dna:
+    output:
+        "data/{genus_species}.{build}.dna.primary_assembly.fa.gz",
+    params:
+        get_species,
+    shell:
+        "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/fasta/{params}/dna/{wildcards.genus_species}.{wildcards.build}.dna.primary_assembly.fa.gz data/"
+
+
+rule download_chromsomal_dna:
+    output:
+        "data/{genus_species}.{build}.dna.chromosome.{chrom}.fa.gz",
+    params:
+        get_species,
+    shell:
+        "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/fasta/{params}/dna/{wildcards.genus_species}.{wildcards.build}.dna.chromosome.{wildcards.chrom}.fa.gz data/"
+
+
+rule decompress_dna_file:
+    input:
+        "data/{species_prefix}.dna.{assembly_level}.fa.gz",
+    output:
+        "data/{species_prefix}.dna.{assembly_level}.fa",
+    conda:
+        "../../envs/pigz.yaml"
+    threads: 8
+    shell:
+        "pigz -p {threads} -d {input}"
+
+
+rule download_maf_files_human:
+    output:
+        protected("data/maf_hsa/chr{chrom}.maf"),
+    shell:
+        "wget --directory-prefix=data/maf_hsa/ -nv http://hgdownload.soe.ucsc.edu/goldenPath/hg38/multiz100way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"
+
+
+rule download_maf_files_mouse:
+    output:
+        protected("data/maf_mmu/chr{chrom}.maf"),
+    shell:
+        "wget --directory-prefix=data/maf_mmu/ -nv http://hgdownload.cse.ucsc.edu/goldenPath/mm10/multiz60way/maf/chr{wildcards.chrom}.maf.gz && gunzip {output}.gz"
+
+
+rule download_cdna_file:
+    output:
+        "data/{genus_species}.{build}.cdna.all.fa.gz",
+    params:
+        get_species,
+    shell:
+        "rsync -av rsync://ftp.ensembl.org/ensembl/pub/release-{config[ensembl_release]}/fasta/{params}/cdna/{wildcards.genus_species}.{wildcards.build}.cdna.all.fa.gz data"
+
+
+rule decompress_cdna_file:
+    input:
+        "data/{species_prefix}.cdna.all.fa.gz",
+    output:
+        "data/{species_prefix}.cdna.all.fa",
+    shell:
+        "gunzip {input}"
+
+
+rule download_first_APAtrap_script:
+    output:
+        "workflow/scripts/APAtrap/identifyDistal3UTR",
+        "workflow/scripts/APAtrap/predictAPA",
+    shell:
+        "wget https://sourceforge.net/projects/apatrap/files/APAtrap_Linux.zip/download && mv download scripts && unzip -d scripts/ scripts/download"

@@ -1,0 +1,150 @@
+#    FilTar: Integrating RNA-Seq data to improve microRNA target prediction accuracy in animals
+#    Copyright (C) 2019 Thomas Bradley
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+
+def get_dna_file(wildcards):
+    sci_species_name = config["sci_species_name"][wildcards.species]
+    genome_build = config["genome_build"][wildcards.species]
+
+    return (
+        "data/"
+        + sci_species_name
+        + "."
+        + genome_build
+        + ".dna.chromosome.{chrom}.fa".format(chrom=wildcards.chrom)
+    )
+
+
+def get_miRanda_strict_bool(wildcards):
+    if config["miRanda.strict"] == True:
+        return " -strict"
+    elif config["miRanda.strict"] == False:
+        return ""
+    else:
+        raise Exception(
+            "Value for 'miRanda.strict' config option must be 'True' or 'False'"
+        )
+
+
+rule fix_fasta_output:
+    input:
+        "results/msa/{species}_{tissue_tx_model}_chr{chrom}_3UTR.tmp2.fa",
+    output:
+        temp("results/msa/{species}_{tissue_tx_model}_chr{chrom}.fa"),
+    shell:
+        "sed 's/(+)//g' {input} | sed 's/(-)//g' > {output}"
+
+
+rule miRanda:
+    input:
+        utr=rules.fix_fasta_output.output,
+        mirna=rules.filter_mirna_species_fasta.output,
+    output:
+        temp("results/targets/miRanda/{species}/{tissue_tx_model}_chr{chrom}.txt"),
+    conda:
+        "../../../envs/miRanda.yaml"
+    params:
+        get_miRanda_strict_bool,
+    shell:
+        "miranda {input.mirna} {input.utr} {params} -sc {config[miRanda.minimum_alignment_score]} -en {config[miRanda.minimum_energy_score]} -scale {config[miRanda.5_prime_3_prime_scaling_factor]} -go {config[miRanda.alignment_gap_open_penalty]} -ge {config[miRanda.alignment_gap_extension_penalty]} > {output}"
+
+
+rule convert_miRanda_to_tsv:
+    input:
+        rules.miRanda.output,
+    output:
+        temp("results/targets/miRanda/{species}/{tissue_tx_model}_chr{chrom}.temp.tsv"),
+    shell:
+        "workflow/scripts/convert_miRanda_to_tsv.sh {input} {output}"
+
+
+rule aggregate_miRanda_output_no_reannotation:
+    input:
+        lambda wildcards: expand(
+            "results/targets/miRanda/{species}/{tissue_tx_model}_chr{chrom}.temp.tsv",
+            chrom=config["chromosomes"][wildcards.species],
+            species=wildcards.species,
+            tissue_tx_model=wildcards.tissue_tx_model,
+        ),
+    output:
+        temp("results/targets/miRanda/{species}/{tissue_tx_model}.temp.tsv"),
+    wildcard_constraints:
+        tissue_tx_model="((?!_chr).)*",
+    shell:
+        "cat {input} > {output}"
+
+
+rule add_miRanda_header:
+    input:
+        rules.aggregate_miRanda_output_no_reannotation.output,
+    output:
+        temp("results/targets/miRanda/{species}/{tissue_tx_model}.temp2.tsv"),
+    script:
+        "../../../scripts/add_miRanda_header.R"
+
+
+# Expression filtering rules (merged from with_reannotation and without_reannotation)
+
+# This rule is intended for testing and CI/CD purposes.
+# It allows running the pipeline on smaller, per-chromosome data inputs,
+# enabling faster and more efficient testing of the codebase.
+# By filtering miRanda predictions using expression values and a configurable TPM threshold,
+# this rule helps validate the workflow logic without requiring full-scale data processing.
+rule expression_filter_miRanda_chr:
+    input:
+        miRanda_scores=rules.convert_miRanda_to_tsv.output,
+        expression_values=rules.salmon_average_quantmerge_samples.output,
+    params:
+        tpm_expression_threshold=config["TPM_expression_threshold"],
+    output:
+        temp("results/targets/miRanda/{species}/{tissue_tx_model}_3UTRs/{tissue_tx_exp}/chr{chrom}.tsv"),
+    wildcard_constraints:
+        tissue_tx_exp=config["context"],
+    script:
+        "../../../scripts/filter_miRanda_scores.R"
+
+
+if config["context"] != "reference":
+
+    rule expression_filter_miRanda:
+        input:
+            miRanda_scores="results/targets/miRanda/{species}/{context}.temp2.tsv".format(
+                species=config["species"], 
+                context=config["context"] if config["reannotation"] else "nr"
+            ),
+            expression_values="results/salmon/{species}/{context}.sf".format(
+                species=config["species"], 
+                context=config["context"]
+            ),
+        params:
+            tpm_expression_threshold=config["TPM_expression_threshold"],
+        output:
+            "target_predictions.txt",
+        script:
+            "../../../scripts/filter_miRanda_scores.R"
+
+elif config["context"] == "reference":
+
+    rule expression_filter_miRanda:
+        input:
+            miRanda_scores="results/targets/miRanda/{species}/{context}.temp2.tsv".format(
+                species=config["species"], 
+                context=config["context"] if config["reannotation"] else "nr"
+            ),
+        output:
+            "target_predictions.txt",
+        shell:
+            "cp {input} {output}"

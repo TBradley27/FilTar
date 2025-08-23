@@ -35,6 +35,28 @@ https://www.youtube.com/watch?v=Xhl-nsg7_xo
 
 More detailed instructions can be found inside the full documentation: https://tbradley27.github.io/FilTar/
 
+## Repository Structure
+
+FilTar follows Snakemake best practices for workflow deployment:
+
+```
+FilTar/
+├── workflow/              # Main workflow directory
+│   ├── Snakefile         # Core workflow definition
+│   ├── rules/            # Workflow modules (data download, analysis, etc.)
+│   ├── scripts/          # All workflow scripts (Python, R, shell)
+│   └── envs/             # Conda environment definitions
+├── config/               # Configuration files
+├── data/                 # Input data (downloaded/user-provided)
+└── results/              # Analysis outputs
+```
+
+The workflow structure ensures:
+- **Modularity**: Clear separation of different analysis components
+- **Reproducibility**: Consolidated environment and script management
+- **Maintainability**: Organized codebase following established conventions
+- **Standards Compliance**: Follows Snakemake's automatic workflow detection
+
 ## Containerisation
 
 FilTar provides a development container configuration that offers a consistent, pre-configured development environment for seamless collaboration and development. The containerised environment includes all necessary dependencies (R, Python, Snakemake, conda) and VS Code extensions optimised for FilTar development.
