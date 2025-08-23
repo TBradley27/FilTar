@@ -283,7 +283,7 @@ rule aggregrate_extended_bed_files:
 
 rule identify_APA_sites:
     input:
-        script="../../scripts/APAtrap/predictAPA",
+        script="workflow/scripts/APAtrap/predictAPA",
         bedgraphs=rules.avg_merged_bedgraph_by_sample.output,
         bed=rules.reannotate_3utrs.output,
     output:
@@ -350,7 +350,7 @@ rule get_AIR_file:
 rule gtf_to_bed_CDS:
     input:
         gtf=get_gtf_file,
-        script="../../scripts/pre-processing/gtf_to_bed.sh",
+        script="workflow/scripts/pre-processing/gtf_to_bed.sh",
     output:
         temp("results/bed/{species}_{tissue_tx_model}_CDS.tmp.bed"),
     wildcard_constraints:

@@ -101,7 +101,7 @@ if config["genome_index_type"] == "splice-aware":
     rule get_splice_sites_for_hisat2:
         input:
             gtf=get_gtf_file,
-            py_script="../../../../scripts/hisat2_extract_splice_sites.py",
+            py_script="workflow/scripts/hisat2_extract_splice_sites.py",
         output:
             "results/{species}_hisat2_splice_sites.txt",
         shell:
@@ -110,7 +110,7 @@ if config["genome_index_type"] == "splice-aware":
     rule get_exons_for_hisat2:
         input:
             gtf=get_gtf_file,
-            py_script="../../../../scripts/hisat2_extract_exons.py",
+            py_script="workflow/scripts/hisat2_extract_exons.py",
         output:
             "results/{species}_hisat2_exons.txt",
         shell:
