@@ -68,7 +68,7 @@ rule convert_miRanda_to_tsv:
     output:
         temp("results/targets/miRanda/{species}/{tissue_tx_model}_chr{chrom}.temp.tsv"),
     shell:
-        "../../../scripts/convert_miRanda_to_tsv.sh {input} {output}"
+        "workflow/scripts/convert_miRanda_to_tsv.sh {input} {output}"
 
 
 rule aggregate_miRanda_output_no_reannotation:
