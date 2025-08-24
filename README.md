@@ -89,10 +89,7 @@ The default method of citing the article is to use the following:
 > Thomas Bradley, Simon Moxon, FilTar: using RNA-Seq data to improve microRNA target prediction accuracy in animals, Bioinformatics, Volume 36, Issue 8, 15 April 2020, Pages 2410–2416, https://doi.org/10.1093/bioinformatics/btaa007
 
 ## Getting Help
-
-In order to ensure your enquiries are seen by the most people possible who may be sharing your problem, it is best to share the problems that you are having publicly. The first port of call is to post questions on the biostars bioinformatics online forum (https://www.biostars.org/). If using biostars, please make sure to use the 'filtar' tag when asking questions to notify me, so I can answer promptly. 
-
-If this option doesn't work for whatever reason, I happen to accept correspondence via my academic email address: thomas.bradley@uea.ac.uk
+If you would like help using FilTar, and are having issues not related to a bug, please raise a new item in the 'discussions' section of this repo
 
 ## Reporting bugs, suggested enhancements or any other issues
 
