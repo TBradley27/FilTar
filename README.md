@@ -1,4 +1,4 @@
-[![CI](https://github.com/TBradley27/FilTar/actions/workflows/ci.yml/badge.svg)](https://github.com/TBradley27/FilTar/actions/workflows/ci.yml)
+I'm[![CI](https://github.com/TBradley27/FilTar/actions/workflows/ci.yml/badge.svg)](https://github.com/TBradley27/FilTar/actions/workflows/ci.yml)
 [![GitHub release](https://img.shields.io/github/release/TBradley27/FilTar.svg)](https://GitHub.com/TBradley27/FilTar/releases/)
 [![Snakemake](https://img.shields.io/badge/snakemake-≥8.0.0-brightgreen.svg?style=flat)](https://snakemake.readthedocs.io)
 
@@ -99,4 +99,4 @@ The issues page of this repository is the best place to post this.
 
 Simox Moxon came up with the original idea and project proposal for FilTar. The FilTar concept was extended and developed further between Simon Moxon and Thomas Bradley through the course of the latter's BBSRC (Biotechnology and Biological Sciences Research Council) PhD Studentship on the Norwich Research Park (NRP) Bioscience Doctoral Training Partnership (DTP) programme, when Thomas Bradley worked under the primary supervision of Simon Moxon initially predominantly at the Earlham Institute, and then later predominantly at the School of Biological Sciences, University of East Anglia.
 
-Full acknowledgements can be found within the preprinted article associated with FilTar.
+Full acknowledgements can be found within the acknowledgements section of the FilTar publication.
