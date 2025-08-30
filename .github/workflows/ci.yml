@@ -74,14 +74,26 @@ jobs:
 
       - name: Run Snakemake and R tests
         run: |
+          # activate environment for the Snakemake runs
           conda activate test-environment
+          
+          # perform dry-runs, some for tasks which are too computationally expensive for a full run
           snakemake -j 1 --dry-run target_predictions.txt --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.7']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7
           snakemake -j 1 --dry-run target_predictions.txt --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.7']" TPM_expression_threshold=0 prediction_algorithm=miRanda
+          snakemake -j 1 --dry-run target_predictions.txt --config sequence_data_source=SRA conservation=False reannotation=True mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.7']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7
+          snakemake -j 1 --dry-run target_predictions.txt --config sequence_data_source=SRA conservation=False reannotation=True mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.7']" TPM_expression_threshold=0 prediction_algorithm=miRanda
+
+          # test workflow using targetscan7 for small dataset with conservation and reannotation set to false
           snakemake --cores 1 --use-conda -p results/targets/mmu/nr_3UTRs/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.7']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7
           head results/targets/mmu/nr_3UTRs/oocyte_chrY.contextpp.tsv || true
           rm -f results/targets/mmu/nr_3UTRs/oocyte_chrY.contextpp.tsv || true
+
+          # test workflow using miRanda for small dataset with conservation and reannotation set to false
           snakemake --cores 1 --use-conda -p results/targets/miRanda/mmu/nr_3UTRs/oocyte/chrY.tsv --config sequence_data_source=SRA conservation=False reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.7']" TPM_expression_threshold=0 prediction_algorithm=miRanda
           head results/targets/miRanda/mmu/nr_3UTRs/oocyte/chrY.tsv || true
+
+          # test workflow using targetscan7 for small dataset with reannotation set to false and conservation set to true
+          # test outputted values with expected values for targetscan7
           snakemake --cores 1 --use-conda -p results/targets/mmu/nr_3UTRs/oocyte_chrY.contextpp.tsv --config sequence_data_source=SRA conservation=True reannotation=False mirnas="['mmu-miR-188-5p']" transcripts="['ENSMUST00000189888.7']" TPM_expression_threshold=0 prediction_algorithm=TargetScan7
           head results/targets/mmu/nr_3UTRs/oocyte_chrY.contextpp.tsv || true
           R -e 'isTRUE(testthat::test_file("workflow/scripts/targetscan_test.R")[[1]]$passed)'
